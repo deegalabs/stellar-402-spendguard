@@ -3,7 +3,7 @@ temp/
 # Rust / Soroban
 target/
 *.wasm
-!contracts/budget-guard/target/
+test_snapshots/
 
 # Node.js
 node_modules/
