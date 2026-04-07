@@ -4,7 +4,7 @@ Internal evaluation of the project against Stellar Development Foundation and
 Stellar Community Fund (SCF) review criteria. Use this document to identify
 weaknesses before judges do.
 
-Last reviewed: 2026-04-07 (final polish — CONTRIBUTING.md, GitHub Release, volume projection)
+Last reviewed: 2026-04-07 (final — docs site, Swagger, x402 middleware, MCP)
 Hackathon: Stellar Hacks: Agents (Deadline: Apr 13, 2026)
 
 ---
@@ -99,7 +99,7 @@ contracts are involved, there is a clear plan to open-source them."_
 - Architecture Decision Records (7 ADRs) with trade-off analysis
 - Honest documentation of limitations (kill switch scope, Stripe simulation)
 - Backend: Express + Stellar SDK v15, typed API, x402 agent flow
-- Frontend: Next.js 14, 5 screens (incl. Live Demo), Freighter integration, Tailwind
+- Frontend: Next.js 14, 6 screens + 9-page docs site (18 routes), Freighter integration, Tailwind
 - Swagger/OpenAPI 3.0 interactive docs at `/api/docs`
 - Reusable x402 Express middleware (`x402Paywall`) for any Express app
 - MCP server with 4 tools for AI agent integration
@@ -114,7 +114,7 @@ contracts are involved, there is a clear plan to open-source them."_
 | README explains how to build and test | DONE — Quick Start section |
 | Code quality (no unwrap, proper error handling) | DONE — enforced throughout |
 | Backend builds cleanly | DONE — `tsc --noEmit` passes |
-| Frontend builds cleanly | DONE — `next build` all 5 pages |
+| Frontend builds cleanly | DONE — `next build` all 18 routes (6 screens + 9 docs + 3 meta) |
 | Seed transactions on testnet | DONE — 17/17 succeeded |
 | Swagger/OpenAPI docs | DONE — `/api/docs` with all endpoints |
 | x402 Express middleware | DONE — reusable `x402Paywall()` |
@@ -193,8 +193,9 @@ and rich in technical detail."_
 **Delivered:**
 - README with problem statement, architecture diagram, Why Stellar, Quick Start
 - Contract address with Stellar Expert link in README
-- 5-screen UI: Dashboard, Agent Vault, Liquidity, Audit Log, **Live Demo**
+- 6-screen UI: Dashboard, Agent Vault, Liquidity, Audit Log, Live Demo, **Docs**
 - Live Demo: 11-step interactive flow executing real testnet transactions
+- Docs site: 9 pages with sidebar (Getting Started, Guides, Reference)
 - Kill switch with honest limitation modal
 - x402 agent demo terminal with step-by-step output
 - Stripe labeled "(Test Mode)" throughout
@@ -295,7 +296,7 @@ more transaction volume on Stellar.
 | Technical quality | 9/10 | **9/10** | Confirmed — 37 tests GREEN, 3 packages build clean, MCP typed |
 | Open source | 7/10 | **9/10** | CONTRIBUTING.md + WASM GitHub Release + Open Source section |
 | Innovation | 8/10 | **9/10** | First spending governance + MCP integration (matches SDF roadmap) |
-| Demo quality | 8/10 | **9/10** | 5 screens + Live Demo (11 steps) + 90s Remotion video |
+| Demo quality | 8/10 | **9/10** | 6 screens + 9-page docs site + Live Demo + 90s video |
 | Honest limitations | 9/10 | **9/10** | Documented across 6+ files, visible in UI |
 | Ecosystem impact | 7/10 | **9/10** | Public good + volume projection + fork guide + MCP discoverability |
 
