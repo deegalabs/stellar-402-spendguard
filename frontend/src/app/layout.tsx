@@ -16,7 +16,9 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "SpendGuard — Stellar x402 Policy Engine",
-  description: "AI agent spending governance on Stellar. Set limits, whitelist merchants, kill switch.",
+  description:
+    "Institutional-grade AI agent spending governance on Stellar. Set limits, whitelist merchants, emergency kill switch — powered by Soroban smart contracts.",
+  keywords: ["Stellar", "Soroban", "x402", "AI agent", "spending policy", "USDC", "SpendGuard"],
 };
 
 export default function RootLayout({
@@ -26,7 +28,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} font-[family-name:var(--font-geist-sans)] antialiased`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         <AppShell>{children}</AppShell>
       </body>
     </html>

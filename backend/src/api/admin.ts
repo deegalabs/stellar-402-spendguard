@@ -8,8 +8,14 @@ import {
   emergencyPause,
   emergencyUnpause,
 } from "../stellar/contract.js";
+import { adminAuth } from "../middleware/admin-auth.js";
+import { adminLimiter } from "../middleware/rate-limit.js";
 
 const router = Router();
+
+// All admin routes require authentication and rate limiting
+router.use(adminLimiter);
+router.use(adminAuth);
 
 router.post("/top-up", async (req, res) => {
   try {

@@ -44,4 +44,7 @@ export const config = {
   // Application
   port: parseInt(process.env.PORT ?? optional("BACKEND_PORT", "3001"), 10),
   frontendUrl: optional("FRONTEND_URL", "http://localhost:3000"),
+
+  // Admin API key (optional — for programmatic admin access)
+  adminApiKey: optional("ADMIN_API_KEY", ""),
 } as const;

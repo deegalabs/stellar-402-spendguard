@@ -54,7 +54,12 @@ export async function submitTransaction(
 
   if (response.status === "PENDING") {
     let result = await server.getTransaction(response.hash);
+    const maxAttempts = 30; // 30 seconds timeout
+    let attempts = 0;
     while (result.status === "NOT_FOUND") {
+      if (++attempts >= maxAttempts) {
+        throw new Error(`Transaction ${response.hash} not confirmed after ${maxAttempts}s`);
+      }
       await new Promise((r) => setTimeout(r, 1000));
       result = await server.getTransaction(response.hash);
     }

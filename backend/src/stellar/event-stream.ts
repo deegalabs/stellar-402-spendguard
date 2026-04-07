@@ -69,11 +69,6 @@ export function createEventStreamHandler() {
     res.flushHeaders();
 
     let cursor: string | undefined;
-    let closed = false;
-
-    req.on("close", () => {
-      closed = true;
-    });
 
     // Initial fetch
     const initial = await pollContractEffects();
@@ -82,11 +77,6 @@ export function createEventStreamHandler() {
 
     // Poll every 5 seconds
     const interval = setInterval(async () => {
-      if (closed) {
-        clearInterval(interval);
-        return;
-      }
-
       try {
         const result = await pollContractEffects(cursor);
         if (result.effects.length > 0) {

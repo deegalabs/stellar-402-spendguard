@@ -286,7 +286,7 @@ const openApiSpec = {
         },
       },
     },
-    "/api/stripe/create-checkout": {
+    "/api/stripe/create-session": {
       post: {
         tags: ["Stripe"],
         summary: "Create Stripe checkout session (Test Mode)",
@@ -320,6 +320,70 @@ const openApiSpec = {
               },
             },
           },
+        },
+      },
+    },
+    "/api/demo/premium-weather": {
+      get: {
+        tags: ["Demo"],
+        summary: "x402 middleware demo — premium weather",
+        description: "Demonstrates the reusable x402Paywall middleware. Returns 402 without payment, 200 with valid proof.",
+        parameters: [
+          { name: "X-Payment", in: "header", schema: { type: "string" }, description: "Stellar transaction hash as payment proof" },
+        ],
+        responses: {
+          "402": { description: "Payment Required — x402 challenge", content: { "application/json": { schema: { $ref: "#/components/schemas/X402Challenge" } } } },
+          "200": { description: "Premium forecast data" },
+        },
+      },
+    },
+    "/api/demo/pricing": {
+      get: {
+        tags: ["Demo"],
+        summary: "x402 pricing table",
+        description: "Lists all x402-protected resources and their prices.",
+        responses: {
+          "200": {
+            description: "Pricing table",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    x402Version: { type: "integer" },
+                    network: { type: "string" },
+                    currency: { type: "string" },
+                    resources: { type: "array", items: { type: "object" } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/stripe/simulate-payment": {
+      post: {
+        tags: ["Stripe"],
+        summary: "Simulate Stripe payment (Test Mode)",
+        description: "Triggers a simulated payment_intent.succeeded webhook for demo purposes.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["amount_usd"],
+                properties: {
+                  amount_usd: { type: "number", example: 5.0 },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": { description: "Simulated payment result" },
+          "400": { description: "Invalid amount" },
         },
       },
     },

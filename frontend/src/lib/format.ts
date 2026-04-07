@@ -11,7 +11,7 @@ export function usdcToStroops(usdc: number): number {
 
 export function shortAddress(address: string): string {
   if (address.length <= 12) return address;
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  return `G...${address.slice(-4)}`;
 }
 
 export function formatTimestamp(iso: string): string {
@@ -25,13 +25,30 @@ export function formatTimestamp(iso: string): string {
   });
 }
 
+export function relativeTime(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const seconds = Math.floor(diff / 1000);
+  if (seconds < 60) return `${seconds}s ago`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
+}
+
 export function statusColor(status: "settled" | "blocked" | "pending"): string {
   switch (status) {
     case "settled":
-      return "text-green-600 bg-green-50";
+      return "text-accent-700 bg-accent-50";
     case "blocked":
-      return "text-red-600 bg-red-50";
+      return "text-danger-700 bg-danger-50";
     case "pending":
-      return "text-yellow-600 bg-yellow-50";
+      return "text-warning-600 bg-warning-50";
   }
+}
+
+export function spendPercentColor(pct: number): string {
+  if (pct > 80) return "bg-danger";
+  if (pct > 50) return "bg-warning";
+  return "bg-accent";
 }

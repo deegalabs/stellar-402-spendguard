@@ -42,8 +42,8 @@ router.post("/stripe", async (req, res) => {
       amount_stroops: stroops.toString(),
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    res.status(502).json({ error: "Failed to process webhook", code: "STRIPE_ERROR", details: message });
+    console.error("Webhook processing error:", err);
+    res.status(502).json({ error: "Failed to process webhook", code: "STRIPE_ERROR" });
   }
 });
 

@@ -36,8 +36,8 @@ router.post("/create-session", async (req, res) => {
       note: "(Test Mode) — no real charge will occur",
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    res.status(502).json({ error: "Failed to create checkout session", code: "STRIPE_ERROR", details: message });
+    console.error("Checkout session error:", err);
+    res.status(502).json({ error: "Failed to create checkout session", code: "STRIPE_ERROR" });
   }
 });
 
@@ -88,8 +88,8 @@ router.post("/simulate-payment", async (req, res) => {
       ...webhookResult,
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    res.status(502).json({ error: "Payment simulation failed", code: "STRIPE_ERROR", details: message });
+    console.error("Payment simulation error:", err);
+    res.status(502).json({ error: "Payment simulation failed", code: "STRIPE_ERROR" });
   }
 });
 

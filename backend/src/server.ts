@@ -8,6 +8,7 @@ import webhookRouter from "./stripe/webhook.js";
 import checkoutRouter from "./stripe/checkout.js";
 import { createEventStreamHandler } from "./stellar/event-stream.js";
 import { setupSwagger } from "./swagger.js";
+import { apiLimiter, demoLimiter } from "./middleware/rate-limit.js";
 
 const app = express();
 
@@ -20,14 +21,17 @@ app.use(
 );
 app.use(express.json());
 
+// Global rate limiting
+app.use("/api", apiLimiter);
+
 // Dashboard (read-only)
 app.use("/api", dashboardRouter);
 
 // Admin (owner operations)
 app.use("/api/admin", adminRouter);
 
-// Demo (x402 agent flow)
-app.use("/api/demo", demoRouter);
+// Demo (x402 agent flow) — stricter rate limit
+app.use("/api/demo", demoLimiter, demoRouter);
 
 // Stripe checkout (test mode)
 app.use("/api/stripe", checkoutRouter);
