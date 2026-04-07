@@ -42,6 +42,6 @@ export const config = {
   stripeWebhookSecret: optional("STRIPE_WEBHOOK_SECRET", ""),
 
   // Application
-  port: parseInt(optional("BACKEND_PORT", "3001"), 10),
+  port: parseInt(process.env.PORT ?? optional("BACKEND_PORT", "3001"), 10),
   frontendUrl: optional("FRONTEND_URL", "http://localhost:3000"),
 } as const;

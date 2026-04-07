@@ -11,7 +11,13 @@ import { setupSwagger } from "./swagger.js";
 
 const app = express();
 
-app.use(cors({ origin: config.frontendUrl }));
+app.use(
+  cors({
+    origin: config.frontendUrl
+      ? config.frontendUrl.split(",").map((u) => u.trim())
+      : "*",
+  })
+);
 app.use(express.json());
 
 // Dashboard (read-only)
@@ -40,7 +46,7 @@ app.get("/health", (_req, res) => {
   res.json({ status: "ok", network: config.stellarNetwork });
 });
 
-app.listen(config.port, () => {
+app.listen(config.port, "0.0.0.0", () => {
   console.log(`SpendGuard backend running on port ${config.port}`);
   console.log(`Network: ${config.stellarNetwork}`);
   console.log(`Contract: ${config.contractAddress || "not configured"}`);
