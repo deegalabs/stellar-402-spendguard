@@ -242,19 +242,23 @@ npm run seed
 | [ENVIRONMENT.md](docs/ENVIRONMENT.md) | All environment variables |
 | [TRADE_OFFS.md](TRADE_OFFS.md) | In-scope vs out-of-scope |
 
-## Demo Video
+## Demo Video (2:30)
 
-> Upload to YouTube/Loom and paste the link here before submission.
+> Upload to YouTube and paste the link here before submission.
 
 <!-- TODO: Replace with actual video URL -->
 <!-- [![SpendGuard Demo](https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg)](https://youtu.be/VIDEO_ID) -->
 
-The 90-second video walks through:
-1. Contract architecture and invariants
-2. x402 payment flow (402 → authorize → settle in ~5s)
-3. Blocked payment (exceeds max_tx)
-4. Emergency kill switch (pause/unpause)
-5. Audit log with on-chain verification
+Screen recording of the live app with voice narration:
+1. **The Problem** — Why AI agents need on-chain spending guardrails
+2. **Live Payment** — Real x402 payment settling on Stellar Testnet in ~5s
+3. **Blocked Payment** — Contract rejects overspending on-chain
+4. **Kill Switch** — Owner pauses all agent spending instantly
+5. **Audit Log** — Immutable trail with Stellar Expert links
+6. **Why Stellar** — Soroban Custom Accounts as the architectural moat
+7. **Open Source** — Deploy your own instance in 10 minutes
+
+See [VIDEO_SCRIPT.md](docs/VIDEO_SCRIPT.md) for the full narration script.
 
 ## Ecosystem Impact
 
