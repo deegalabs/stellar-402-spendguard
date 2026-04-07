@@ -1,0 +1,26 @@
+{
+  "name": "spendguard-backend",
+  "version": "0.1.0",
+  "description": "SpendGuard backend — x402 agent flow, dashboard API, Stripe simulation",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.js"
+  },
+  "license": "Apache-2.0",
+  "type": "module",
+  "dependencies": {
+    "@stellar/stellar-sdk": "^15.0.1",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.1",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.5.2",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2"
+  }
+}
