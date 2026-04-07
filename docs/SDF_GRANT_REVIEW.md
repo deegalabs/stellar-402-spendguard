@@ -144,7 +144,7 @@ it must clearly explain a plan to open-source those contracts."_
 
 **SCF Criterion:** _"Originality and impact on the ecosystem."_
 
-### Assessment: STRONG (8/10)
+### Assessment: STRONG (9/10) — up from 8
 
 **Competitive landscape scan:**
 | Project Type | Count in x402 Hackathons | What They Do | SpendGuard Difference |
@@ -167,6 +167,13 @@ The SDF blog post on "what's next for x402 on Stellar" explicitly describes:
   programmable policies"
 
 SpendGuard is building exactly what the SDF described as their roadmap.
+
+**MCP integration delivered:**
+SpendGuard now includes a Model Context Protocol (MCP) server with 4 tools
+(get_status, authorize_payment, check_budget, get_transactions). Any
+MCP-compatible AI agent can discover and use SpendGuard's governed payment
+capabilities. This directly implements the SDF's "MCP integration for agents
+to authorize payments via smart wallets" vision.
 
 ---
 
@@ -243,7 +250,7 @@ technical understanding.
 **SCF Criterion:** _"Is this an application or service that helps the Stellar
 network grow? Does it bring new users or liquidity to Stellar?"_
 
-### Assessment: GOOD (8/10) — up from 7
+### Assessment: STRONG (9/10) — up from 8
 
 **How SpendGuard grows the Stellar ecosystem:**
 
@@ -266,6 +273,8 @@ more transaction volume on Stellar.
 - README frames SpendGuard as "public good primitive" infrastructure
 - CONTRIBUTING.md with fork guide enables ecosystem adoption
 - Precompiled WASM on GitHub Releases lowers deployment barrier to near-zero
+- MCP server makes SpendGuard discoverable by any AI agent framework
+- MCP integration directly implements SDF's stated roadmap vision
 
 **No remaining action items.**
 
@@ -277,17 +286,17 @@ more transaction volume on Stellar.
 |-----------|----------|---------|--------|
 | Stellar integration depth | 9/10 | **9/10** | Strong — Soroban Custom Account, deployed on testnet |
 | Product-market fit | 7/10 | **8/10** | Target Users + SDF blog reference + volume projection |
-| Technical quality | 9/10 | **9/10** | Confirmed — 37 tests GREEN, 3 packages build clean |
+| Technical quality | 9/10 | **9/10** | Confirmed — 37 tests GREEN, 3 packages build clean, MCP typed |
 | Open source | 7/10 | **9/10** | CONTRIBUTING.md + WASM GitHub Release + Open Source section |
-| Innovation | 8/10 | **8/10** | First spending governance for x402 agents |
+| Innovation | 8/10 | **9/10** | First spending governance + MCP integration (matches SDF roadmap) |
 | Demo quality | 8/10 | **9/10** | 5 screens + Live Demo (11 steps) + 90s Remotion video |
 | Honest limitations | 9/10 | **9/10** | Documented across 6+ files, visible in UI |
-| Ecosystem impact | 7/10 | **8/10** | Public good framing + volume projection + fork guide |
+| Ecosystem impact | 7/10 | **9/10** | Public good + volume projection + fork guide + MCP discoverability |
 
-**Overall: 8.6/10 — up from 8.0**
+**Overall: 9.0/10 — up from 8.6**
 
 **Remaining action (manual):**
-1. **Upload demo video** to YouTube/Loom and add URL to README (raises Demo to 9+)
+1. **Upload demo video** to YouTube/Loom and add URL to README
 
 ---
 

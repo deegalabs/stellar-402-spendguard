@@ -121,6 +121,31 @@ SpendGuard is infrastructure — a public good primitive that other projects can
 | Network | Stellar Testnet |
 | Wallet | Freighter (auth-entry signing) |
 | USDC | Stellar Asset Contract (SAC) — native Circle-issued |
+| MCP Server | Model Context Protocol — AI agent tool integration |
+
+## MCP Integration
+
+SpendGuard exposes 4 tools via the [Model Context Protocol](https://modelcontextprotocol.io), allowing any MCP-compatible AI agent (Claude, GPT, custom agents) to make governed payments on Stellar.
+
+| Tool | Description |
+|------|-------------|
+| `spendguard_get_status` | Read contract state: balance, limits, pause status |
+| `spendguard_authorize_payment` | Execute a governed USDC payment (policies enforced on-chain) |
+| `spendguard_check_budget` | Dry-run check if a payment would be allowed |
+| `spendguard_get_transactions` | Read audit log with Stellar Expert links |
+
+```json
+{
+  "mcpServers": {
+    "spendguard": {
+      "command": "node",
+      "args": ["path/to/backend/dist/mcp/index.js"]
+    }
+  }
+}
+```
+
+See [MCP_SPEC.md](backend/MCP_SPEC.md) for full specification.
 
 ## Quick Start
 
@@ -186,6 +211,7 @@ npm run seed
 | [TEST_STRATEGY.md](docs/TEST_STRATEGY.md) | TDD philosophy and test categories |
 | [API_SPEC.md](backend/API_SPEC.md) | All HTTP endpoints |
 | [AGENT_SPEC.md](backend/AGENT_SPEC.md) | x402 agent specification |
+| [MCP_SPEC.md](backend/MCP_SPEC.md) | MCP server tools for AI agents |
 | [ENVIRONMENT.md](docs/ENVIRONMENT.md) | All environment variables |
 | [TRADE_OFFS.md](TRADE_OFFS.md) | In-scope vs out-of-scope |
 
