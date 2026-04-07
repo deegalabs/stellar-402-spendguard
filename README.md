@@ -101,7 +101,7 @@ cargo test
 
 SpendGuard is infrastructure — a public good primitive that other projects can fork, deploy, and extend. The SDF's own blog describes "smart wallets with spending policies" as [the next step for x402 on Stellar](https://stellar.org/blog/developers/x402-payment-protocol-meets-stellar).
 
-## Frontend (5 screens)
+## Frontend (6 screens + docs site)
 
 | Screen | Purpose |
 |--------|---------|
@@ -110,6 +110,7 @@ SpendGuard is infrastructure — a public good primitive that other projects can
 | **Liquidity** | USDC deposit via Stripe (Test Mode) |
 | **Audit Log** | Transaction table with Stellar Expert links, system metadata stream |
 | **Live Demo** | 11-step interactive flow executing real testnet transactions |
+| **Docs** | 9-page documentation site with sidebar (Getting Started, Guides, Reference) |
 
 ## Stack
 
