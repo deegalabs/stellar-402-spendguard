@@ -1,0 +1,28 @@
+{
+  "name": "@spendguard/sdk",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for SpendGuard — governed AI agent spending on Stellar",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "license": "Apache-2.0",
+  "keywords": ["stellar", "soroban", "x402", "ai-agent", "spending-policy", "usdc"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/deegalabs/stellar-402-spendguard"
+  },
+  "files": ["dist", "README.md"],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
