@@ -155,6 +155,167 @@ Frontend → Backend API → GET /api/balance (reads SAC balance)
 
 ---
 
+## Use Case Diagrams
+
+### UC1 — Actors Overview
+
+```mermaid
+graph LR
+    Owner((Owner))
+    Agent((AI Agent))
+    Merchant((Merchant))
+    MCP((MCP Client))
+
+    Owner -->|manages| Contract[BudgetGuard Contract]
+    Agent -->|pays through| Contract
+    Merchant -->|receives from| Contract
+    MCP -->|discovers tools| MCPServer[MCP Server]
+    MCPServer -->|calls| Contract
+```
+
+### UC2 — Owner Use Cases
+
+```mermaid
+graph TD
+    Owner((Owner))
+
+    Owner --> UC1[Initialize Contract]
+    Owner --> UC2[Set Daily Limit]
+    Owner --> UC3[Set Max Per-Transaction]
+    Owner --> UC4[Whitelist Merchant]
+    Owner --> UC5[Remove Merchant]
+    Owner --> UC6[Emergency Pause]
+    Owner --> UC7[Emergency Unpause]
+    Owner --> UC8[Top Up USDC]
+    Owner --> UC9[Change Agent Address]
+    Owner --> UC10[View Dashboard]
+    Owner --> UC11[View Audit Log]
+
+    UC1 -. requires .-> Freighter[Freighter Wallet]
+    UC2 -. requires .-> Freighter
+    UC3 -. requires .-> Freighter
+    UC4 -. requires .-> Freighter
+    UC5 -. requires .-> Freighter
+    UC6 -. requires .-> Freighter
+    UC7 -. requires .-> Freighter
+    UC8 -. requires .-> Freighter
+    UC8 -. triggers .-> Stripe[Stripe Test Mode]
+
+    style Owner fill:#f59e0b,color:#000
+    style Freighter fill:#6366f1,color:#fff
+```
+
+### UC3 — Agent Use Cases
+
+```mermaid
+graph TD
+    Agent((AI Agent))
+
+    Agent --> UC1[Request x402 Resource]
+    UC1 --> UC2{HTTP 402?}
+    UC2 -->|yes| UC3[Parse x402 Challenge]
+    UC2 -->|no| UC7[Receive Resource]
+    UC3 --> UC4[Call authorize_payment]
+    UC4 --> UC5{Policy Check}
+    UC5 -->|approved| UC6[USDC Transfer on Stellar]
+    UC5 -->|rejected| UC8[Log Rejection]
+    UC6 --> UC7
+    UC8 --> UC9[Handle Error]
+
+    UC5 -. validates .-> C1[Not Paused]
+    UC5 -. validates .-> C2[Merchant Whitelisted]
+    UC5 -. validates .-> C3[Within Max TX]
+    UC5 -. validates .-> C4[Within Daily Limit]
+    UC5 -. validates .-> C5[Sufficient Balance]
+
+    style Agent fill:#22c55e,color:#000
+    style UC5 fill:#ef4444,color:#fff
+```
+
+### UC4 — MCP Agent Use Cases
+
+```mermaid
+graph TD
+    MCP((MCP Agent))
+
+    MCP --> UC1[spendguard_get_status]
+    MCP --> UC2[spendguard_check_budget]
+    MCP --> UC3[spendguard_authorize_payment]
+    MCP --> UC4[spendguard_get_transactions]
+
+    UC1 --> R1[Balance + Limits + Pause State]
+    UC2 --> R2[Dry-Run Policy Validation]
+    UC3 --> R3[Execute Governed Payment]
+    UC4 --> R4[Audit Log with Stellar Expert Links]
+
+    UC2 -. informs .-> UC3
+    UC1 -. informs .-> UC2
+
+    style MCP fill:#8b5cf6,color:#fff
+```
+
+### UC5 — End-to-End x402 Payment Flow
+
+```mermaid
+sequenceDiagram
+    participant A as AI Agent
+    participant M as Merchant API
+    participant C as BudgetGuard Contract
+    participant S as Stellar Ledger
+    participant H as Horizon API
+    participant D as Dashboard
+
+    A->>M: GET /api/resource
+    M-->>A: 402 Payment Required (price, payTo)
+
+    A->>C: authorize_payment(price, merchant)
+    Note over C: Validate: pause, whitelist,<br/>max_tx, daily_limit, balance
+
+    alt Policy Approved
+        C->>S: USDC.transfer(contract → merchant)
+        S-->>C: Confirmed (< 5s)
+        C->>C: Emit payment_authorized event
+        C-->>A: Ok(tx_hash)
+        A->>M: GET /api/resource + X-Payment-Proof
+        M-->>A: 200 OK (data)
+    else Policy Rejected
+        C-->>A: Error (ExceedsDailyLimit / ContractPaused / ...)
+        A->>A: Log rejection, handle error
+    end
+
+    H->>D: SSE event stream
+    D->>D: Update Audit Log (green/red)
+```
+
+### UC6 — Emergency Kill Switch Flow
+
+```mermaid
+sequenceDiagram
+    participant O as Owner
+    participant F as Freighter
+    participant C as BudgetGuard Contract
+    participant A as AI Agent
+
+    O->>F: Click "Emergency Pause"
+    F-->>O: Sign transaction
+    O->>C: emergency_pause()
+    C->>C: Set paused = true
+    C->>C: Emit emergency_pause event
+
+    Note over A: Next payment attempt...
+    A->>C: authorize_payment(price, merchant)
+    C-->>A: Error::ContractPaused
+    A->>A: Stop retrying, alert owner
+
+    Note over O: When ready to resume...
+    O->>F: Click "Unpause"
+    F-->>O: Sign transaction
+    O->>C: emergency_unpause()
+    C->>C: Set paused = false
+```
+
+---
+
 ## Out of Scope
 
 See [TRADE_OFFS.md](../TRADE_OFFS.md) for the complete list of features
