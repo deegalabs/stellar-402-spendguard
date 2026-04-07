@@ -8,12 +8,25 @@ use super::setup::*;
 // From TEST_STRATEGY.md Category 1 and SPEC.md preconditions
 // =============================================================================
 
-/// Price exactly at daily_limit should succeed
+/// Price exactly at daily_limit should succeed (when max_tx == daily_limit)
 #[test]
 fn test_price_exactly_at_daily_limit() {
-    let ctx = setup_funded_contract();
-    // spent=0, price=daily_limit → should succeed
-    let result = ctx.contract.try_authorize_payment(&DEFAULT_DAILY_LIMIT, &ctx.merchant);
+    let env = Env::default();
+    env.mock_all_auths();
+    env.ledger().set_timestamp(1_000_000);
+
+    let (owner, agent, merchant, _) = create_accounts(&env);
+    let (usdc_token, _, _, token_admin_client) = create_usdc_token(&env);
+    let contract = deploy_contract(&env);
+
+    // Set max_tx == daily_limit so a single payment can reach the limit
+    let limit = ONE_USDC * 100;
+    init_contract(&contract, &owner, &agent, &usdc_token, limit, limit);
+    contract.whitelist_merchant(&merchant);
+    token_admin_client.mint(&owner, &INITIAL_FUNDING);
+    contract.top_up(&owner, &INITIAL_FUNDING);
+
+    let result = contract.try_authorize_payment(&limit, &merchant);
     assert!(result.is_ok(), "Price exactly at daily_limit should succeed");
 }
 
@@ -29,13 +42,12 @@ fn test_price_one_above_daily_limit() {
 #[test]
 fn test_cumulative_exactly_at_daily_limit() {
     let ctx = setup_funded_contract();
-    // First payment: 60% of limit
-    let first_payment = DEFAULT_DAILY_LIMIT * 60 / 100;
-    ctx.contract.authorize_payment(&first_payment, &ctx.merchant);
+    // Use payments within max_tx (50 USDC) that sum to daily_limit (100 USDC)
+    let payment = DEFAULT_MAX_TX; // 50 USDC
+    ctx.contract.authorize_payment(&payment, &ctx.merchant);
 
-    // Second payment: remaining 40% — should succeed (total = 100%)
-    let second_payment = DEFAULT_DAILY_LIMIT - first_payment;
-    let result = ctx.contract.try_authorize_payment(&second_payment, &ctx.merchant);
+    // Second payment: another 50 USDC — total = 100 USDC = daily_limit
+    let result = ctx.contract.try_authorize_payment(&payment, &ctx.merchant);
     assert!(result.is_ok(), "Cumulative at exactly daily_limit should succeed");
 }
 
@@ -43,12 +55,13 @@ fn test_cumulative_exactly_at_daily_limit() {
 #[test]
 fn test_cumulative_one_above_daily_limit() {
     let ctx = setup_funded_contract();
-    let first_payment = DEFAULT_DAILY_LIMIT * 60 / 100;
-    ctx.contract.authorize_payment(&first_payment, &ctx.merchant);
+    // First: spend 50 USDC (max_tx)
+    ctx.contract.authorize_payment(&DEFAULT_MAX_TX, &ctx.merchant);
+    // Second: spend 50 USDC (max_tx) — total now 100 = daily_limit
+    ctx.contract.authorize_payment(&DEFAULT_MAX_TX, &ctx.merchant);
 
-    // Try to spend remaining + 1 — should fail
-    let over_payment = DEFAULT_DAILY_LIMIT - first_payment + 1;
-    let result = ctx.contract.try_authorize_payment(&over_payment, &ctx.merchant);
+    // Third: even 1 stroops should fail — daily_limit reached
+    let result = ctx.contract.try_authorize_payment(&1_i128, &ctx.merchant);
     assert!(result.is_err(), "Cumulative above daily_limit must be rejected");
 }
 
