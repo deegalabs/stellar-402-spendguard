@@ -203,9 +203,17 @@ The 90-second video walks through:
 4. Emergency kill switch (pause/unpause)
 5. Audit log with on-chain verification
 
+## Ecosystem Impact
+
+SpendGuard removes the governance blocker that prevents enterprises from deploying autonomous agents on Stellar. Without on-chain spending policies, institutional adoption stalls — nobody deploys an agent with unlimited access to company funds.
+
+**Volume projection:** If 100 agents deploy SpendGuard-style contracts, each executing 50 governed transactions/day at $0.50 average, that represents **$2,500/day in governed USDC volume** on Stellar — predictable, policy-compliant flow from institutional-grade spending controls.
+
+The precompiled WASM is available as a [GitHub Release](https://github.com/deegalabs/stellar-402-spendguard/releases) — deploy your own instance in under 10 minutes. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full fork guide.
+
 ## Open Source
 
-SpendGuard is released under Apache 2.0 and designed as a **public good primitive** for the Stellar ecosystem. We encourage teams to fork, deploy, and extend it for their own x402 agent spending policies. The contract, backend, and frontend are all open source with comprehensive documentation.
+SpendGuard is released under Apache 2.0 and designed as a **public good primitive** for the Stellar ecosystem. We encourage teams to fork, deploy, and extend it for their own x402 agent spending policies. The contract, backend, and frontend are all open source with comprehensive documentation. See [CONTRIBUTING.md](CONTRIBUTING.md) for development workflow and contribution guidelines.
 
 ## License
 
