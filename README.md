@@ -92,7 +92,16 @@ cargo test
 # 37 passed, 0 failed
 ```
 
-## Frontend (4 screens)
+## Target Users
+
+- **Stellar dApp developers** deploying x402 agents that need governed payment flows
+- **Enterprises** using Stellar for agent-based commerce who require spending controls and audit trails
+- **OpenClaw skill developers** building MCP tools that need on-chain payment authorization
+- **Any team** building autonomous agents on Stellar that must comply with internal spending policies
+
+SpendGuard is infrastructure — a public good primitive that other projects can fork, deploy, and extend. The SDF's own blog describes "smart wallets with spending policies" as [the next step for x402 on Stellar](https://stellar.org/blog/developers/x402-payment-protocol-meets-stellar).
+
+## Frontend (5 screens)
 
 | Screen | Purpose |
 |--------|---------|
@@ -100,6 +109,7 @@ cargo test
 | **Agent Vault** | Daily limit, max tx, merchant whitelist, kill switch |
 | **Liquidity** | USDC deposit via Stripe (Test Mode) |
 | **Audit Log** | Transaction table with Stellar Expert links, system metadata stream |
+| **Live Demo** | 11-step interactive flow executing real testnet transactions |
 
 ## Stack
 
@@ -178,6 +188,24 @@ npm run seed
 | [AGENT_SPEC.md](backend/AGENT_SPEC.md) | x402 agent specification |
 | [ENVIRONMENT.md](docs/ENVIRONMENT.md) | All environment variables |
 | [TRADE_OFFS.md](TRADE_OFFS.md) | In-scope vs out-of-scope |
+
+## Demo Video
+
+> Upload to YouTube/Loom and paste the link here before submission.
+
+<!-- TODO: Replace with actual video URL -->
+<!-- [![SpendGuard Demo](https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg)](https://youtu.be/VIDEO_ID) -->
+
+The 90-second video walks through:
+1. Contract architecture and invariants
+2. x402 payment flow (402 → authorize → settle in ~5s)
+3. Blocked payment (exceeds max_tx)
+4. Emergency kill switch (pause/unpause)
+5. Audit log with on-chain verification
+
+## Open Source
+
+SpendGuard is released under Apache 2.0 and designed as a **public good primitive** for the Stellar ecosystem. We encourage teams to fork, deploy, and extend it for their own x402 agent spending policies. The contract, backend, and frontend are all open source with comprehensive documentation.
 
 ## License
 

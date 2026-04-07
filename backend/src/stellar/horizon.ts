@@ -74,31 +74,17 @@ export async function getContractBalance(): Promise<{
   balance: string;
   balance_usdc: string;
 }> {
-  if (!config.contractAddress || !config.usdcSacAddress) {
-    return { balance: "0", balance_usdc: "0.00" };
-  }
-
+  // Soroban contracts hold USDC in SAC contract storage, not in a classic
+  // Horizon account. We read the balance from get_status() via RPC instead.
   try {
-    const url = `${HORIZON_BASE}/accounts/${config.contractAddress}`;
-    const response = await fetch(url);
-    if (!response.ok) {
-      return { balance: "0", balance_usdc: "0.00" };
-    }
-
-    const data = await response.json();
-    const balances = data.balances ?? [];
-
-    for (const bal of balances) {
-      if (bal.asset_type === "credit_alphanum4" && bal.asset_code === "USDC") {
-        const stroops = BigInt(Math.round(parseFloat(bal.balance) * 1e7));
-        return {
-          balance: stroops.toString(),
-          balance_usdc: parseFloat(bal.balance).toFixed(2),
-        };
-      }
-    }
-
-    return { balance: "0", balance_usdc: "0.00" };
+    const { getStatus } = await import("./contract.js");
+    const status = await getStatus();
+    const stroops = BigInt(status.balance);
+    const usdc = Number(stroops) / 1e7;
+    return {
+      balance: status.balance,
+      balance_usdc: usdc.toFixed(2),
+    };
   } catch {
     return { balance: "0", balance_usdc: "0.00" };
   }
