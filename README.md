@@ -45,7 +45,7 @@ Stellar Ledger (< 5s finality)
 
 ## Contract: BudgetGuard
 
-Deployed on **Stellar Testnet**.
+Deployed on **Stellar Testnet**: [`CCABMNFY3VKK7BI3YBWXJEE2EXX2NW5S573NASTCFXA6KBXR5PDWFD6E`](https://stellar.expert/explorer/testnet/contract/CCABMNFY3VKK7BI3YBWXJEE2EXX2NW5S573NASTCFXA6KBXR5PDWFD6E)
 
 ### Functions
 

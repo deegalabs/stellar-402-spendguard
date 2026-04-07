@@ -32,12 +32,12 @@ required to run the project. Private keys go in `.env.local` — never committed
 ## Contract
 
 ### CONTRACT_ADDRESS
-**Value (Testnet):** _(set after deploy on Day 3)_  
+**Value (Testnet):** `CCABMNFY3VKK7BI3YBWXJEE2EXX2NW5S573NASTCFXA6KBXR5PDWFD6E`  
 **Used by:** backend, frontend  
 **Description:** Deployed BudgetGuard contract address on Stellar Testnet.
 
 ### USDC_SAC_ADDRESS
-**Value (Testnet):** _(Testnet USDC SAC address — obtain from Stellar laboratory)_  
+**Value (Testnet):** `CADUVDKFGHZQD2MN7S47WUDSGJPWTKLC3DG5KX7QZBJZKOKEAMDL27SN`  
 **Used by:** backend, contract initialization  
 **Description:** Address of the USDC Stellar Asset Contract on testnet.
 
