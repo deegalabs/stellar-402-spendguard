@@ -9,31 +9,81 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Stellar Institutional Ivory — Design System
+        // ── Material Design 3 — Stitch Token System ────────────────
+        // Primary
         primary: {
-          DEFAULT: "#1A2366",
-          50: "#E8EAF6",
-          100: "#C5CAE9",
-          200: "#9FA8DA",
-          300: "#7986CB",
-          400: "#5C6BC0",
-          500: "#1A2366",
-          600: "#161E57",
-          700: "#121948",
-          800: "#0E1439",
-          900: "#0A0F2A",
+          DEFAULT: "#010953",
+          fixed: "#dfe0ff",
+          "fixed-dim": "#bcc2ff",
+          container: "#1a2366",
         },
+        "on-primary": "#ffffff",
+        "on-primary-container": "#848dd5",
+        "on-primary-fixed": "#071157",
+        "on-primary-fixed-variant": "#384184",
+        "inverse-primary": "#bcc2ff",
+
+        // Secondary
         secondary: {
           DEFAULT: "#2563EB",
-          50: "#EFF6FF",
-          100: "#DBEAFE",
-          200: "#BFDBFE",
-          300: "#93C5FD",
-          400: "#60A5FA",
-          500: "#2563EB",
-          600: "#1D4ED8",
-          700: "#1E40AF",
+          fixed: "#dbe1ff",
+          "fixed-dim": "#b4c5ff",
+          container: "#316bf3",
         },
+        "on-secondary": "#ffffff",
+        "on-secondary-container": "#fefcff",
+        "on-secondary-fixed": "#00174b",
+        "on-secondary-fixed-variant": "#003ea8",
+
+        // Tertiary (green / accent)
+        tertiary: {
+          DEFAULT: "#001b0f",
+          fixed: "#6ffbbe",
+          "fixed-dim": "#4edea3",
+          container: "#003220",
+        },
+        "on-tertiary": "#ffffff",
+        "on-tertiary-container": "#00a673",
+        "on-tertiary-fixed": "#002113",
+        "on-tertiary-fixed-variant": "#005236",
+
+        // Error
+        error: {
+          DEFAULT: "#ba1a1a",
+          container: "#ffdad6",
+        },
+        "on-error": "#ffffff",
+        "on-error-container": "#93000a",
+
+        // Surface system
+        surface: {
+          DEFAULT: "#f7f9fd",
+          dim: "#d8dade",
+          bright: "#f7f9fd",
+          tint: "#50599d",
+          variant: "#e0e3e6",
+          container: "#eceef2",
+          "container-low": "#f2f4f8",
+          "container-lowest": "#ffffff",
+          "container-high": "#e6e8ec",
+          "container-highest": "#e0e3e6",
+        },
+        "on-surface": "#191c1f",
+        "on-surface-variant": "#464650",
+        "inverse-surface": "#2d3134",
+        "inverse-on-surface": "#eff1f5",
+
+        // Outline
+        outline: {
+          DEFAULT: "#767681",
+          variant: "#c6c5d2",
+        },
+
+        // Background
+        background: "#f4f6fa",
+        "on-background": "#191c1f",
+
+        // ── Legacy aliases (backward compat) ──────────────────────
         accent: {
           DEFAULT: "#10B981",
           50: "#ECFDF5",
@@ -62,6 +112,7 @@ const config: Config = {
           DEFAULT: "#EF4444",
           50: "#FEF2F2",
           100: "#FEE2E2",
+          200: "#FECACA",
           500: "#EF4444",
           600: "#DC2626",
           700: "#B91C1C",
@@ -70,15 +121,14 @@ const config: Config = {
           DEFAULT: "#F59E0B",
           50: "#FFFBEB",
           100: "#FEF3C7",
+          300: "#FCD34D",
           500: "#F59E0B",
           600: "#D97706",
         },
-        background: "var(--background)",
-        foreground: "var(--foreground)",
       },
       fontFamily: {
-        sans: ["Inter", "var(--font-geist-sans)", "system-ui", "sans-serif"],
-        mono: ["var(--font-geist-mono)", "ui-monospace", "monospace"],
+        sans: ["Geist", "Inter", "var(--font-geist-sans)", "system-ui", "sans-serif"],
+        mono: ["Geist Mono", "var(--font-geist-mono)", "ui-monospace", "monospace"],
       },
       fontSize: {
         "display": ["3rem", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "700" }],
@@ -90,6 +140,8 @@ const config: Config = {
         "card": "0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.03)",
         "card-hover": "0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04)",
         "panel": "0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.03)",
+        "bento": "0 24px 40px -15px rgba(1, 9, 83, 0.04)",
+        "hero": "0 24px 40px rgba(1, 9, 83, 0.06)",
       },
       borderRadius: {
         "card": "12px",

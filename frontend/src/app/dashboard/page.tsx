@@ -21,10 +21,10 @@ function StatCard({
   children?: React.ReactNode;
 }) {
   return (
-    <div className={`card ${alert ? "border-danger-200 bg-danger-50/30" : ""}`}>
-      <p className="stat-label">{label}</p>
-      <p className={`stat-value mt-1 ${alert ? "text-danger-600" : ""}`}>{value}</p>
-      {sub && <p className="text-xs text-neutral-400 mt-1">{sub}</p>}
+    <div className={`card ${alert ? "border border-error-container" : ""}`}>
+      <p className="stat-label mb-2">{label}</p>
+      <p className={`stat-value ${alert ? "text-error" : ""}`}>{value}</p>
+      {sub && <p className="text-xs text-on-surface-variant mt-1">{sub}</p>}
       {children}
     </div>
   );
@@ -32,9 +32,9 @@ function StatCard({
 
 function StatusDot({ status }: { status: string }) {
   const color =
-    status === "settled" ? "bg-accent" :
-    status === "blocked" ? "bg-danger" :
-    "bg-warning";
+    status === "settled" ? "bg-tertiary-fixed-dim" :
+    status === "blocked" ? "bg-error" :
+    "bg-warning-500";
   return <span className={`w-2 h-2 rounded-full ${color}`} />;
 }
 
@@ -71,7 +71,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="flex items-center gap-3 text-neutral-500">
+        <div className="flex items-center gap-3 text-on-surface-variant">
           <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -84,7 +84,7 @@ export default function DashboardPage() {
 
   if (error) {
     return (
-      <div className="card border-danger-200 bg-danger-50/30 text-danger-700">
+      <div className="card border border-error-container text-error">
         <p className="font-semibold">Connection Error</p>
         <p className="text-sm mt-1">{error}</p>
       </div>
@@ -99,34 +99,34 @@ export default function DashboardPage() {
   const limitUsdc = status ? stroopsToUsdc(status.daily_limit) : "0.00";
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-8 animate-fade-in max-w-7xl mx-auto">
       {/* Header */}
       <div>
-        <h2 className="text-headline text-neutral-900">Dashboard</h2>
-        <p className="text-sm text-neutral-500 mt-1">
+        <h2 className="text-3xl font-bold tracking-tight text-primary">Dashboard</h2>
+        <p className="text-on-surface-variant mt-1">
           Institutional record of automated agent settlements and endpoint requests.
         </p>
       </div>
 
       {/* KPI Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          label="Today's Spend"
+          label="Today&apos;s Spend"
           value={`$${spentUsdc}`}
           alert={spentPct > 80}
         >
-          <div className="mt-2">
-            <p className="text-xs text-neutral-400">
+          <div className="mt-3">
+            <p className="text-[10px] text-on-surface-variant font-mono">
               Daily Threshold: {spentPct}% utilization
             </p>
-            <div className="flex gap-0.5 mt-1">
+            <div className="flex gap-0.5 mt-1.5">
               {Array.from({ length: 7 }).map((_, i) => (
                 <div
                   key={i}
                   className={`h-4 flex-1 rounded-sm ${
                     i < Math.ceil(spentPct / 14.3)
                       ? "bg-primary"
-                      : "bg-neutral-200"
+                      : "bg-surface-container"
                   }`}
                 />
               ))}
@@ -147,17 +147,15 @@ export default function DashboardPage() {
           }
           sub="avg Stellar finality"
         >
-          <p className="text-xs text-accent font-semibold mt-1 flex items-center gap-1">
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182" />
-            </svg>
+          <p className="text-xs text-tertiary-fixed-dim font-semibold mt-1 flex items-center gap-1">
+            <span className="material-symbols-outlined text-[14px]">sync</span>
             Real-time sync
           </p>
         </StatCard>
 
         <StatCard label="Guard Status" value="">
-          <div className={`flex items-center gap-2 mt-1 ${status?.paused ? "text-danger-600" : "text-accent-600"}`}>
-            <span className={`w-2.5 h-2.5 rounded-full ${status?.paused ? "bg-danger animate-pulse" : "bg-accent"}`} />
+          <div className={`flex items-center gap-2 mt-1 ${status?.paused ? "text-error" : "text-on-tertiary-container"}`}>
+            <span className={`w-2.5 h-2.5 rounded-full ${status?.paused ? "bg-error animate-pulse" : "bg-tertiary-fixed-dim"}`} />
             <span className="font-bold text-sm">
               {status?.paused ? "PAUSED" : "ALL OPERATIONAL"}
             </span>
@@ -166,7 +164,7 @@ export default function DashboardPage() {
             <button
               onClick={handleRunDemo}
               disabled={demoRunning}
-              className="mt-3 w-full text-xs font-semibold text-danger-600 border border-danger-200 rounded-lg px-3 py-1.5 hover:bg-danger-50 transition-colors disabled:opacity-50"
+              className="mt-3 w-full text-xs font-semibold text-error border border-error-container rounded-lg px-3 py-1.5 hover:bg-error-container transition-colors disabled:opacity-50"
             >
               EMERGENCY PAUSE
             </button>
@@ -179,7 +177,7 @@ export default function DashboardPage() {
         {/* Live Payment Feed */}
         <div className="lg:col-span-2 card">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-title text-neutral-900">Live Payment Feed</h3>
+            <h3 className="font-semibold text-primary">Live Payment Feed</h3>
             <div className="flex items-center gap-3 text-xs">
               <span className="flex items-center gap-1"><StatusDot status="settled" /> Safe</span>
               <span className="flex items-center gap-1"><StatusDot status="pending" /> Warn</span>
@@ -190,38 +188,54 @@ export default function DashboardPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-label text-neutral-500 border-b border-neutral-100">
-                  <th className="pb-2 pr-4">Status</th>
-                  <th className="pb-2 pr-4">Endpoint</th>
-                  <th className="pb-2 pr-4 text-right">Value</th>
-                  <th className="pb-2 pr-4">Time</th>
-                  <th className="pb-2">Hash</th>
+                <tr className="text-left bg-surface-container text-on-surface-variant text-[10px] font-mono uppercase tracking-widest">
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Endpoint</th>
+                  <th className="px-4 py-3 text-right">Value</th>
+                  <th className="px-4 py-3">Time</th>
+                  <th className="px-4 py-3">Hash</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-50">
+              <tbody className="divide-y divide-surface-container">
                 {transactions.length > 0 ? transactions.map((tx) => (
-                  <tr key={tx.id} className="hover:bg-neutral-50 transition-colors">
-                    <td className="py-3 pr-4">
-                      <StatusDot status={tx.status} />
+                  <tr key={tx.id} className="hover:bg-surface-container transition-colors">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <StatusDot status={tx.status} />
+                        <span className="font-mono text-xs">
+                          {tx.status === "settled" ? "SUCCESS" : tx.status === "blocked" ? "DENIED" : "PENDING"}
+                        </span>
+                      </div>
                     </td>
-                    <td className="py-3 pr-4 font-mono text-xs text-neutral-600">
-                      {tx.type === "payment_authorized" ? "/v1/auth/settle" : "/v1/auth/reject"}
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <span className={`px-2 py-0.5 rounded font-mono text-[10px] ${
+                          tx.status === "blocked"
+                            ? "bg-error-container text-on-error-container"
+                            : "bg-surface-container text-on-primary-container"
+                        }`}>
+                          {tx.status === "blocked" ? "HTTP 403" : "HTTP 402"}
+                        </span>
+                        <span className="font-mono text-xs text-on-surface">
+                          {tx.type === "payment_authorized" ? "/v1/auth/settle" : "/v1/auth/reject"}
+                        </span>
+                      </div>
                     </td>
-                    <td className="py-3 pr-4 text-right">
-                      <span className="font-bold text-neutral-900">
+                    <td className="px-4 py-3 text-right">
+                      <span className="font-mono font-bold text-on-surface">
                         {stroopsToUsdc(tx.amount)}
                       </span>
-                      <span className="text-neutral-400 ml-1 text-xs">USDC</span>
+                      <span className="text-on-surface-variant ml-1 text-xs">USDC</span>
                     </td>
-                    <td className="py-3 pr-4 text-xs text-neutral-400">
+                    <td className="px-4 py-3 text-xs text-on-surface-variant">
                       {relativeTime(tx.timestamp)}
                     </td>
-                    <td className="py-3 font-mono text-xs text-neutral-400">
+                    <td className="px-4 py-3 font-mono text-xs">
                       <a
                         href={tx.stellar_expert_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hover:text-secondary transition-colors"
+                        className="text-secondary-container hover:text-secondary transition-colors"
                       >
                         {tx.tx_hash.slice(0, 4)}...{tx.tx_hash.slice(-4)}
                       </a>
@@ -229,7 +243,7 @@ export default function DashboardPage() {
                   </tr>
                 )) : (
                   <tr>
-                    <td colSpan={5} className="py-8 text-center text-neutral-400 text-sm">
+                    <td colSpan={5} className="py-8 text-center text-on-surface-variant text-sm">
                       No transactions yet. Run a payment cycle to see data.
                     </td>
                   </tr>
@@ -242,11 +256,10 @@ export default function DashboardPage() {
         {/* Spend Velocity */}
         <div className="card">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-title text-neutral-900">Spend Velocity</h3>
-            <span className="text-xs text-neutral-400">24h Window</span>
+            <h3 className="font-semibold text-primary">Spend Velocity</h3>
+            <span className="text-[10px] text-on-surface-variant font-mono">24h Window</span>
           </div>
 
-          {/* Velocity bar */}
           <div className="relative h-32 flex items-end gap-1">
             {Array.from({ length: 12 }).map((_, i) => {
               const height = i < Math.ceil(spentPct / 8.3)
@@ -256,28 +269,27 @@ export default function DashboardPage() {
                 <div
                   key={i}
                   className={`flex-1 rounded-t transition-all ${
-                    i < Math.ceil(spentPct / 8.3) ? "bg-secondary/70" : "bg-neutral-200"
+                    i < Math.ceil(spentPct / 8.3) ? "bg-secondary/70" : "bg-surface-container"
                   }`}
                   style={{ height: `${height}%` }}
                 />
               );
             })}
-            {/* Limit line */}
-            <div className="absolute top-4 left-0 right-0 border-t-2 border-dashed border-danger-300">
-              <span className="absolute -top-3 right-0 text-[10px] text-danger-500 font-semibold">
+            <div className="absolute top-4 left-0 right-0 border-t-2 border-dashed border-error/40">
+              <span className="absolute -top-3 right-0 text-[10px] text-error font-mono font-semibold">
                 LIMIT ${limitUsdc}
               </span>
             </div>
           </div>
 
-          <div className="flex items-center justify-between mt-3 text-xs text-neutral-400">
+          <div className="flex items-center justify-between mt-3 text-[10px] text-on-surface-variant font-mono">
             <span>00:00</span>
             <span>23:59</span>
           </div>
-          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-neutral-100">
+          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-surface-container">
             <span className="w-3 h-3 bg-secondary/70 rounded-sm" />
-            <span className="text-xs text-neutral-500">Actual Spend</span>
-            <span className="ml-auto text-sm font-bold text-neutral-900">
+            <span className="text-xs text-on-surface-variant">Actual Spend</span>
+            <span className="ml-auto text-sm font-bold font-mono text-primary">
               ${spentUsdc} total
             </span>
           </div>
@@ -287,24 +299,18 @@ export default function DashboardPage() {
       {/* Bottom row: Quick Actions + Integrations */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         <Link href="/vault" className="card-hover flex items-center gap-3 bg-primary text-white">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
-          </svg>
+          <span className="material-symbols-outlined text-[20px]">tune</span>
           <span className="text-sm font-semibold">Adjust Daily Limit</span>
         </Link>
 
         <Link href="/vault" className="card-hover flex items-center gap-3">
-          <svg className="w-5 h-5 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
-          </svg>
-          <span className="text-sm font-semibold text-neutral-700">Add Merchant</span>
+          <span className="material-symbols-outlined text-[20px] text-on-surface-variant">person_add</span>
+          <span className="text-sm font-semibold text-primary">Add Merchant</span>
         </Link>
 
-        <Link href="/vault" className="card-hover flex items-center gap-3 border-danger-200">
-          <svg className="w-5 h-5 text-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-          </svg>
-          <span className="text-sm font-semibold text-danger">Emergency Pause</span>
+        <Link href="/vault" className="card-hover flex items-center gap-3 border border-error-container">
+          <span className="material-symbols-outlined text-[20px] text-error">warning</span>
+          <span className="text-sm font-semibold text-error">Emergency Pause</span>
         </Link>
 
         {/* Integrations Monitor */}
@@ -317,8 +323,8 @@ export default function DashboardPage() {
               { name: "Horizon Node (Global)", online: true },
             ].map((item) => (
               <div key={item.name} className="flex items-center justify-between text-xs">
-                <span className="text-neutral-600">{item.name}</span>
-                <span className={`w-2 h-2 rounded-full ${item.online ? "bg-accent" : "bg-danger"}`} />
+                <span className="text-on-surface-variant">{item.name}</span>
+                <span className={`w-2 h-2 rounded-full ${item.online ? "bg-tertiary-fixed-dim" : "bg-error"}`} />
               </div>
             ))}
           </div>
@@ -327,31 +333,31 @@ export default function DashboardPage() {
 
       {/* Demo Terminal (shows after running) */}
       {demoSteps.length > 0 && (
-        <div className="card">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-title text-neutral-900">x402 Agent Output</h3>
+        <div className="card p-0 overflow-hidden">
+          <div className="flex items-center justify-between px-6 py-3 bg-[#1E293B] border-b border-slate-700">
+            <span className="text-slate-300 font-mono text-xs font-bold tracking-tight uppercase">x402 Agent Output</span>
             <button
               onClick={handleRunDemo}
               disabled={demoRunning}
-              className="btn-primary text-xs"
+              className="bg-secondary text-white text-xs font-medium px-3 py-1 rounded hover:opacity-90 transition-opacity disabled:opacity-50"
             >
               {demoRunning ? "Running..." : "Run Payment Cycle"}
             </button>
           </div>
-          <div className="terminal space-y-1.5">
+          <div className="terminal rounded-none space-y-1.5">
             {demoSteps.map((step, i) => (
               <div key={i} className="flex items-start gap-2">
-                <span className={step.status === "failed" || step.error ? "text-danger-400" : "text-accent-400"}>
+                <span className={step.status === "failed" || step.error ? "text-red-400" : "text-green-400"}>
                   {step.status === "failed" || step.error ? "x" : ">"}
                 </span>
                 <div>
-                  <span className="text-secondary-400">[{step.step}]</span>{" "}
+                  <span className="text-blue-400">[{step.step}]</span>{" "}
                   {step.status !== undefined && <span>status={String(step.status)}</span>}
-                  {step.price && <span className="text-warning-300"> price=${stroopsToUsdc(step.price)}</span>}
-                  {step.tx_hash && <span className="text-accent-300"> tx={step.tx_hash.slice(0, 12)}...</span>}
+                  {step.price && <span className="text-yellow-300"> price=${stroopsToUsdc(step.price)}</span>}
+                  {step.tx_hash && <span className="text-green-300"> tx={step.tx_hash.slice(0, 12)}...</span>}
                   {step.settlement_time_ms && <span className="text-purple-300"> {step.settlement_time_ms}ms</span>}
                   {step.data && <span className="text-white"> {step.data}</span>}
-                  {step.error && <span className="text-danger-400"> {step.error}</span>}
+                  {step.error && <span className="text-red-400"> {step.error}</span>}
                 </div>
               </div>
             ))}

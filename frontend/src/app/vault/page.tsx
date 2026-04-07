@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useContractStatus } from "@/hooks/useContractStatus";
-import { stroopsToUsdc, usdcToStroops, shortAddress, spendPercentColor } from "@/lib/format";
+import { stroopsToUsdc, usdcToStroops, shortAddress } from "@/lib/format";
 import {
   setDailyLimit,
   setMaxTx,
@@ -11,6 +11,12 @@ import {
   pauseContract,
   unpauseContract,
 } from "@/lib/api";
+
+function spendBarColor(pct: number): string {
+  if (pct >= 90) return "bg-error";
+  if (pct >= 70) return "bg-warning-500";
+  return "bg-secondary";
+}
 
 export default function VaultPage() {
   const { status, loading, refresh } = useContractStatus();
@@ -40,7 +46,7 @@ export default function VaultPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="flex items-center gap-3 text-neutral-500">
+        <div className="flex items-center gap-3 text-on-surface-variant">
           <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -59,11 +65,11 @@ export default function VaultPage() {
   const spentUsdc = status ? stroopsToUsdc(status.spent_today) : "0.00";
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-8 animate-fade-in max-w-7xl mx-auto">
       {/* Header */}
       <div>
-        <h2 className="text-headline text-neutral-900">Agent Vault</h2>
-        <p className="text-sm text-neutral-500 mt-1">
+        <h2 className="text-3xl font-bold tracking-tight text-primary">Agent Vault</h2>
+        <p className="text-on-surface-variant mt-1">
           Precision governance for your Soroban-powered autonomous agent.
         </p>
       </div>
@@ -72,10 +78,10 @@ export default function VaultPage() {
       {message && (
         <div className={`flex items-center gap-2 p-3 rounded-lg text-sm animate-slide-up ${
           message.type === "ok"
-            ? "bg-accent-50 text-accent-700 border border-accent-200"
-            : "bg-danger-50 text-danger-700 border border-danger-200"
+            ? "bg-tertiary-container text-tertiary-fixed-dim"
+            : "bg-error-container text-on-error-container"
         }`}>
-          <span className={`w-2 h-2 rounded-full ${message.type === "ok" ? "bg-accent" : "bg-danger"}`} />
+          <span className={`w-2 h-2 rounded-full ${message.type === "ok" ? "bg-tertiary-fixed-dim" : "bg-error"}`} />
           {message.text}
         </div>
       )}
@@ -88,54 +94,49 @@ export default function VaultPage() {
           <div className="card">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25z" />
-                </svg>
+                <span className="material-symbols-outlined text-white text-[20px]">smart_toy</span>
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="font-bold text-neutral-900">Sentinel Alpha-1</h3>
-                  <span className="badge-success">Active</span>
+                  <h3 className="font-bold text-primary">Sentinel Alpha-1</h3>
+                  <span className="badge-success uppercase tracking-wider text-[9px]">Active</span>
                 </div>
-                <p className="text-xs font-mono text-neutral-400">
+                <p className="text-xs font-mono text-on-surface-variant">
                   ID: {shortAddress(status?.agent ?? "")}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center justify-between py-3 border-t border-neutral-100">
-              <span className="text-sm font-semibold text-neutral-700">Autonomous Mode</span>
-              <button
-                onClick={() => setAutonomousMode(!autonomousMode)}
-                className={`relative w-12 h-6 rounded-full transition-colors ${
-                  autonomousMode ? "bg-secondary" : "bg-neutral-300"
-                }`}
-              >
-                <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                  autonomousMode ? "left-[26px]" : "left-0.5"
-                }`} />
-              </button>
+            <div className="flex items-center justify-between py-3 border-t border-surface-container">
+              <span className="text-sm font-semibold text-primary">Autonomous Mode</span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={autonomousMode}
+                  onChange={() => setAutonomousMode(!autonomousMode)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-surface-container peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary" />
+              </label>
             </div>
           </div>
 
           {/* Security Guardrails */}
           <div className="card">
-            <h3 className="text-title text-neutral-900 mb-4 flex items-center gap-2">
-              <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-              </svg>
+            <h3 className="font-semibold text-primary mb-4 flex items-center gap-2">
+              <span className="material-symbols-outlined text-[20px]">verified_user</span>
               Security Guardrails
             </h3>
 
             <div className="space-y-3">
               <p className="stat-label">Merchant Whitelist</p>
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-neutral-600">
-                  <input type="checkbox" checked readOnly className="w-4 h-4 text-primary rounded" />
+                <div className="flex items-center gap-2 text-sm text-on-surface">
+                  <input type="checkbox" checked readOnly className="w-4 h-4 text-primary rounded accent-primary" />
                   <span className="font-mono text-xs">stellar-dex.protocol.io</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-neutral-600">
-                  <input type="checkbox" checked readOnly className="w-4 h-4 text-primary rounded" />
+                <div className="flex items-center gap-2 text-sm text-on-surface">
+                  <input type="checkbox" checked readOnly className="w-4 h-4 text-primary rounded accent-primary" />
                   <span className="font-mono text-xs">amm-liquidity.stellar.com</span>
                 </div>
               </div>
@@ -147,7 +148,7 @@ export default function VaultPage() {
                   placeholder="G... Stellar address"
                   value={merchantInput}
                   onChange={(e) => setMerchantInput(e.target.value)}
-                  className="input-field font-mono text-xs flex-1"
+                  className="input-field text-xs flex-1"
                 />
                 <button
                   disabled={busy || !merchantInput}
@@ -177,14 +178,12 @@ export default function VaultPage() {
           </div>
 
           {/* Emergency Kill Switch */}
-          <div className="card border-2 border-danger-200 bg-danger-50/20">
+          <div className="card border-2 border-error-container bg-error-container/10">
             <div className="flex items-center gap-2 mb-2">
-              <svg className="w-5 h-5 text-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-              </svg>
-              <h3 className="font-bold text-danger-700 uppercase text-sm tracking-wide">Emergency Kill Switch</h3>
+              <span className="material-symbols-outlined text-error text-[20px]">warning</span>
+              <h3 className="font-bold text-error uppercase text-sm tracking-wide">Emergency Kill Switch</h3>
             </div>
-            <p className="text-xs text-neutral-600 mb-4">
+            <p className="text-xs text-on-surface-variant mb-4">
               {status?.paused
                 ? "Contract is PAUSED. No new payments will be authorized."
                 : "Instantly revoke all Soroban authorization for this agent. This action cannot be undone without manual contract deployment."}
@@ -198,11 +197,11 @@ export default function VaultPage() {
                 }
               }}
               disabled={busy}
-              className={`w-full font-bold text-sm py-2.5 rounded-lg transition-colors ${
+              className={`w-full font-bold text-sm py-2.5 rounded-lg transition-colors disabled:opacity-50 ${
                 status?.paused
                   ? "btn-accent"
                   : "btn-danger"
-              } disabled:opacity-50`}
+              }`}
             >
               {status?.paused ? "Resume Operations" : "Revoke Soroban Auth"}
             </button>
@@ -211,10 +210,8 @@ export default function VaultPage() {
 
         {/* Right: Budget Control Panel */}
         <div className="lg:col-span-3 card">
-          <h3 className="text-title text-neutral-900 mb-6 flex items-center gap-2">
-            <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
-            </svg>
+          <h3 className="font-semibold text-primary mb-6 flex items-center gap-2">
+            <span className="material-symbols-outlined text-[20px]">account_balance</span>
             Budget Control Panel
           </h3>
 
@@ -222,21 +219,21 @@ export default function VaultPage() {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-2">
               <p className="stat-label">Daily Spending Limit</p>
-              <span className="text-xs text-neutral-400">
+              <span className="text-xs text-on-surface-variant font-mono">
                 Used today: ${spentUsdc} ({spentPct}%)
               </span>
             </div>
-            <p className="text-3xl font-bold text-neutral-900 mb-3">
+            <p className="text-3xl font-bold text-primary font-mono mb-3">
               {Number(dailyLimitUsdc).toLocaleString("en-US", { minimumFractionDigits: 2 })}
-              <span className="text-sm font-normal text-neutral-400 ml-2">USDC</span>
+              <span className="text-sm font-normal text-on-surface-variant ml-2">USDC</span>
             </p>
-            <div className="w-full bg-neutral-200 rounded-full h-2.5 mb-2">
+            <div className="w-full bg-surface-container rounded-full h-2.5 mb-2">
               <div
-                className={`h-2.5 rounded-full transition-all ${spendPercentColor(spentPct)}`}
+                className={`h-2.5 rounded-full transition-all ${spendBarColor(spentPct)}`}
                 style={{ width: `${Math.min(spentPct, 100)}%` }}
               />
             </div>
-            <div className="flex justify-between text-[10px] text-neutral-400">
+            <div className="flex justify-between text-[10px] text-on-surface-variant font-mono">
               <span>0 USDC</span>
               <span>{Number(dailyLimitUsdc).toLocaleString()} USDC</span>
             </div>
@@ -261,14 +258,14 @@ export default function VaultPage() {
           {/* Max Transaction Value */}
           <div className="mb-8">
             <p className="stat-label mb-2">Max Transaction Value</p>
-            <p className="text-3xl font-bold text-neutral-900 mb-3">
+            <p className="text-3xl font-bold text-primary font-mono mb-3">
               {Number(maxTxUsdc).toLocaleString("en-US", { minimumFractionDigits: 2 })}
-              <span className="text-sm font-normal text-neutral-400 ml-2">USDC</span>
+              <span className="text-sm font-normal text-on-surface-variant ml-2">USDC</span>
             </p>
-            <div className="w-full bg-neutral-200 rounded-full h-2.5 mb-2">
+            <div className="w-full bg-surface-container rounded-full h-2.5 mb-2">
               <div className="h-2.5 rounded-full bg-secondary" style={{ width: "50%" }} />
             </div>
-            <div className="flex justify-between text-[10px] text-neutral-400">
+            <div className="flex justify-between text-[10px] text-on-surface-variant font-mono">
               <span>0 USDC</span>
               <span>{Number(dailyLimitUsdc).toLocaleString()} USDC</span>
             </div>
@@ -291,22 +288,18 @@ export default function VaultPage() {
           </div>
 
           {/* Footer stats */}
-          <div className="grid grid-cols-2 gap-4 pt-6 border-t border-neutral-100">
+          <div className="grid grid-cols-2 gap-4 pt-6 border-t border-surface-container">
             <div>
               <p className="stat-label">Policy Version</p>
-              <p className="text-sm font-bold text-neutral-900 mt-1 flex items-center gap-1">
-                <svg className="w-4 h-4 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+              <p className="text-sm font-bold text-primary mt-1 flex items-center gap-1">
+                <span className="material-symbols-outlined text-on-surface-variant text-[16px]">schedule</span>
                 v0.1.0-STABLE
               </p>
             </div>
             <div>
               <p className="stat-label">Last Sync</p>
-              <p className="text-sm font-bold text-neutral-900 mt-1 flex items-center gap-1">
-                <svg className="w-4 h-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182" />
-                </svg>
+              <p className="text-sm font-bold text-primary mt-1 flex items-center gap-1">
+                <span className="material-symbols-outlined text-tertiary-fixed-dim text-[16px]">sync</span>
                 2m ago
               </p>
             </div>
@@ -317,16 +310,14 @@ export default function VaultPage() {
       {/* Kill Switch Confirmation Modal */}
       {showKillModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
-          <div className="bg-white rounded-card p-6 max-w-md w-full mx-4 shadow-panel animate-slide-up">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-panel animate-slide-up">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-10 h-10 bg-danger-50 rounded-full flex items-center justify-center">
-                <svg className="w-5 h-5 text-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                </svg>
+              <div className="w-10 h-10 bg-error-container rounded-full flex items-center justify-center">
+                <span className="material-symbols-outlined text-error text-[20px]">warning</span>
               </div>
-              <h3 className="text-lg font-bold text-danger-700">Confirm Emergency Pause</h3>
+              <h3 className="text-lg font-bold text-error">Confirm Emergency Pause</h3>
             </div>
-            <p className="text-sm text-neutral-600 mb-6">
+            <p className="text-sm text-on-surface-variant mb-6">
               This will immediately block all new payment authorizations.
               In-flight transactions already on the ledger are final and cannot be reversed.
             </p>
