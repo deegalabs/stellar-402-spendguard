@@ -1,4 +1,4 @@
-import { Sequence } from "remotion";
+import { Audio, Sequence, staticFile } from "remotion";
 import { Intro } from "./scenes/Intro";
 import { Architecture } from "./scenes/Architecture";
 import { PaymentFlow } from "./scenes/PaymentFlow";
@@ -17,9 +17,22 @@ import { Closing } from "./scenes/Closing";
 //   AuditLog:       1:06-1:20  = 1980-2400
 //   Closing:        1:20-1:30  = 2400-2700
 
+// Audio:
+//   public/music.mp3     — Background music (royalty-free, ambient/tech)
+//   public/narration.mp3 — Voice narration (record per NARRATION_SCRIPT.md)
+//
+// Replace the silent placeholders with your own files.
+// Music plays at 15% volume so narration is clear.
+
 export const SpendGuardDemo = () => {
   return (
     <>
+      {/* Background music — low volume, full duration */}
+      <Audio src={staticFile("music.mp3")} volume={0.15} />
+
+      {/* Voice narration — full volume, full duration */}
+      <Audio src={staticFile("narration.mp3")} volume={1.0} />
+
       <Sequence from={0} durationInFrames={360} premountFor={30}>
         <Intro />
       </Sequence>
