@@ -100,6 +100,9 @@ contracts are involved, there is a clear plan to open-source them."_
 - Honest documentation of limitations (kill switch scope, Stripe simulation)
 - Backend: Express + Stellar SDK v15, typed API, x402 agent flow
 - Frontend: Next.js 14, 5 screens (incl. Live Demo), Freighter integration, Tailwind
+- Swagger/OpenAPI 3.0 interactive docs at `/api/docs`
+- Reusable x402 Express middleware (`x402Paywall`) for any Express app
+- MCP server with 4 tools for AI agent integration
 
 **Verified by judges:**
 | Check | Status |
@@ -113,6 +116,9 @@ contracts are involved, there is a clear plan to open-source them."_
 | Backend builds cleanly | DONE — `tsc --noEmit` passes |
 | Frontend builds cleanly | DONE — `next build` all 5 pages |
 | Seed transactions on testnet | DONE — 17/17 succeeded |
+| Swagger/OpenAPI docs | DONE — `/api/docs` with all endpoints |
+| x402 Express middleware | DONE — reusable `x402Paywall()` |
+| MCP server | DONE — 4 tools, stdio transport |
 
 **No gaps remaining.**
 

@@ -122,6 +122,32 @@ SpendGuard is infrastructure — a public good primitive that other projects can
 | Wallet | Freighter (auth-entry signing) |
 | USDC | Stellar Asset Contract (SAC) — native Circle-issued |
 | MCP Server | Model Context Protocol — AI agent tool integration |
+| API Docs | Swagger/OpenAPI 3.0 at `/api/docs` |
+| x402 Middleware | Reusable Express middleware for x402 paywalls |
+
+## API Documentation
+
+Interactive Swagger UI available at `http://localhost:3001/api/docs` when the backend is running. OpenAPI 3.0 spec at `/api/openapi.json`.
+
+All endpoints are documented with request/response schemas, example values, and error codes. Judges and developers can test endpoints directly from the browser.
+
+## x402 Express Middleware
+
+Reusable middleware for any Express app to add SpendGuard-governed x402 paywalls:
+
+```typescript
+import { x402Paywall } from "./middleware/x402-spendguard.js";
+
+app.get("/api/premium-data", x402Paywall({
+  price: "0.10",          // USDC
+  merchant: "GAURB...",   // Stellar address
+  description: "Premium weather data",
+}), (req, res) => {
+  res.json({ data: "premium content" });
+});
+```
+
+Returns HTTP 402 with x402 challenge to unpaid requests. Validates payment proofs against the Stellar network. See [middleware source](backend/src/middleware/x402-spendguard.ts).
 
 ## MCP Integration
 

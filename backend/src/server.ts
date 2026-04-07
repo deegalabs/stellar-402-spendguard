@@ -7,6 +7,7 @@ import demoRouter from "./api/demo.js";
 import webhookRouter from "./stripe/webhook.js";
 import checkoutRouter from "./stripe/checkout.js";
 import { createEventStreamHandler } from "./stellar/event-stream.js";
+import { setupSwagger } from "./swagger.js";
 
 const app = express();
 
@@ -31,6 +32,9 @@ app.use("/webhooks", webhookRouter);
 // SSE event stream (real-time contract events)
 app.get("/api/events", createEventStreamHandler() as express.RequestHandler);
 
+// Swagger / OpenAPI docs
+setupSwagger(app);
+
 // Health check
 app.get("/health", (_req, res) => {
   res.json({ status: "ok", network: config.stellarNetwork });
@@ -40,4 +44,5 @@ app.listen(config.port, () => {
   console.log(`SpendGuard backend running on port ${config.port}`);
   console.log(`Network: ${config.stellarNetwork}`);
   console.log(`Contract: ${config.contractAddress || "not configured"}`);
+  console.log(`API Docs: http://localhost:${config.port}/api/docs`);
 });

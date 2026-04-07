@@ -3,6 +3,10 @@ import { requestResource, findStellarAccept } from "../agent/x402-client.js";
 import { executePayment } from "../agent/payment-handler.js";
 import { config } from "../config.js";
 import type { DemoStepResult, X402Challenge } from "../types.js";
+import {
+  x402Paywall,
+  x402PricingTable,
+} from "../middleware/x402-spendguard.js";
 
 const router = Router();
 
@@ -91,5 +95,35 @@ router.post("/run-agent", async (req, res) => {
     res.status(502).json({ success: false, steps, error: message });
   }
 });
+
+// --- x402 Middleware examples (demonstrates reusable middleware) ---
+
+const demoMerchant =
+  config.agentPublicKey || "GAURBKKJ56HQSPEB54ON32EWK2K7OHCG65ULNJ6CKIOXAETCQSRCUOY2";
+
+// Example: protect an endpoint with the x402 middleware
+router.get(
+  "/premium-weather",
+  x402Paywall({
+    price: "0.10",
+    merchant: demoMerchant,
+    description: "Premium weather forecast with 7-day outlook",
+  }),
+  (_req, res) => {
+    res.json({
+      data: "7-day forecast: Mon 25C, Tue 23C, Wed 27C, Thu 22C, Fri 28C, Sat 24C, Sun 26C",
+      source: "SpendGuard x402 Middleware",
+    });
+  }
+);
+
+// Pricing table: list all x402-protected resources and their prices
+router.get(
+  "/pricing",
+  x402PricingTable([
+    { path: "/api/demo/protected-resource", price: "0.10", description: "Current weather data" },
+    { path: "/api/demo/premium-weather", price: "0.10", description: "7-day premium forecast" },
+  ])
+);
 
 export default router;
