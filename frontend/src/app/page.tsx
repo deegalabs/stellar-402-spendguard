@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useContractStatus } from "@/hooks/useContractStatus";
 import { stroopsToUsdc, shortAddress } from "@/lib/format";
 import SpendGuardLogo from "@/components/SpendGuardLogo";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const FEATURES = [
   {
@@ -65,6 +66,7 @@ export default function Home() {
             <Link href="/demo" className="px-3 py-1.5 text-xs font-medium text-text-muted hover:text-text-primary transition-colors">
               Demo
             </Link>
+            <ThemeToggle />
             <Link href="/dashboard" className="btn-primary text-xs py-2">
               Open Dashboard
             </Link>
