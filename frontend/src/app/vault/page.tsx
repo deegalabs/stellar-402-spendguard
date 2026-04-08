@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useContractStatus } from "@/hooks/useContractStatus";
+import { useFreighter } from "@/hooks/useFreighter";
 import { stroopsToUsdc, usdcToStroops, shortAddress } from "@/lib/format";
 import {
   setDailyLimit,
@@ -10,6 +11,7 @@ import {
   removeMerchant,
   pauseContract,
   unpauseContract,
+  setAuthAddress,
 } from "@/lib/api";
 
 function spendBarColor(pct: number): string {
@@ -20,6 +22,13 @@ function spendBarColor(pct: number): string {
 
 export default function VaultPage() {
   const { status, loading, refresh } = useContractStatus();
+  const { publicKey } = useFreighter();
+
+  // Set connected wallet as auth for admin endpoints
+  useEffect(() => {
+    if (publicKey) setAuthAddress(publicKey);
+    return () => setAuthAddress(null);
+  }, [publicKey]);
 
   const [dailyInput, setDailyInput] = useState("");
   const [maxTxInput, setMaxTxInput] = useState("");

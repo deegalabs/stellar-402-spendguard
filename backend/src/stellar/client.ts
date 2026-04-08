@@ -43,8 +43,8 @@ export async function submitTransaction(
   signer: Keypair
 ) {
   const built = tx.setTimeout(30).build();
-  built.sign(signer);
 
+  // Soroban flow: build → prepare (simulate) → sign → send
   const prepared = await server.prepareTransaction(built);
   if ("sign" in prepared) {
     prepared.sign(signer);

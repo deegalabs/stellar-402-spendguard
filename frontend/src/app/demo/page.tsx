@@ -10,6 +10,7 @@ import {
   runAgent,
   pauseContract,
   unpauseContract,
+  setAuthAddress,
 } from "@/lib/api";
 import { stroopsToUsdc, usdcToStroops, shortAddress } from "@/lib/format";
 import type { ContractStatus, BalanceInfo } from "@/lib/types";
@@ -43,6 +44,12 @@ export default function DemoPage() {
   const [balance, setBalance] = useState<BalanceInfo | null>(null);
   const [finished, setFinished] = useState(false);
   const logRef = useRef<HTMLDivElement>(null);
+
+  // Set fixed demo wallet for admin auth (no Freighter needed)
+  useEffect(() => {
+    setAuthAddress(DEMO_WALLETS.owner);
+    return () => setAuthAddress(null);
+  }, []);
 
   useEffect(() => {
     if (logRef.current) {

@@ -1,9 +1,26 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
+// Auth address for admin endpoints (set by pages that need admin access)
+let _authAddress: string | null = null;
+
+export function setAuthAddress(address: string | null) {
+  _authAddress = address;
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(options?.headers as Record<string, string> | undefined),
+  };
+
+  // Send Stellar address for admin auth when available
+  if (_authAddress) {
+    headers["X-Stellar-Address"] = _authAddress;
+  }
+
   const res = await fetch(`${API_BASE}${path}`, {
-    headers: { "Content-Type": "application/json" },
     ...options,
+    headers,
   });
   if (!res.ok) {
     const body = await res.json().catch(() => ({ error: res.statusText }));
