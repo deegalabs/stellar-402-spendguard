@@ -4,6 +4,7 @@ import "./globals.css";
 import AppShell from "@/components/AppShell";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ContractStatusProvider } from "@/hooks/useContractStatus";
+import { ToastProvider } from "@/components/toast/ToastProvider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -40,9 +41,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider>
-          <ContractStatusProvider>
-            <AppShell>{children}</AppShell>
-          </ContractStatusProvider>
+          <ToastProvider>
+            <ContractStatusProvider>
+              <AppShell>{children}</AppShell>
+            </ContractStatusProvider>
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useContractStatus } from "@/hooks/useContractStatus";
 import { useFreighter } from "@/hooks/useFreighter";
+import { useToast } from "@/components/toast/ToastProvider";
 import { stroopsToUsdc, usdcToStroops, shortAddress, relativeTime } from "@/lib/format";
 import {
   setDailyLimit,
@@ -25,6 +26,7 @@ function spendBarColor(pct: number): string {
 export default function VaultPage() {
   const { status, loading, refresh } = useContractStatus();
   const { publicKey } = useFreighter();
+  const toast = useToast();
 
   // Set connected wallet as auth for admin endpoints
   useEffect(() => {
@@ -35,7 +37,6 @@ export default function VaultPage() {
   const [dailyInput, setDailyInput] = useState("");
   const [maxTxInput, setMaxTxInput] = useState("");
   const [merchantInput, setMerchantInput] = useState("");
-  const [message, setMessage] = useState<{ text: string; type: "ok" | "err" } | null>(null);
   const [showKillModal, setShowKillModal] = useState(false);
   const [busy, setBusy] = useState(false);
   const [autonomousMode, setAutonomousMode] = useState(true);
@@ -74,13 +75,15 @@ export default function VaultPage() {
 
   async function exec(label: string, fn: () => Promise<unknown>) {
     setBusy(true);
-    setMessage(null);
     try {
       await fn();
-      setMessage({ text: `${label} succeeded`, type: "ok" });
+      toast.success({ title: `${label} succeeded` });
       refresh();
     } catch (err) {
-      setMessage({ text: err instanceof Error ? err.message : "Failed", type: "err" });
+      toast.error({
+        title: `${label} failed`,
+        description: err instanceof Error ? err.message : "Unknown error",
+      });
     } finally {
       setBusy(false);
     }
@@ -116,18 +119,6 @@ export default function VaultPage() {
           Precision governance for your Soroban-powered autonomous agent.
         </p>
       </div>
-
-      {/* Notification */}
-      {message && (
-        <div className={`flex items-center gap-2 p-3 rounded-lg text-sm animate-slide-up ${
-          message.type === "ok"
-            ? "bg-success-glow text-success-fg"
-            : "bg-error-glow text-error-fg"
-        }`}>
-          <span className={`w-2 h-2 rounded-full ${message.type === "ok" ? "bg-success-400" : "bg-error-500"}`} />
-          {message.text}
-        </div>
-      )}
 
       {/* Top row: Agent Info + Budget Control Panel */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
