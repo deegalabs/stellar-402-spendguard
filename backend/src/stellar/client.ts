@@ -129,8 +129,27 @@ export async function submitTransaction(
 ) {
   const built = tx.setTimeout(30).build();
 
-  // Soroban flow: build → prepare (simulate) → sign → send
-  const prepared = await server.prepareTransaction(built);
+  // Soroban flow: build → prepare (simulate) → sign → send.
+  // `prepareTransaction` simulates the call internally; if the
+  // contract will revert, simulation fails and this throws a raw
+  // "HostError: Error(Contract, #N) …" before we ever reach the
+  // send step. Normalize that into the same "reverted on-chain"
+  // format the post-submit path uses, so the HTTP layer has one
+  // sentinel to match contract reverts and distinguish them from
+  // infra errors (RPC unreachable, bad seq, etc.).
+  let prepared;
+  try {
+    prepared = await server.prepareTransaction(built);
+  } catch (err) {
+    const raw = err instanceof Error ? err.message : String(err);
+    const match = raw.match(/Error\(Contract,\s*#(\d+)\)/);
+    if (match) {
+      throw new Error(
+        `Transaction reverted on-chain at simulation. Error(Contract, #${match[1]})`
+      );
+    }
+    throw err;
+  }
   if ("sign" in prepared) {
     prepared.sign(signer);
   }
