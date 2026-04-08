@@ -99,93 +99,107 @@ export default function APIReferencePage() {
   ];
 
   const tagColors: Record<string, string> = {
-    Dashboard: "bg-green-900/50 text-green-300",
-    Admin: "bg-orange-900/50 text-orange-300",
-    Demo: "bg-purple-900/50 text-purple-300",
-    System: "bg-slate-700 text-slate-300",
+    Dashboard: "bg-tertiary-container text-tertiary-fixed-dim",
+    Admin: "bg-warning-50 text-warning-600",
+    Demo: "bg-secondary-fixed/30 text-secondary",
+    System: "bg-surface-container text-on-surface-variant",
   };
 
   const methodColors: Record<string, string> = {
-    GET: "text-green-400",
-    POST: "text-yellow-400",
+    GET: "text-tertiary-fixed-dim",
+    POST: "text-warning-600",
   };
 
   return (
-    <article className="prose prose-invert max-w-none">
-      <h1>API Reference</h1>
-      <p className="lead text-slate-300 text-lg">
-        All HTTP endpoints exposed by the SpendGuard backend.
-      </p>
+    <div className="flex flex-col gap-8 max-w-3xl">
+      <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-slate-400">
+        <span>Docs</span>
+        <span className="material-symbols-outlined text-xs">chevron_right</span>
+        <span className="text-secondary font-bold">API Reference</span>
+      </div>
 
-      <div className="bg-blue-900/30 border border-blue-700 rounded-lg p-4 my-4">
-        <p className="text-blue-300 mb-0">
+      <div>
+        <h1 className="text-4xl font-black text-primary tracking-tighter mb-4">API Reference</h1>
+        <p className="text-lg text-on-surface-variant">
+          All HTTP endpoints exposed by the SpendGuard backend.
+        </p>
+      </div>
+
+      <div className="bg-secondary-fixed/30 border border-secondary/20 rounded-xl p-4">
+        <p className="text-secondary text-sm">
           <strong>Interactive docs:</strong> Run the backend and visit{" "}
-          <code>http://localhost:3001/api/docs</code> for the full Swagger UI
+          <code className="bg-white/50 px-1 rounded text-xs">http://localhost:3001/api/docs</code> for the full Swagger UI
           where you can test endpoints directly.
         </p>
       </div>
 
-      <h2>Base URL</h2>
-      <pre className="bg-slate-800 border border-slate-700"><code>http://localhost:3001</code></pre>
+      <section>
+        <h2 className="text-xl font-bold text-primary mb-4">Base URL</h2>
+        <pre className="bg-surface-container-low p-4 rounded-xl border border-outline-variant/30 font-mono text-sm text-primary"><code>http://localhost:3001</code></pre>
+      </section>
 
-      <h2>Endpoints</h2>
-      <div className="not-prose space-y-3">
-        {endpoints.map((ep) => (
-          <div
-            key={ep.path + ep.method}
-            className="bg-slate-800 border border-slate-700 rounded-lg p-4"
-          >
-            <div className="flex items-center gap-3 mb-2">
-              <span className={`font-mono font-bold text-sm ${methodColors[ep.method]}`}>
-                {ep.method}
-              </span>
-              <code className="text-white text-sm">{ep.path}</code>
-              <span className={`text-xs px-2 py-0.5 rounded ${tagColors[ep.tag]}`}>
-                {ep.tag}
-              </span>
+      <section>
+        <h2 className="text-xl font-bold text-primary mb-4">Endpoints</h2>
+        <div className="space-y-3">
+          {endpoints.map((ep) => (
+            <div
+              key={ep.path + ep.method}
+              className="bg-white p-4 rounded-xl border border-outline-variant/20 shadow-sm"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <span className={`font-mono font-bold text-sm ${methodColors[ep.method]}`}>
+                  {ep.method}
+                </span>
+                <code className="text-primary text-sm">{ep.path}</code>
+                <span className={`text-xs px-2 py-0.5 rounded ${tagColors[ep.tag]}`}>
+                  {ep.tag}
+                </span>
+              </div>
+              <p className="text-on-surface-variant text-sm">{ep.desc}</p>
+              {ep.params && (
+                <p className="text-on-surface-variant/60 text-xs mt-1">
+                  Params: <code className="bg-surface-container px-1 rounded text-xs">{ep.params}</code>
+                </p>
+              )}
+              {ep.body && (
+                <pre className="bg-surface-container-low border border-outline-variant/30 rounded-lg mt-2 p-2 text-xs font-mono text-primary">
+                  <code>{ep.body}</code>
+                </pre>
+              )}
             </div>
-            <p className="text-slate-300 text-sm mb-0">{ep.desc}</p>
-            {ep.params && (
-              <p className="text-slate-500 text-xs mt-1 mb-0">
-                Params: <code>{ep.params}</code>
-              </p>
-            )}
-            {ep.body && (
-              <pre className="bg-slate-900 border border-slate-600 rounded mt-2 p-2 text-xs">
-                <code>{ep.body}</code>
-              </pre>
-            )}
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </section>
 
-      <h2 className="mt-8">Error Codes</h2>
-      <div className="overflow-x-auto">
-        <table>
-          <thead>
-            <tr>
-              <th>Code</th>
-              <th>HTTP</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td><code>INVALID_AMOUNT</code></td><td>400</td><td>Amount is zero, negative, or invalid</td></tr>
-            <tr><td><code>INVALID_ADDRESS</code></td><td>400</td><td>Stellar address format is invalid</td></tr>
-            <tr><td><code>UNAUTHORIZED</code></td><td>401</td><td>Missing or invalid owner auth</td></tr>
-            <tr><td><code>CONTRACT_PAUSED</code></td><td>409</td><td>Contract is paused</td></tr>
-            <tr><td><code>EXCEEDS_LIMIT</code></td><td>422</td><td>Exceeds daily limit or max tx</td></tr>
-            <tr><td><code>INSUFFICIENT_BALANCE</code></td><td>422</td><td>Balance too low</td></tr>
-            <tr><td><code>STELLAR_ERROR</code></td><td>502</td><td>Stellar network error</td></tr>
-          </tbody>
-        </table>
-      </div>
+      <section>
+        <h2 className="text-xl font-bold text-primary mb-4">Error Codes</h2>
+        <div className="overflow-x-auto rounded-xl border border-outline-variant/30">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-surface-container text-on-surface-variant text-[10px] font-mono uppercase tracking-widest">
+                <th className="px-4 py-3 text-left">Code</th>
+                <th className="px-4 py-3 text-left">HTTP</th>
+                <th className="px-4 py-3 text-left">Description</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-surface-container">
+              <tr><td className="px-4 py-2"><code className="text-xs font-bold text-error">INVALID_AMOUNT</code></td><td className="px-4 py-2 text-on-surface-variant">400</td><td className="px-4 py-2 text-on-surface-variant">Amount is zero, negative, or invalid</td></tr>
+              <tr><td className="px-4 py-2"><code className="text-xs font-bold text-error">INVALID_ADDRESS</code></td><td className="px-4 py-2 text-on-surface-variant">400</td><td className="px-4 py-2 text-on-surface-variant">Stellar address format is invalid</td></tr>
+              <tr><td className="px-4 py-2"><code className="text-xs font-bold text-error">UNAUTHORIZED</code></td><td className="px-4 py-2 text-on-surface-variant">401</td><td className="px-4 py-2 text-on-surface-variant">Missing or invalid owner auth</td></tr>
+              <tr><td className="px-4 py-2"><code className="text-xs font-bold text-error">CONTRACT_PAUSED</code></td><td className="px-4 py-2 text-on-surface-variant">409</td><td className="px-4 py-2 text-on-surface-variant">Contract is paused</td></tr>
+              <tr><td className="px-4 py-2"><code className="text-xs font-bold text-error">EXCEEDS_LIMIT</code></td><td className="px-4 py-2 text-on-surface-variant">422</td><td className="px-4 py-2 text-on-surface-variant">Exceeds daily limit or max tx</td></tr>
+              <tr><td className="px-4 py-2"><code className="text-xs font-bold text-error">INSUFFICIENT_BALANCE</code></td><td className="px-4 py-2 text-on-surface-variant">422</td><td className="px-4 py-2 text-on-surface-variant">Balance too low</td></tr>
+              <tr><td className="px-4 py-2"><code className="text-xs font-bold text-error">STELLAR_ERROR</code></td><td className="px-4 py-2 text-on-surface-variant">502</td><td className="px-4 py-2 text-on-surface-variant">Stellar network error</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-      <h2>OpenAPI Spec</h2>
-      <p>
-        Download the full OpenAPI 3.0 spec:
-      </p>
-      <pre className="bg-slate-800 border border-slate-700"><code>{`curl http://localhost:3001/api/openapi.json`}</code></pre>
-    </article>
+      <section>
+        <h2 className="text-xl font-bold text-primary mb-4">OpenAPI Spec</h2>
+        <p className="text-on-surface-variant mb-3">Download the full OpenAPI 3.0 spec:</p>
+        <pre className="bg-surface-container-low p-4 rounded-xl border border-outline-variant/30 font-mono text-sm text-primary"><code>{`curl http://localhost:3001/api/openapi.json`}</code></pre>
+      </section>
+    </div>
   );
 }

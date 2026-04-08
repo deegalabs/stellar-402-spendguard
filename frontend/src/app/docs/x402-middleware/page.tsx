@@ -1,24 +1,35 @@
 export default function X402MiddlewarePage() {
   return (
-    <article className="prose prose-invert max-w-none">
-      <h1>x402 Express Middleware</h1>
-      <p className="lead text-slate-300 text-lg">
-        Protect any Express endpoint with an x402 paywall in 3 lines of code.
-      </p>
+    <div className="flex flex-col gap-8 max-w-3xl">
+      <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-slate-400">
+        <span>Docs</span>
+        <span className="material-symbols-outlined text-xs">chevron_right</span>
+        <span className="text-secondary font-bold">x402 Middleware</span>
+      </div>
 
-      <h2>Overview</h2>
-      <p>
-        The <code>x402Paywall</code> middleware handles the full x402 flow:
-      </p>
-      <ol>
-        <li>Returns HTTP 402 with x402 challenge to unpaid requests</li>
-        <li>Validates payment proofs against the Stellar network</li>
-        <li>Caches verified payments (5-min TTL) to avoid re-verification</li>
-        <li>Passes through to your handler when payment is valid</li>
-      </ol>
+      <div>
+        <h1 className="text-4xl font-black text-primary tracking-tighter mb-4">x402 Express Middleware</h1>
+        <p className="text-lg text-on-surface-variant">
+          Protect any Express endpoint with an x402 paywall in 3 lines of code.
+        </p>
+      </div>
 
-      <h2>Quick Start</h2>
-      <pre className="bg-slate-800 border border-slate-700"><code>{`import express from "express";
+      <section>
+        <h2 className="text-xl font-bold text-primary mb-4">Overview</h2>
+        <p className="text-on-surface-variant mb-3">
+          The <code className="bg-surface-container px-1 rounded text-xs">x402Paywall</code> middleware handles the full x402 flow:
+        </p>
+        <ol className="text-on-surface-variant space-y-1 list-decimal list-inside">
+          <li>Returns HTTP 402 with x402 challenge to unpaid requests</li>
+          <li>Validates payment proofs against the Stellar network</li>
+          <li>Caches verified payments (5-min TTL) to avoid re-verification</li>
+          <li>Passes through to your handler when payment is valid</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2 className="text-xl font-bold text-primary mb-4">Quick Start</h2>
+        <pre className="bg-surface-container-low p-6 rounded-xl border border-outline-variant/30 font-mono text-sm text-primary overflow-x-auto"><code>{`import express from "express";
 import { x402Paywall } from "./middleware/x402-spendguard.js";
 
 const app = express();
@@ -35,50 +46,54 @@ app.get("/api/premium-weather",
     res.json({ forecast: "Mon 25C, Tue 23C, Wed 27C..." });
   }
 );`}</code></pre>
+      </section>
 
-      <h2>PaywallOptions</h2>
-      <div className="overflow-x-auto">
-        <table>
-          <thead>
-            <tr>
-              <th>Option</th>
-              <th>Type</th>
-              <th>Required</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><code>price</code></td>
-              <td>string</td>
-              <td>Yes</td>
-              <td>Price in USDC (e.g. &quot;0.10&quot; for 10 cents)</td>
-            </tr>
-            <tr>
-              <td><code>merchant</code></td>
-              <td>string</td>
-              <td>Yes</td>
-              <td>Merchant Stellar address (G...) that receives payment</td>
-            </tr>
-            <tr>
-              <td><code>description</code></td>
-              <td>string</td>
-              <td>Yes</td>
-              <td>Human-readable description of the resource</td>
-            </tr>
-            <tr>
-              <td><code>network</code></td>
-              <td>string</td>
-              <td>No</td>
-              <td>Default: &quot;stellar:testnet&quot;</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <section>
+        <h2 className="text-xl font-bold text-primary mb-4">PaywallOptions</h2>
+        <div className="overflow-x-auto rounded-xl border border-outline-variant/30">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-surface-container text-on-surface-variant text-[10px] font-mono uppercase tracking-widest">
+                <th className="px-4 py-3 text-left">Option</th>
+                <th className="px-4 py-3 text-left">Type</th>
+                <th className="px-4 py-3 text-left">Required</th>
+                <th className="px-4 py-3 text-left">Description</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-surface-container">
+              <tr>
+                <td className="px-4 py-2"><code className="text-xs font-bold text-primary">price</code></td>
+                <td className="px-4 py-2 text-on-surface-variant">string</td>
+                <td className="px-4 py-2 text-on-surface-variant">Yes</td>
+                <td className="px-4 py-2 text-on-surface-variant">Price in USDC (e.g. &quot;0.10&quot; for 10 cents)</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2"><code className="text-xs font-bold text-primary">merchant</code></td>
+                <td className="px-4 py-2 text-on-surface-variant">string</td>
+                <td className="px-4 py-2 text-on-surface-variant">Yes</td>
+                <td className="px-4 py-2 text-on-surface-variant">Merchant Stellar address (G...) that receives payment</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2"><code className="text-xs font-bold text-primary">description</code></td>
+                <td className="px-4 py-2 text-on-surface-variant">string</td>
+                <td className="px-4 py-2 text-on-surface-variant">Yes</td>
+                <td className="px-4 py-2 text-on-surface-variant">Human-readable description of the resource</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2"><code className="text-xs font-bold text-primary">network</code></td>
+                <td className="px-4 py-2 text-on-surface-variant">string</td>
+                <td className="px-4 py-2 text-on-surface-variant">No</td>
+                <td className="px-4 py-2 text-on-surface-variant">Default: &quot;stellar:testnet&quot;</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-      <h2>402 Response Format</h2>
-      <p>When a request arrives without payment, the middleware returns:</p>
-      <pre className="bg-slate-800 border border-slate-700"><code>{`HTTP/1.1 402 Payment Required
+      <section>
+        <h2 className="text-xl font-bold text-primary mb-4">402 Response Format</h2>
+        <p className="text-on-surface-variant mb-3">When a request arrives without payment, the middleware returns:</p>
+        <pre className="bg-surface-container-low p-6 rounded-xl border border-outline-variant/30 font-mono text-sm text-primary overflow-x-auto"><code>{`HTTP/1.1 402 Payment Required
 Content-Type: application/json
 
 {
@@ -93,12 +108,14 @@ Content-Type: application/json
   "description": "7-day premium weather forecast",
   "error": "Payment Required"
 }`}</code></pre>
+      </section>
 
-      <h2>Pricing Table</h2>
-      <p>
-        Expose available resources and their prices for agent discovery:
-      </p>
-      <pre className="bg-slate-800 border border-slate-700"><code>{`import { x402PricingTable } from "./middleware/x402-spendguard.js";
+      <section>
+        <h2 className="text-xl font-bold text-primary mb-4">Pricing Table</h2>
+        <p className="text-on-surface-variant mb-3">
+          Expose available resources and their prices for agent discovery:
+        </p>
+        <pre className="bg-surface-container-low p-6 rounded-xl border border-outline-variant/30 font-mono text-sm text-primary overflow-x-auto"><code>{`import { x402PricingTable } from "./middleware/x402-spendguard.js";
 
 app.get("/api/pricing",
   x402PricingTable([
@@ -107,28 +124,31 @@ app.get("/api/pricing",
     { path: "/api/satellite", price: "1.00", description: "Satellite imagery" },
   ])
 );`}</code></pre>
+      </section>
 
-      <h2>Payment Verification</h2>
-      <p>
-        The middleware verifies payment proofs by checking the transaction on
-        Stellar Horizon. Valid payments are cached in-memory for 5 minutes.
-      </p>
-      <p>
-        Agents send payment proof via the <code>X-Payment</code> or{" "}
-        <code>X-Payment-Proof</code> header:
-      </p>
-      <pre className="bg-slate-800 border border-slate-700"><code>{`GET /api/premium-weather HTTP/1.1
+      <section>
+        <h2 className="text-xl font-bold text-primary mb-4">Payment Verification</h2>
+        <p className="text-on-surface-variant mb-3">
+          The middleware verifies payment proofs by checking the transaction on
+          Stellar Horizon. Valid payments are cached in-memory for 5 minutes.
+        </p>
+        <p className="text-on-surface-variant mb-3">
+          Agents send payment proof via the <code className="bg-surface-container px-1 rounded text-xs">X-Payment</code> or{" "}
+          <code className="bg-surface-container px-1 rounded text-xs">X-Payment-Proof</code> header:
+        </p>
+        <pre className="bg-surface-container-low p-6 rounded-xl border border-outline-variant/30 font-mono text-sm text-primary overflow-x-auto"><code>{`GET /api/premium-weather HTTP/1.1
 X-Payment-Proof: abc123def456...  # Stellar transaction hash`}</code></pre>
 
-      <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 mt-6">
-        <h3 className="text-green-400 mt-0">Integration with SpendGuard</h3>
-        <p className="mb-0">
-          The x402 middleware works with any Stellar payment, but when combined
-          with SpendGuard, the agent&apos;s payments are automatically governed by
-          on-chain spending policies. The middleware verifies the payment; the
-          contract enforces the limits.
-        </p>
-      </div>
-    </article>
+        <div className="bg-tertiary-fixed/20 border border-on-tertiary-container/20 rounded-xl p-4 mt-4">
+          <h3 className="text-on-tertiary-container font-bold text-sm mb-2">Integration with SpendGuard</h3>
+          <p className="text-sm text-on-surface-variant">
+            The x402 middleware works with any Stellar payment, but when combined
+            with SpendGuard, the agent&apos;s payments are automatically governed by
+            on-chain spending policies. The middleware verifies the payment; the
+            contract enforces the limits.
+          </p>
+        </div>
+      </section>
+    </div>
   );
 }

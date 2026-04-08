@@ -1,18 +1,25 @@
 export default function MCPIntegrationPage() {
   return (
-    <article className="prose prose-invert max-w-none">
-      <h1>MCP Integration</h1>
-      <p className="lead text-slate-300 text-lg">
-        Connect SpendGuard to any MCP-compatible AI agent — Claude, GPT, or
-        custom agents.
-      </p>
+    <div className="flex flex-col gap-8 max-w-3xl">
+      <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-slate-400">
+        <span>Docs</span>
+        <span className="material-symbols-outlined text-xs">chevron_right</span>
+        <span className="text-secondary font-bold">MCP Integration</span>
+      </div>
 
-      <div className="bg-blue-900/30 border border-blue-700 rounded-lg p-4 my-4">
-        <p className="text-blue-300 mb-0">
+      <div>
+        <h1 className="text-4xl font-black text-primary tracking-tighter mb-4">MCP Integration</h1>
+        <p className="text-lg text-on-surface-variant">
+          Connect SpendGuard to any MCP-compatible AI agent — Claude, GPT, or custom agents.
+        </p>
+      </div>
+
+      <div className="bg-secondary-fixed/30 border border-secondary/20 rounded-xl p-4">
+        <p className="text-secondary text-sm">
           <strong>What is MCP?</strong> The{" "}
           <a
             href="https://modelcontextprotocol.io"
-            className="text-blue-400"
+            className="text-secondary underline hover:no-underline"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -24,9 +31,10 @@ export default function MCPIntegrationPage() {
         </p>
       </div>
 
-      <h2>Setup</h2>
-      <p>Add SpendGuard to your MCP client configuration:</p>
-      <pre className="bg-slate-800 border border-slate-700"><code>{`{
+      <section>
+        <h2 className="text-xl font-bold text-primary mb-4">Setup</h2>
+        <p className="text-on-surface-variant mb-3">Add SpendGuard to your MCP client configuration:</p>
+        <pre className="bg-surface-container-low p-6 rounded-xl border border-outline-variant/30 font-mono text-sm text-primary overflow-x-auto"><code>{`{
   "mcpServers": {
     "spendguard": {
       "command": "node",
@@ -40,15 +48,19 @@ export default function MCPIntegrationPage() {
   }
 }`}</code></pre>
 
-      <p>Or run directly:</p>
-      <pre className="bg-slate-800 border border-slate-700"><code>{`cd backend
+        <p className="text-on-surface-variant mt-3 mb-3">Or run directly:</p>
+        <pre className="bg-surface-container-low p-4 rounded-xl border border-outline-variant/30 font-mono text-sm text-primary"><code>{`cd backend
 npm run mcp`}</code></pre>
+      </section>
 
-      <h2>Available Tools</h2>
+      <section>
+        <h2 className="text-xl font-bold text-primary mb-4">Available Tools</h2>
 
-      <h3 className="text-blue-400">spendguard_get_status</h3>
-      <p>Read current contract state. No parameters required.</p>
-      <pre className="bg-slate-800 border border-slate-700"><code>{`// Agent asks: "What's my remaining budget?"
+        <div className="space-y-4">
+          <div className="bg-white p-5 rounded-xl border border-outline-variant/20 shadow-sm">
+            <h3 className="text-secondary font-bold text-sm mb-2">spendguard_get_status</h3>
+            <p className="text-on-surface-variant text-sm mb-3">Read current contract state. No parameters required.</p>
+            <pre className="bg-surface-container-low p-4 rounded-xl border border-outline-variant/30 font-mono text-sm text-primary overflow-x-auto"><code>{`// Agent asks: "What's my remaining budget?"
 → spendguard_get_status()
 
 {
@@ -58,13 +70,14 @@ npm run mcp`}</code></pre>
   "remaining_today_usdc": "7.70",
   "paused": false
 }`}</code></pre>
+          </div>
 
-      <h3 className="text-blue-400">spendguard_check_budget</h3>
-      <p>
-        Dry-run check whether a payment would be allowed. Does NOT execute a
-        transaction.
-      </p>
-      <pre className="bg-slate-800 border border-slate-700"><code>{`// Agent asks: "Can I pay $2.50 to this merchant?"
+          <div className="bg-white p-5 rounded-xl border border-outline-variant/20 shadow-sm">
+            <h3 className="text-secondary font-bold text-sm mb-2">spendguard_check_budget</h3>
+            <p className="text-on-surface-variant text-sm mb-3">
+              Dry-run check whether a payment would be allowed. Does NOT execute a transaction.
+            </p>
+            <pre className="bg-surface-container-low p-4 rounded-xl border border-outline-variant/30 font-mono text-sm text-primary overflow-x-auto"><code>{`// Agent asks: "Can I pay $2.50 to this merchant?"
 → spendguard_check_budget({ amount: "2.50", merchant: "GAURB..." })
 
 {
@@ -77,13 +90,14 @@ npm run mcp`}</code></pre>
     "sufficient_balance": true
   }
 }`}</code></pre>
+          </div>
 
-      <h3 className="text-blue-400">spendguard_authorize_payment</h3>
-      <p>
-        Execute a governed USDC payment on Stellar. The contract enforces all
-        policies on-chain.
-      </p>
-      <pre className="bg-slate-800 border border-slate-700"><code>{`// Agent decides to pay
+          <div className="bg-white p-5 rounded-xl border border-outline-variant/20 shadow-sm">
+            <h3 className="text-secondary font-bold text-sm mb-2">spendguard_authorize_payment</h3>
+            <p className="text-on-surface-variant text-sm mb-3">
+              Execute a governed USDC payment on Stellar. The contract enforces all policies on-chain.
+            </p>
+            <pre className="bg-surface-container-low p-4 rounded-xl border border-outline-variant/30 font-mono text-sm text-primary overflow-x-auto"><code>{`// Agent decides to pay
 → spendguard_authorize_payment({ amount: "0.10", merchant: "GAURB..." })
 
 // Success:
@@ -102,10 +116,12 @@ npm run mcp`}</code></pre>
   "message": "Payment of $5.00 exceeds max per-transaction limit of $1.00",
   "suggestion": "Request a smaller amount or ask the owner to increase max_tx_value"
 }`}</code></pre>
+          </div>
 
-      <h3 className="text-blue-400">spendguard_get_transactions</h3>
-      <p>Read recent transaction history from the audit log.</p>
-      <pre className="bg-slate-800 border border-slate-700"><code>{`→ spendguard_get_transactions({ limit: 5 })
+          <div className="bg-white p-5 rounded-xl border border-outline-variant/20 shadow-sm">
+            <h3 className="text-secondary font-bold text-sm mb-2">spendguard_get_transactions</h3>
+            <p className="text-on-surface-variant text-sm mb-3">Read recent transaction history from the audit log.</p>
+            <pre className="bg-surface-container-low p-4 rounded-xl border border-outline-variant/30 font-mono text-sm text-primary overflow-x-auto"><code>{`→ spendguard_get_transactions({ limit: 5 })
 
 {
   "transactions": [
@@ -119,13 +135,16 @@ npm run mcp`}</code></pre>
   ],
   "total": 5
 }`}</code></pre>
+          </div>
+        </div>
+      </section>
 
-      <h2>Agent Workflow Example</h2>
-      <p>
-        A typical AI agent interaction using SpendGuard via MCP:
-      </p>
-      <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
-        <pre className="bg-transparent border-none p-0 m-0"><code>{`User: "Get me the premium weather forecast"
+      <section>
+        <h2 className="text-xl font-bold text-primary mb-4">Agent Workflow Example</h2>
+        <p className="text-on-surface-variant mb-3">
+          A typical AI agent interaction using SpendGuard via MCP:
+        </p>
+        <pre className="bg-surface-container-low p-6 rounded-xl border border-outline-variant/30 font-mono text-sm text-primary overflow-x-auto"><code>{`User: "Get me the premium weather forecast"
 
 Agent thinking:
   1. Check budget → spendguard_get_status()
@@ -140,15 +159,19 @@ Agent thinking:
 Agent: "Here's your forecast: Mon 25°C, Tue 23°C...
         Payment: $0.25 USDC (tx: abc123)
         Remaining budget: $7.45 today"`}</code></pre>
-      </div>
+      </section>
 
-      <h2>Security</h2>
-      <p>
-        The MCP server only exposes agent-facing tools. Admin tools (set limits,
-        pause, whitelist) are intentionally NOT available via MCP — the agent
-        should never have admin access. Policy management is done through the
-        dashboard or direct contract calls by the owner.
-      </p>
-    </article>
+      <section>
+        <h2 className="text-xl font-bold text-primary mb-4">Security</h2>
+        <div className="bg-error-container border border-error/20 rounded-xl p-4">
+          <p className="text-on-error-container text-sm">
+            The MCP server only exposes agent-facing tools. Admin tools (set limits,
+            pause, whitelist) are intentionally NOT available via MCP — the agent
+            should never have admin access. Policy management is done through the
+            dashboard or direct contract calls by the owner.
+          </p>
+        </div>
+      </section>
+    </div>
   );
 }

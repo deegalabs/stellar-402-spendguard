@@ -83,21 +83,35 @@ export default function ContractSpecPage() {
     "Events are emitted for every state change",
   ];
 
-  return (
-    <article className="prose prose-invert max-w-none">
-      <h1>Contract Specification</h1>
-      <p className="lead text-slate-300 text-lg">
-        BudgetGuard — a Soroban smart contract that enforces spending policies
-        for x402 agent payments on Stellar.
-      </p>
+  const callerColors: Record<string, string> = {
+    Owner: "bg-warning-50 text-warning-600",
+    Agent: "bg-tertiary-container text-tertiary-fixed-dim",
+    Anyone: "bg-surface-container text-on-surface-variant",
+  };
 
-      <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 my-4">
-        <p className="text-slate-300 mb-1">
-          <strong>Deployed on Testnet:</strong>
+  return (
+    <div className="flex flex-col gap-8 max-w-3xl">
+      <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-slate-400">
+        <span>Docs</span>
+        <span className="material-symbols-outlined text-xs">chevron_right</span>
+        <span className="text-secondary font-bold">Contract Spec</span>
+      </div>
+
+      <div>
+        <h1 className="text-4xl font-black text-primary tracking-tighter mb-4">Contract Specification</h1>
+        <p className="text-lg text-on-surface-variant">
+          BudgetGuard — a Soroban smart contract that enforces spending policies
+          for x402 agent payments on Stellar.
+        </p>
+      </div>
+
+      <div className="bg-surface-container-low border border-outline-variant/30 rounded-xl p-4">
+        <p className="text-on-surface-variant text-sm mb-1">
+          <strong className="text-primary">Deployed on Testnet:</strong>
         </p>
         <a
           href="https://stellar.expert/explorer/testnet/contract/CCABMNFY3VKK7BI3YBWXJEE2EXX2NW5S573NASTCFXA6KBXR5PDWFD6E"
-          className="text-blue-400 text-sm break-all"
+          className="text-secondary text-sm break-all hover:underline"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -105,88 +119,93 @@ export default function ContractSpecPage() {
         </a>
       </div>
 
-      <h2>Storage Schema</h2>
-      <p>All monetary values are in USDC stroops. <strong>1 USDC = 10,000,000 stroops.</strong></p>
-      <div className="overflow-x-auto">
-        <table>
-          <thead>
-            <tr><th>Key</th><th>Type</th><th>Description</th></tr>
-          </thead>
-          <tbody>
-            <tr><td><code>Owner</code></td><td>Address</td><td>Controls the contract</td></tr>
-            <tr><td><code>Agent</code></td><td>Address</td><td>Authorized to call authorize_payment</td></tr>
-            <tr><td><code>DailyLimit</code></td><td>i128</td><td>Max USDC per 24h period</td></tr>
-            <tr><td><code>MaxTxValue</code></td><td>i128</td><td>Max USDC per single transaction</td></tr>
-            <tr><td><code>SpentToday</code></td><td>i128</td><td>USDC spent in current 24h period</td></tr>
-            <tr><td><code>LastReset</code></td><td>u64</td><td>Timestamp of last daily reset</td></tr>
-            <tr><td><code>Paused</code></td><td>bool</td><td>Kill switch state</td></tr>
-            <tr><td><code>Whitelist</code></td><td>Map</td><td>Approved merchant addresses</td></tr>
-            <tr><td><code>UsdcToken</code></td><td>Address</td><td>USDC SAC contract address</td></tr>
-          </tbody>
-        </table>
-      </div>
+      <section>
+        <h2 className="text-xl font-bold text-primary mb-4">Storage Schema</h2>
+        <p className="text-on-surface-variant mb-3">All monetary values are in USDC stroops. <strong className="text-primary">1 USDC = 10,000,000 stroops.</strong></p>
+        <div className="overflow-x-auto rounded-xl border border-outline-variant/30">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-surface-container text-on-surface-variant text-[10px] font-mono uppercase tracking-widest">
+                <th className="px-4 py-3 text-left">Key</th>
+                <th className="px-4 py-3 text-left">Type</th>
+                <th className="px-4 py-3 text-left">Description</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-surface-container">
+              <tr><td className="px-4 py-2"><code className="text-xs font-bold text-primary">Owner</code></td><td className="px-4 py-2 text-on-surface-variant">Address</td><td className="px-4 py-2 text-on-surface-variant">Controls the contract</td></tr>
+              <tr><td className="px-4 py-2"><code className="text-xs font-bold text-primary">Agent</code></td><td className="px-4 py-2 text-on-surface-variant">Address</td><td className="px-4 py-2 text-on-surface-variant">Authorized to call authorize_payment</td></tr>
+              <tr><td className="px-4 py-2"><code className="text-xs font-bold text-primary">DailyLimit</code></td><td className="px-4 py-2 text-on-surface-variant">i128</td><td className="px-4 py-2 text-on-surface-variant">Max USDC per 24h period</td></tr>
+              <tr><td className="px-4 py-2"><code className="text-xs font-bold text-primary">MaxTxValue</code></td><td className="px-4 py-2 text-on-surface-variant">i128</td><td className="px-4 py-2 text-on-surface-variant">Max USDC per single transaction</td></tr>
+              <tr><td className="px-4 py-2"><code className="text-xs font-bold text-primary">SpentToday</code></td><td className="px-4 py-2 text-on-surface-variant">i128</td><td className="px-4 py-2 text-on-surface-variant">USDC spent in current 24h period</td></tr>
+              <tr><td className="px-4 py-2"><code className="text-xs font-bold text-primary">LastReset</code></td><td className="px-4 py-2 text-on-surface-variant">u64</td><td className="px-4 py-2 text-on-surface-variant">Timestamp of last daily reset</td></tr>
+              <tr><td className="px-4 py-2"><code className="text-xs font-bold text-primary">Paused</code></td><td className="px-4 py-2 text-on-surface-variant">bool</td><td className="px-4 py-2 text-on-surface-variant">Kill switch state</td></tr>
+              <tr><td className="px-4 py-2"><code className="text-xs font-bold text-primary">Whitelist</code></td><td className="px-4 py-2 text-on-surface-variant">Map</td><td className="px-4 py-2 text-on-surface-variant">Approved merchant addresses</td></tr>
+              <tr><td className="px-4 py-2"><code className="text-xs font-bold text-primary">UsdcToken</code></td><td className="px-4 py-2 text-on-surface-variant">Address</td><td className="px-4 py-2 text-on-surface-variant">USDC SAC contract address</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-      <h2>Functions</h2>
-      <div className="not-prose space-y-3">
-        {functions.map((fn) => (
-          <div
-            key={fn.name}
-            className="bg-slate-800 border border-slate-700 rounded-lg p-4"
-          >
-            <div className="flex items-center gap-3 mb-1">
-              <code className="text-blue-400 font-bold">{fn.name}</code>
-              <span className={`text-xs px-2 py-0.5 rounded ${
-                fn.caller === "Owner"
-                  ? "bg-orange-900/50 text-orange-300"
-                  : fn.caller === "Agent"
-                  ? "bg-green-900/50 text-green-300"
-                  : "bg-slate-700 text-slate-300"
-              }`}>
-                {fn.caller}
-              </span>
+      <section>
+        <h2 className="text-xl font-bold text-primary mb-4">Functions</h2>
+        <div className="space-y-3">
+          {functions.map((fn) => (
+            <div
+              key={fn.name}
+              className="bg-white p-4 rounded-xl border border-outline-variant/20 shadow-sm"
+            >
+              <div className="flex items-center gap-3 mb-1">
+                <code className="text-secondary font-bold text-sm">{fn.name}</code>
+                <span className={`text-xs px-2 py-0.5 rounded ${callerColors[fn.caller]}`}>
+                  {fn.caller}
+                </span>
+              </div>
+              <p className="text-on-surface-variant text-sm mb-1">{fn.desc}</p>
+              <p className="text-on-surface-variant/60 text-xs">
+                Params: <code className="bg-surface-container px-1 rounded text-xs">{fn.params}</code>
+              </p>
             </div>
-            <p className="text-slate-300 text-sm mb-1">{fn.desc}</p>
-            <p className="text-slate-500 text-xs mb-0">
-              Params: <code>{fn.params}</code>
-            </p>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </section>
 
-      <h2 className="mt-8">authorize_payment Flow</h2>
-      <p>The core function validates 10 checks in order:</p>
-      <ol>
-        <li>Contract is initialized</li>
-        <li><code>paused == false</code></li>
-        <li>Caller is the authorized agent</li>
-        <li><code>price &gt; 0</code></li>
-        <li><code>price &lt;= max_tx_value</code></li>
-        <li>Merchant is in whitelist</li>
-        <li>Daily reset check (lazy — if 86400s elapsed, reset counter)</li>
-        <li><code>spent_today + price &lt;= daily_limit</code></li>
-        <li>No arithmetic overflow</li>
-        <li>Contract has sufficient USDC balance</li>
-      </ol>
+      <section>
+        <h2 className="text-xl font-bold text-primary mb-4">authorize_payment Flow</h2>
+        <p className="text-on-surface-variant mb-3">The core function validates 10 checks in order:</p>
+        <ol className="text-on-surface-variant space-y-1 list-decimal list-inside">
+          <li>Contract is initialized</li>
+          <li><code className="bg-surface-container px-1 rounded text-xs">paused == false</code></li>
+          <li>Caller is the authorized agent</li>
+          <li><code className="bg-surface-container px-1 rounded text-xs">price &gt; 0</code></li>
+          <li><code className="bg-surface-container px-1 rounded text-xs">price &lt;= max_tx_value</code></li>
+          <li>Merchant is in whitelist</li>
+          <li>Daily reset check (lazy — if 86400s elapsed, reset counter)</li>
+          <li><code className="bg-surface-container px-1 rounded text-xs">spent_today + price &lt;= daily_limit</code></li>
+          <li>No arithmetic overflow</li>
+          <li>Contract has sufficient USDC balance</li>
+        </ol>
+      </section>
 
-      <h2>Invariants (12)</h2>
-      <div className="not-prose">
+      <section>
+        <h2 className="text-xl font-bold text-primary mb-4">Invariants (12)</h2>
         <ol className="space-y-2">
           {invariants.map((inv, i) => (
             <li
               key={i}
-              className="flex items-start gap-3 bg-slate-800 border border-slate-700 rounded p-3"
+              className="flex items-start gap-3 bg-white border border-outline-variant/20 rounded-xl p-3 shadow-sm"
             >
-              <span className="text-green-400 font-mono text-sm font-bold mt-0.5">
+              <span className="text-tertiary-fixed-dim font-mono text-sm font-bold mt-0.5">
                 #{i + 1}
               </span>
-              <span className="text-slate-300 text-sm">{inv}</span>
+              <span className="text-on-surface-variant text-sm">{inv}</span>
             </li>
           ))}
         </ol>
-      </div>
+      </section>
 
-      <h2 className="mt-8">Error Enum</h2>
-      <pre className="bg-slate-800 border border-slate-700"><code>{`#[contracterror]
+      <section>
+        <h2 className="text-xl font-bold text-primary mb-4">Error Enum</h2>
+        <pre className="bg-surface-container-low p-6 rounded-xl border border-outline-variant/30 font-mono text-sm text-primary overflow-x-auto"><code>{`#[contracterror]
 pub enum Error {
     AlreadyInitialized = 1,
     NotInitialized = 2,
@@ -201,17 +220,20 @@ pub enum Error {
     AlreadyPaused = 11,
     NotPaused = 12,
 }`}</code></pre>
+      </section>
 
-      <h2>Tests</h2>
-      <p>37 destructive TDD tests across 3 categories:</p>
-      <ul>
-        <li><strong>13 boundary tests</strong> — exact limits, off-by-one, edge values</li>
-        <li><strong>12 invariant violation tests</strong> — one per invariant</li>
-        <li><strong>12 attack simulation tests</strong> — replay, overflow, unauthorized caller</li>
-      </ul>
-      <pre className="bg-slate-800 border border-slate-700"><code>{`cd contracts/budget-guard
+      <section>
+        <h2 className="text-xl font-bold text-primary mb-4">Tests</h2>
+        <p className="text-on-surface-variant mb-3">37 destructive TDD tests across 3 categories:</p>
+        <ul className="text-on-surface-variant space-y-1 list-disc list-inside">
+          <li><strong className="text-primary">13 boundary tests</strong> — exact limits, off-by-one, edge values</li>
+          <li><strong className="text-primary">12 invariant violation tests</strong> — one per invariant</li>
+          <li><strong className="text-primary">12 attack simulation tests</strong> — replay, overflow, unauthorized caller</li>
+        </ul>
+        <pre className="bg-surface-container-low p-4 rounded-xl border border-outline-variant/30 font-mono text-sm text-primary mt-3"><code>{`cd contracts/budget-guard
 cargo test
 # 37 passed, 0 failed`}</code></pre>
-    </article>
+      </section>
+    </div>
   );
 }
