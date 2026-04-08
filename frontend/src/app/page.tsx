@@ -263,12 +263,12 @@ export default function Home() {
           <div className="flex items-center gap-2">
             <span>Built by</span>
             <a
-              href="https://github.com/deegalabs"
+              href="https://www.deegalabs.com.br/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-text-muted hover:text-text-primary transition-colors"
             >
-              Deega Labs
+              DeegaLabs
             </a>
           </div>
         </div>

@@ -136,7 +136,15 @@ export default function IntroductionPage() {
           <p className="text-text-secondary leading-relaxed">
             The SpendGuard framework operates as a middleware layer between the AI agent&apos;s wallet and the Stellar network.
             By utilizing the <span className="font-mono font-bold">x402 protocol</span>, we enable programmatic trust.
-            Deega Labs has engineered this to be the standard for autonomous financial agents.
+            <a
+              href="https://www.deegalabs.com.br/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-accent-fg hover:underline"
+            >
+              DeegaLabs
+            </a>{" "}
+            has engineered this to be the standard for autonomous financial agents.
           </p>
 
           <div className="p-6 bg-dark-50 rounded-xl border border-surface-border">

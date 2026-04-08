@@ -39,7 +39,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             {children}
           </main>
         )}
-        <Footer />
+        {!isDemo && <Footer />}
       </div>
     </div>
   );
