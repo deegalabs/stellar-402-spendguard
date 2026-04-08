@@ -140,6 +140,26 @@ Frontend → Backend API → GET /api/transactions (formats Horizon events)
 Frontend → Backend API → GET /api/balance (reads SAC balance)
 ```
 
+### HTTP Error Semantics (Demo Endpoint)
+
+The `/api/demo/run-agent` endpoint distinguishes **policy outcomes** from
+**infrastructure failures** at the HTTP layer:
+
+| Situation | HTTP | Body | Meaning |
+|-----------|------|------|---------|
+| Payment approved, data returned | `200` | `{success: true, steps}` | Happy path |
+| Contract reverted (ExceedsMaxTx, ContractPaused, …) | `200` | `{success: false, code: "CONTRACT_REVERT"}` | The guard correctly said *no* — this is a feature, not a bug |
+| Missing signer keys / bad env | `503` | `{code: "CONFIG_ERROR"}` | Operator needs to fix configuration |
+| RPC unreachable, bad sequence, other infra | `502` | `{code: "STELLAR_ERROR"}` | Upstream failure |
+
+Contract reverts surface at two different points in the Soroban flow:
+`prepareTransaction()` catches them at **simulation time** before submit; the
+post-submit path catches them when the ledger closes. Both code paths normalize
+the error message to include the sentinel `"reverted on-chain"` so the HTTP
+layer can branch on a single string match. See
+[`backend/src/stellar/client.ts`](../backend/src/stellar/client.ts) and
+[`backend/src/api/demo.ts`](../backend/src/api/demo.ts).
+
 ---
 
 ## External Dependencies
