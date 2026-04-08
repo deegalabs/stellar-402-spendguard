@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useFreighter } from "@/hooks/useFreighter";
 import { shortAddress } from "@/lib/format";
 import ThemeToggle from "./ThemeToggle";
+import SpendGuardLogo from "./SpendGuardLogo";
 
 const DEMO_WALLET = "GBF5LCVZQ5VQ5DOE57DXY4PDDWS2BGACEJBGJUJYAJSGJKOWHZ5TTLOY";
 
@@ -32,9 +34,14 @@ export default function Header({ paused, onMenuClick }: HeaderProps) {
           <span className="material-symbols-outlined text-[22px]">menu</span>
         </button>
 
-        <span className="text-sm font-bold hidden sm:flex items-center gap-2">
-          <span className="gradient-text">SpendGuard</span>
-        </span>
+        {/* Brand — only shown when the sidebar is NOT visible (below lg).
+            Avoids duplicating the sidebar's own brand. */}
+        <Link href="/" className="lg:hidden flex items-center gap-2">
+          <SpendGuardLogo size={26} />
+          <span className="text-sm font-bold gradient-text hidden sm:inline">
+            SpendGuard
+          </span>
+        </Link>
 
         {paused && (
           <div className="flex items-center gap-1.5 bg-error-glow border border-error/30 text-error-fg text-[10px] font-bold px-3 py-1 rounded-full animate-pulse">

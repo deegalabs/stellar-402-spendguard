@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useContractStatus } from "@/hooks/useContractStatus";
 import { shortAddress } from "@/lib/format";
+import SpendGuardLogo from "./SpendGuardLogo";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
@@ -28,24 +29,19 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
   const content = (
     <>
       {/* Brand */}
-      <div className="px-5 mb-6">
-        <div className="flex items-center gap-2.5 mb-1">
-          <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-lg flex items-center justify-center shadow-glow-primary">
-            <span
-              className="material-symbols-outlined text-white text-[18px]"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              shield
-            </span>
-          </div>
-          <div>
-            <span className="text-[14px] font-bold text-text-primary">SpendGuard</span>
-            <p className="text-[9px] uppercase tracking-[0.15em] text-text-muted font-bold leading-none">
-              AI Agent Governance
-            </p>
-          </div>
+      <Link
+        href="/"
+        onClick={onClose}
+        className="px-5 mb-6 flex items-center gap-2.5 group"
+      >
+        <SpendGuardLogo size={32} glow className="shrink-0 transition-transform group-hover:scale-105" />
+        <div>
+          <span className="text-[14px] font-bold text-text-primary">SpendGuard</span>
+          <p className="text-[9px] uppercase tracking-[0.15em] text-text-muted font-bold leading-none">
+            AI Agent Governance
+          </p>
         </div>
-      </div>
+      </Link>
 
       {/* Navigation */}
       <nav className="flex-1 px-3 space-y-0.5">

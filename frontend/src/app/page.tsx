@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useContractStatus } from "@/hooks/useContractStatus";
 import { stroopsToUsdc, shortAddress } from "@/lib/format";
+import SpendGuardLogo from "@/components/SpendGuardLogo";
 
 const FEATURES = [
   {
@@ -50,20 +51,13 @@ export default function Home() {
       {/* Top Nav */}
       <header className="border-b border-surface-border bg-dark-50/60 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 lg:px-8 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-lg flex items-center justify-center shadow-glow-primary">
-              <span
-                className="material-symbols-outlined text-white text-[18px]"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                shield
-              </span>
-            </div>
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <SpendGuardLogo size={32} glow className="transition-transform group-hover:scale-105" />
             <span className="font-bold text-sm">SpendGuard</span>
             <span className="hidden sm:inline text-[10px] font-mono uppercase tracking-[0.15em] text-text-muted">
               AI Agent Governance
             </span>
-          </div>
+          </Link>
           <nav className="flex items-center gap-1 sm:gap-2">
             <Link href="/docs" className="px-3 py-1.5 text-xs font-medium text-text-muted hover:text-text-primary transition-colors">
               Docs

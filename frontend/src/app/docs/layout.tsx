@@ -1,6 +1,7 @@
 import Link from "next/link";
 import DocsSidebar from "@/components/DocsSidebar";
 import ThemeToggle from "@/components/ThemeToggle";
+import SpendGuardLogo from "@/components/SpendGuardLogo";
 
 export default function DocsLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -8,15 +9,8 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
       {/* Top Navigation Bar */}
       <header className="fixed top-0 z-50 w-full flex justify-between items-center px-6 h-16 bg-dark-50/80 backdrop-blur-xl border-b border-surface-border">
         <div className="flex items-center gap-8">
-          <Link href="/dashboard" className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-lg flex items-center justify-center">
-              <span
-                className="material-symbols-outlined text-white text-[18px]"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                security
-              </span>
-            </div>
+          <Link href="/" className="flex items-center gap-3 group">
+            <SpendGuardLogo size={32} glow className="transition-transform group-hover:scale-105" />
             <span className="text-lg font-bold tracking-tight gradient-text">SpendGuard</span>
           </Link>
           <nav className="hidden md:flex items-center gap-6 text-sm tracking-tight">
