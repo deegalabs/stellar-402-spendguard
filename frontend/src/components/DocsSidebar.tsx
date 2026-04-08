@@ -43,11 +43,16 @@ const NAV_GROUPS: NavGroup[] = [
   },
 ];
 
-export default function DocsSidebar() {
+interface DocsSidebarProps {
+  mobileOpen?: boolean;
+  onClose?: () => void;
+}
+
+export default function DocsSidebar({ mobileOpen, onClose }: DocsSidebarProps) {
   const pathname = usePathname();
 
-  return (
-    <aside className="fixed left-0 top-16 bottom-0 w-64 flex flex-col p-4 bg-dark-50 border-r border-surface-border overflow-y-auto">
+  const content = (
+    <>
       <div className="mb-6 px-4">
         <h2 className="text-lg font-black text-text-primary uppercase tracking-tighter">
           Stellar 402
@@ -57,7 +62,7 @@ export default function DocsSidebar() {
         </p>
       </div>
 
-      <nav className="flex-1 space-y-6">
+      <nav className="flex-1 space-y-6 overflow-y-auto">
         {NAV_GROUPS.map((group) => (
           <div key={group.title}>
             <h3 className="px-4 mb-2 text-[10px] font-mono font-bold text-text-muted uppercase tracking-widest">
@@ -71,6 +76,7 @@ export default function DocsSidebar() {
                   <Link
                     key={item.href}
                     href={item.href}
+                    onClick={onClose}
                     className={`flex items-center gap-3 px-4 py-2 rounded-lg font-mono text-xs uppercase tracking-widest transition-all ${
                       active
                         ? "text-accent-fg font-bold bg-surface-card shadow-sm"
@@ -109,6 +115,35 @@ export default function DocsSidebar() {
           <span>Live Contract</span>
         </a>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:flex fixed left-0 top-16 bottom-0 w-64 flex-col p-4 bg-dark-50 border-r border-surface-border">
+        {content}
+      </aside>
+
+      {/* Mobile drawer */}
+      {mobileOpen && (
+        <div className="lg:hidden fixed inset-0 z-[60] animate-fade-in">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={onClose}
+          />
+          <aside className="absolute left-0 top-0 bottom-0 w-[280px] flex flex-col p-4 pt-5 bg-dark-50 border-r border-surface-border animate-slide-up">
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 text-text-muted hover:text-text-primary p-1"
+              aria-label="Close navigation"
+            >
+              <span className="material-symbols-outlined text-[20px]">close</span>
+            </button>
+            {content}
+          </aside>
+        </div>
+      )}
+    </>
   );
 }
