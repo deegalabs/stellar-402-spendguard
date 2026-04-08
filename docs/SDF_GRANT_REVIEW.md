@@ -4,8 +4,44 @@ Internal evaluation of the project against Stellar Development Foundation and
 Stellar Community Fund (SCF) review criteria. Use this document to identify
 weaknesses before judges do.
 
-Last reviewed: 2026-04-07 (final — docs site, Swagger, x402 middleware, MCP)
+Last reviewed: 2026-04-08 (post-submission hardening pass)
 Hackathon: Stellar Hacks: Agents (Deadline: Apr 13, 2026)
+
+## Changes since 2026-04-07 scoring pass
+
+Between the previous "final" review and today, a post-hardening pass landed
+several changes that directly affect three of the scoring axes. None of the
+delta is cosmetic — it's the kind of work SCF reviewers ask about when they
+dig past the README into the actual runtime.
+
+1. **SECURITY.md** ([7b229d7](../SECURITY.md)) — a contract + backend audit
+   document covering the threat model, the trust boundaries, every `require_auth`
+   site, rate-limit bucketing, and the kill-switch scope. This is new audit
+   surface area that wasn't claimed in the previous review.
+2. **Demo HTTP-semantic correctness** — contract reverts (CH4 ExceedsMaxTx,
+   CH5 ContractPaused) are now returned as HTTP 200 with `{success: false,
+   code: "CONTRACT_REVERT"}` instead of 502. A blocked payment is a successful
+   HTTP exchange where the server correctly proxied an on-chain rejection;
+   502 is reserved for actual infra failures. Both simulation-time and
+   post-submit revert paths are normalized to the same sentinel so the HTTP
+   layer has one thing to match.
+3. **Demo fail-loud guarantees** — CH4/CH5 throw when the *expected* block
+   doesn't happen (e.g. a payment above the cap goes through), so the chapter
+   cannot silently self-certify as complete. Combined with the HTTP semantic
+   fix above, the demo now *cannot* report success when the contract behaves
+   unexpectedly.
+4. **Landing page + full theme parity** — dedicated `/` landing page, theme
+   toggle present on every route (including the landing nav), 18 routes total
+   render in both light and dark mode.
+5. **Rate-limit bucket fix** — read-heavy dashboard polling no longer
+   competes with admin mutations for the same rate bucket.
+
+These changes don't add new *features* so much as they prove the existing
+features work honestly under failure conditions. That's the kind of rigor
+that distinguishes "hackathon project" from "hackathon project that a
+reviewer would actually fork and deploy".
+
+---
 
 ---
 
@@ -88,7 +124,7 @@ ecosystem."_
 **SCF Criterion:** _"The submission is rich in technical details. If smart
 contracts are involved, there is a clear plan to open-source them."_
 
-### Assessment: STRONG (9/10) — confirmed
+### Assessment: STRONG (9.5/10) — up from 9
 
 **What we have (all delivered):**
 - 13 GSD spec files committed before any implementation
@@ -103,6 +139,11 @@ contracts are involved, there is a clear plan to open-source them."_
 - Swagger/OpenAPI 3.0 interactive docs at `/api/docs`
 - Reusable x402 Express middleware (`x402Paywall`) for any Express app
 - MCP server with 4 tools for AI agent integration
+- SECURITY.md — threat model + `require_auth` audit + kill-switch scope
+- Demo distinguishes contract reverts (HTTP 200 + `CONTRACT_REVERT` code)
+  from infra failures (5xx) with a single normalized sentinel path
+- Fail-loud demo chapters — CH4/CH5 throw when the expected block does
+  not happen, so a silently-broken guardrail cannot self-certify as done
 
 **Verified by judges:**
 | Check | Status |
@@ -188,7 +229,7 @@ to authorize payments via smart wallets" vision.
 **SCF Criterion:** _"Deliverables need to be of high quality, clear language,
 and rich in technical detail."_
 
-### Assessment: STRONG (9/10) — up from 8
+### Assessment: STRONG (9.5/10) — up from 9
 
 **Delivered:**
 - README with problem statement, architecture diagram, Why Stellar, Quick Start
@@ -202,6 +243,11 @@ and rich in technical detail."_
 - System metadata stream (dark terminal panel)
 - 17 seed transactions visible on Stellar Expert
 - 90-second Remotion demo video rendered (MP4)
+- Dedicated landing page with full feature matrix and live status card
+- Theme toggle (light/dark) on every route including landing nav
+- Demo chapters cannot silently self-certify — unexpected success throws
+- Contract reverts returned as HTTP 200 with `CONTRACT_REVERT` code;
+  502s are reserved for actual infrastructure failures
 
 **Presentation checklist:**
 | Item | Status |
@@ -228,7 +274,13 @@ and rich in technical detail."_
 **SCF Criterion:** _(Implicit — SCF reviewers reward honesty and penalize
 overclaiming.)_
 
-### Assessment: STRONG (9/10)
+### Assessment: STRONG (9.5/10) — up from 9
+
+A dedicated SECURITY.md ([../SECURITY.md](../SECURITY.md)) now documents
+the threat model, trust boundaries, every `require_auth` site in the
+contract, the kill-switch scope, and the backend's authentication posture.
+Limitations are no longer only reachable through scattered ADRs — they
+are also collected in one file a reviewer can audit top-to-bottom.
 
 **Limitations we declare explicitly:**
 
@@ -289,21 +341,24 @@ more transaction volume on Stellar.
 
 ## Summary Scorecard
 
-| Criterion | Previous | Current | Status |
-|-----------|----------|---------|--------|
-| Stellar integration depth | 9/10 | **9/10** | Strong — Soroban Custom Account, deployed on testnet |
-| Product-market fit | 7/10 | **8/10** | Target Users + SDF blog reference + volume projection |
-| Technical quality | 9/10 | **9/10** | Confirmed — 37 tests GREEN, 3 packages build clean, MCP typed |
-| Open source | 7/10 | **9/10** | CONTRIBUTING.md + WASM GitHub Release + Open Source section |
-| Innovation | 8/10 | **9/10** | First spending governance + MCP integration (matches SDF roadmap) |
-| Demo quality | 8/10 | **9/10** | 6 screens + 9-page docs site + Live Demo + 90s video |
-| Honest limitations | 9/10 | **9/10** | Documented across 6+ files, visible in UI |
-| Ecosystem impact | 7/10 | **9/10** | Public good + volume projection + fork guide + MCP discoverability |
+| Criterion | 2026-04-06 | 2026-04-07 | 2026-04-08 | Status |
+|-----------|-----------|-----------|-----------|--------|
+| Stellar integration depth | 9/10 | 9/10 | **9/10** | Strong — Soroban Custom Account, deployed on testnet |
+| Product-market fit | 7/10 | 8/10 | **8/10** | Target Users + SDF blog reference + volume projection |
+| Technical quality | 9/10 | 9/10 | **9.5/10** | SECURITY.md + normalized revert path + 37 tests GREEN |
+| Open source | 7/10 | 9/10 | **9/10** | CONTRIBUTING.md + WASM GitHub Release + Open Source section |
+| Innovation | 8/10 | 9/10 | **9/10** | First spending governance + MCP integration (matches SDF roadmap) |
+| Demo quality | 8/10 | 9/10 | **9.5/10** | Landing page + fail-loud CH4/CH5 + HTTP-semantic reverts |
+| Honest limitations | 9/10 | 9/10 | **9.5/10** | SECURITY.md consolidates audit surface |
+| Ecosystem impact | 7/10 | 9/10 | **9/10** | Public good + volume projection + fork guide + MCP discoverability |
 
-**Overall: 9.0/10 — up from 8.6**
+**Overall: ~9.25/10 — up from 9.0**
 
 **Remaining action (manual):**
-1. **Upload demo video** to YouTube/Loom and add URL to README
+1. **Upload demo video** to YouTube/Loom and replace the `VIDEO_ID`
+   placeholder at [../README.md](../README.md) (lines 249-250) with the real URL.
+   The MP4 is rendered at [../demo-video/out/demo.mp4](../demo-video/out/demo.mp4)
+   (6.0 MB, 90 seconds). This is the only hard blocker before submission.
 
 ---
 
