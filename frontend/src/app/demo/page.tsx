@@ -29,6 +29,12 @@ interface DemoStep {
 
 const EXPERT = "https://stellar.expert/explorer/testnet/tx/";
 
+const DEMO_WALLETS = {
+  owner: "GBF5LCVZQ5VQ5DOE57DXY4PDDWS2BGACEJBGJUJYAJSGJKOWHZ5TTLOY",
+  agent: "GCBQOCJCSRYWNXSD7EODT4VMJALZSNUOYTGPX2S6FS6NBF7EBNRCXMFB",
+  contract: "CCABMNFY3VKK7BI3YBWXJEE2EXX2NW5S573NASTCFXA6KBXR5PDWFD6E",
+};
+
 export default function DemoPage() {
   const [currentStep, setCurrentStep] = useState(-1);
   const [running, setRunning] = useState(false);
@@ -262,12 +268,12 @@ export default function DemoPage() {
 
   function iconFor(icon: LogEntry["icon"]) {
     switch (icon) {
-      case "ok": return { symbol: ">", color: "text-accent-400" };
-      case "err": return { symbol: "x", color: "text-danger-400" };
-      case "wait": return { symbol: "~", color: "text-warning-300" };
-      case "tx": return { symbol: "#", color: "text-secondary-400" };
-      case "block": return { symbol: "!", color: "text-danger-500" };
-      default: return { symbol: ".", color: "text-neutral-400" };
+      case "ok": return { symbol: ">", color: "text-green-400" };
+      case "err": return { symbol: "x", color: "text-red-400" };
+      case "wait": return { symbol: "~", color: "text-yellow-300" };
+      case "tx": return { symbol: "#", color: "text-blue-400" };
+      case "block": return { symbol: "!", color: "text-red-500" };
+      default: return { symbol: ".", color: "text-slate-400" };
     }
   }
 
@@ -276,8 +282,8 @@ export default function DemoPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-headline text-neutral-900">Interactive Demo</h2>
-          <p className="text-sm text-neutral-500 mt-1">
+          <h2 className="text-3xl font-bold tracking-tight text-primary">Live Demo</h2>
+          <p className="text-sm text-on-surface-variant mt-1">
             Step-by-step x402 SpendGuard flow with real Stellar Testnet transactions
           </p>
         </div>
@@ -295,6 +301,49 @@ export default function DemoPage() {
         </div>
       </div>
 
+      {/* Demo Wallets Info */}
+      <div className="bg-secondary/5 border border-secondary/20 rounded-xl p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="material-symbols-outlined text-secondary text-[18px]">info</span>
+          <span className="text-xs font-bold text-secondary uppercase tracking-wider">No wallet required — using fixed Testnet accounts</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <p className="text-[10px] font-mono uppercase text-on-surface-variant font-bold mb-0.5">Owner</p>
+            <a
+              href={`https://stellar.expert/explorer/testnet/account/${DEMO_WALLETS.owner}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-mono text-secondary hover:underline"
+            >
+              {shortAddress(DEMO_WALLETS.owner)}
+            </a>
+          </div>
+          <div>
+            <p className="text-[10px] font-mono uppercase text-on-surface-variant font-bold mb-0.5">Agent</p>
+            <a
+              href={`https://stellar.expert/explorer/testnet/account/${DEMO_WALLETS.agent}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-mono text-secondary hover:underline"
+            >
+              {shortAddress(DEMO_WALLETS.agent)}
+            </a>
+          </div>
+          <div>
+            <p className="text-[10px] font-mono uppercase text-on-surface-variant font-bold mb-0.5">Contract</p>
+            <a
+              href={`https://stellar.expert/explorer/testnet/contract/${DEMO_WALLETS.contract}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-mono text-secondary hover:underline"
+            >
+              {shortAddress(DEMO_WALLETS.contract)}
+            </a>
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Steps panel */}
         <div className="lg:col-span-1 space-y-1.5">
@@ -308,35 +357,35 @@ export default function DemoPage() {
                 key={step.id}
                 onClick={() => executeStep(i)}
                 disabled={running}
-                className={`w-full text-left p-3 rounded-lg border transition-all ${
+                className={`w-full text-left p-3 rounded-xl border transition-all ${
                   isCurrent
-                    ? "border-secondary bg-secondary-50 ring-2 ring-secondary/20"
+                    ? "border-secondary bg-secondary/5 ring-2 ring-secondary/20"
                     : isDone
-                    ? "border-accent-200 bg-accent-50/50"
+                    ? "border-tertiary-fixed-dim/30 bg-tertiary-fixed/10"
                     : isNext
-                    ? "border-primary-200 bg-primary-50 hover:bg-primary-100/50"
-                    : "border-neutral-200 bg-white hover:bg-neutral-50"
+                    ? "border-primary/20 bg-primary-fixed/10 hover:bg-primary-fixed/20"
+                    : "border-outline-variant bg-white hover:bg-surface-container-low"
                 } disabled:cursor-not-allowed`}
               >
                 <div className="flex items-center gap-3">
                   <div
                     className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
                       isDone
-                        ? "bg-accent text-white"
+                        ? "bg-tertiary-fixed-dim text-white"
                         : isCurrent
                         ? "bg-secondary text-white animate-pulse"
-                        : "bg-neutral-200 text-neutral-500"
+                        : "bg-surface-container text-on-surface-variant"
                     }`}
                   >
                     {isDone ? "\u2713" : i + 1}
                   </div>
                   <div>
                     <div className={`text-sm font-semibold ${
-                      isCurrent ? "text-secondary-700" : isDone ? "text-accent-700" : "text-neutral-700"
+                      isCurrent ? "text-secondary" : isDone ? "text-on-tertiary-container" : "text-primary"
                     }`}>
                       {step.title}
                     </div>
-                    <div className="text-[11px] text-neutral-400 mt-0.5 leading-tight">
+                    <div className="text-[11px] text-on-surface-variant mt-0.5 leading-tight">
                       {step.description}
                     </div>
                   </div>
@@ -352,18 +401,18 @@ export default function DemoPage() {
           {status && (
             <div className="flex gap-3 mb-4 flex-wrap">
               <div className="card py-2 px-4 text-sm">
-                <span className="text-neutral-400">Balance:</span>{" "}
-                <span className="font-bold">${balance?.balance_usdc ?? "?"}</span>
+                <span className="text-on-surface-variant">Balance:</span>{" "}
+                <span className="font-bold text-primary">${balance?.balance_usdc ?? "?"}</span>
               </div>
               <div className="card py-2 px-4 text-sm">
-                <span className="text-neutral-400">Spent:</span>{" "}
-                <span className="font-bold">${stroopsToUsdc(status.spent_today)}</span>
-                <span className="text-neutral-400"> / ${stroopsToUsdc(status.daily_limit)}</span>
+                <span className="text-on-surface-variant">Spent:</span>{" "}
+                <span className="font-bold text-primary">${stroopsToUsdc(status.spent_today)}</span>
+                <span className="text-on-surface-variant"> / ${stroopsToUsdc(status.daily_limit)}</span>
               </div>
               <div className={`card py-2 px-4 text-sm font-bold ${
                 status.paused
-                  ? "bg-danger-50 border-danger-200 text-danger-600"
-                  : "bg-accent-50 border-accent-200 text-accent-600"
+                  ? "bg-error-container text-on-error-container"
+                  : "bg-tertiary-fixed/20 text-on-tertiary-container"
               }`}>
                 {status.paused ? "PAUSED" : "ACTIVE"}
               </div>
@@ -376,12 +425,14 @@ export default function DemoPage() {
             className="terminal min-h-[500px] max-h-[600px] rounded-card text-sm p-5"
           >
             {logs.length === 0 ? (
-              <div className="text-neutral-500">
+              <div className="text-slate-500">
                 Click &ldquo;Run All Steps&rdquo; or click individual steps to begin.
                 <br /><br />
                 Each step executes real transactions on Stellar Testnet.
                 <br />
                 TX hashes link to Stellar Expert for on-chain verification.
+                <br /><br />
+                <span className="text-blue-400">No wallet connection needed — using fixed demo accounts.</span>
               </div>
             ) : (
               <div className="space-y-1">
@@ -396,7 +447,7 @@ export default function DemoPage() {
                             href={entry.link}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-secondary-400 hover:text-secondary-300 hover:underline"
+                            className="text-blue-400 hover:text-blue-300 hover:underline"
                           >
                             {entry.text}
                           </a>
@@ -409,8 +460,8 @@ export default function DemoPage() {
                 })}
                 {running && (
                   <div className="flex items-center gap-2 mt-2">
-                    <span className="text-warning-300 animate-pulse">~</span>
-                    <span className="text-warning-300 animate-pulse">executing...</span>
+                    <span className="text-yellow-300 animate-pulse">~</span>
+                    <span className="text-yellow-300 animate-pulse">executing...</span>
                   </div>
                 )}
               </div>
@@ -418,11 +469,11 @@ export default function DemoPage() {
           </div>
 
           {finished && (
-            <div className="mt-4 card border-accent-200 bg-accent-50/50 text-sm text-accent-700">
+            <div className="mt-4 card border border-tertiary-fixed-dim/30 bg-tertiary-fixed/10 text-sm text-on-tertiary-container">
               Demo complete. All transactions are live on Stellar Testnet.
               View the contract on{" "}
               <a
-                href="https://stellar.expert/explorer/testnet/contract/CCABMNFY3VKK7BI3YBWXJEE2EXX2NW5S573NASTCFXA6KBXR5PDWFD6E"
+                href={`https://stellar.expert/explorer/testnet/contract/${DEMO_WALLETS.contract}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-semibold underline"

@@ -1,14 +1,23 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useFreighter } from "@/hooks/useFreighter";
 import { shortAddress } from "@/lib/format";
+
+// Fixed demo wallet (Owner account on Testnet)
+const DEMO_WALLET = "GBF5LCVZQ5VQ5DOE57DXY4PDDWS2BGACEJBGJUJYAJSGJKOWHZ5TTLOY";
 
 interface HeaderProps {
   paused?: boolean;
 }
 
 export default function Header({ paused }: HeaderProps) {
+  const pathname = usePathname();
+  const isDemo = pathname === "/demo";
   const { connected, publicKey, loading, connect, error } = useFreighter();
+
+  const showWallet = isDemo || (connected && publicKey);
+  const walletAddress = isDemo ? DEMO_WALLET : publicKey;
 
   return (
     <header className="h-[56px] w-full bg-white sticky top-0 z-50 border-b border-outline-variant flex items-center justify-between px-6 shrink-0">
@@ -24,11 +33,18 @@ export default function Header({ paused }: HeaderProps) {
             CONTRACT PAUSED
           </div>
         )}
+
+        {isDemo && (
+          <div className="flex items-center gap-1.5 bg-secondary/10 text-secondary text-[10px] font-bold px-3 py-1 rounded">
+            <span className="material-symbols-outlined text-[14px]">play_circle</span>
+            LIVE DEMO MODE
+          </div>
+        )}
       </div>
 
       {/* Right: Notification + Wallet */}
       <div className="flex items-center gap-4">
-        {error && (
+        {!isDemo && error && (
           <span className="text-xs text-error">{error}</span>
         )}
 
@@ -37,15 +53,20 @@ export default function Header({ paused }: HeaderProps) {
           notifications
         </button>
 
-        {/* Wallet connection */}
-        {connected && publicKey ? (
+        {/* Wallet display */}
+        {showWallet ? (
           <div className="flex items-center gap-2 bg-surface-container-low px-3 py-1.5 rounded-lg border border-outline-variant">
-            <span className="w-2 h-2 bg-tertiary-fixed-dim rounded-full" />
+            <span className={`w-2 h-2 rounded-full ${isDemo ? "bg-secondary" : "bg-tertiary-fixed-dim"}`} />
             <span className="text-sm font-mono text-on-surface-variant">
-              {shortAddress(publicKey)}
+              {shortAddress(walletAddress!)}
             </span>
+            {isDemo && (
+              <span className="text-[9px] font-bold text-secondary uppercase">Demo</span>
+            )}
             <div className="w-8 h-8 rounded-full overflow-hidden border border-outline-variant bg-surface-container flex items-center justify-center ml-1">
-              <span className="material-symbols-outlined text-primary text-[18px]">person</span>
+              <span className="material-symbols-outlined text-primary text-[18px]">
+                {isDemo ? "smart_toy" : "person"}
+              </span>
             </div>
           </div>
         ) : (
