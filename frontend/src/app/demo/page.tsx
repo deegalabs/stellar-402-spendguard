@@ -146,29 +146,31 @@ export default function DemoPage() {
       steps: [
         {
           id: "daily-limit",
-          title: "Set Daily Limit to $5.00",
+          title: "Set Daily Limit to $100.00",
           action: async (log) => {
-            log({ icon: "wait", text: "Calling contract.set_daily_limit(50_000_000)..." });
-            const res = (await setDailyLimit(usdcToStroops(5))) as { tx_hash: string };
+            const amount = usdcToStroops(100);
+            log({ icon: "wait", text: `Calling contract.set_daily_limit(${amount})...` });
+            const res = (await setDailyLimit(amount)) as { tx_hash: string };
             log({ icon: "tx", text: `TX: ${res.tx_hash}`, link: EXPERT + res.tx_hash });
-            log({ icon: "ok", text: "Daily limit set to $5.00 USDC" });
+            log({ icon: "ok", text: "Daily limit set to $100.00 USDC" });
             await refreshStatus();
             return [
-              { chapter: 2, label: "Daily Limit", value: "$5.00 USDC", type: "config", link: EXPERT + res.tx_hash },
+              { chapter: 2, label: "Daily Limit", value: "$100.00 USDC", type: "config", link: EXPERT + res.tx_hash },
             ];
           },
         },
         {
           id: "max-tx",
-          title: "Set Max Transaction to $2.00",
+          title: "Set Max Transaction to $5.00",
           action: async (log) => {
-            log({ icon: "wait", text: "Calling contract.set_max_tx(20_000_000)..." });
-            const res = (await setMaxTx(usdcToStroops(2))) as { tx_hash: string };
+            const amount = usdcToStroops(5);
+            log({ icon: "wait", text: `Calling contract.set_max_tx(${amount})...` });
+            const res = (await setMaxTx(amount)) as { tx_hash: string };
             log({ icon: "tx", text: `TX: ${res.tx_hash}`, link: EXPERT + res.tx_hash });
-            log({ icon: "ok", text: "Max transaction set to $2.00 USDC" });
+            log({ icon: "ok", text: "Max transaction set to $5.00 USDC" });
             await refreshStatus();
             return [
-              { chapter: 2, label: "Max Tx", value: "$2.00 USDC", type: "config", link: EXPERT + res.tx_hash },
+              { chapter: 2, label: "Max Tx", value: "$5.00 USDC", type: "config", link: EXPERT + res.tx_hash },
             ];
           },
         },
@@ -255,33 +257,49 @@ export default function DemoPage() {
     {
       id: "guardrails",
       title: "Guardrail Test",
-      subtitle: "Attempt a payment that pushes against the daily limit — the contract enforces the policy on-chain.",
+      subtitle: "Tighten the daily limit, then attempt a payment — the contract enforces the policy on-chain.",
       icon: "shield",
       steps: [
+        {
+          id: "tighten-limits",
+          title: "Tighten Limits to $0.15",
+          action: async (log) => {
+            // First lower max_tx (must be <= new daily_limit)
+            log({ icon: "info", text: "Tightening guardrails to trigger a block..." });
+            const maxTxAmount = usdcToStroops(0.15);
+            log({ icon: "wait", text: `Lowering max_tx to $0.15 USDC...` });
+            const res1 = (await setMaxTx(maxTxAmount)) as { tx_hash: string };
+            log({ icon: "tx", text: `TX: ${res1.tx_hash}`, link: EXPERT + res1.tx_hash });
+
+            // Then lower daily_limit (must be >= max_tx)
+            const limitAmount = usdcToStroops(0.15);
+            log({ icon: "wait", text: `Lowering daily_limit to $0.15 USDC...` });
+            const res2 = (await setDailyLimit(limitAmount)) as { tx_hash: string };
+            log({ icon: "tx", text: `TX: ${res2.tx_hash}`, link: EXPERT + res2.tx_hash });
+
+            const { status: s } = await refreshStatus();
+            log({ icon: "ok", text: `Daily limit: $${stroopsToUsdc(s.daily_limit)} | Spent: $${stroopsToUsdc(s.spent_today)}` });
+            log({ icon: "info", text: "Any new payment will exceed the limit" });
+            return [
+              { chapter: 4, label: "Tightened", value: "$0.15 daily limit", type: "config", link: EXPERT + res2.tx_hash },
+            ];
+          },
+        },
         {
           id: "blocked",
           title: "Payment Blocked by Contract",
           action: async (log) => {
-            log({ icon: "info", text: "Attempting payment that approaches daily limit..." });
             log({ icon: "wait", text: "Agent: authorize_payment($0.10, merchant)..." });
             const res = await runAgent();
             const lastStep = res.steps[res.steps.length - 1];
-            if (res.success) {
-              log({ icon: "ok", text: "Payment went through (limit not yet reached)" });
-              for (const step of res.steps) {
-                if (step.tx_hash) {
-                  log({ icon: "tx", text: `TX: ${step.tx_hash}`, link: EXPERT + step.tx_hash });
-                }
-              }
-              await refreshStatus();
-              return [{ chapter: 4, label: "Guardrail", value: "Limit not yet hit", type: "status" }];
+            if (!res.success) {
+              log({ icon: "block", text: `BLOCKED: ${lastStep?.error?.split("\n")[0] ?? "ExceedsDailyLimit"}` });
+              log({ icon: "ok", text: "Guardrail working — contract rejected the payment on-chain" });
             } else {
-              log({ icon: "block", text: `BLOCKED: ${lastStep?.error ?? "ExceedsDailyLimit"}` });
-              log({ icon: "err", text: "CONTRACT rejected this payment on-chain" });
-              log({ icon: "ok", text: "Guardrail working: spending limit enforced" });
-              await refreshStatus();
-              return [{ chapter: 4, label: "Guardrail", value: "ExceedsDailyLimit", type: "block" }];
+              log({ icon: "ok", text: "Payment went through (limit not yet reached)" });
             }
+            await refreshStatus();
+            return [{ chapter: 4, label: "Guardrail", value: "ExceedsDailyLimit", type: "block" }];
           },
         },
       ],
@@ -338,22 +356,33 @@ export default function DemoPage() {
       steps: [
         {
           id: "unpause",
-          title: "Resume Operations",
+          title: "Resume & Restore Limits",
           action: async (log) => {
+            // Unpause
             log({ icon: "wait", text: "Calling contract.emergency_unpause()..." });
             try {
               const res = (await unpauseContract()) as { tx_hash: string };
               log({ icon: "tx", text: `TX: ${res.tx_hash}`, link: EXPERT + res.tx_hash });
               log({ icon: "ok", text: "Contract UNPAUSED — operations resumed" });
-              await refreshStatus();
-              return [
-                { chapter: 6, label: "Resumed", value: "ACTIVE", type: "status", link: EXPERT + res.tx_hash },
-              ];
             } catch {
               log({ icon: "info", text: "Contract already unpaused" });
-              await refreshStatus();
-              return [{ chapter: 6, label: "Resumed", value: "Already active", type: "status" }];
             }
+            // Restore reasonable limits for future runs
+            log({ icon: "wait", text: "Restoring daily limit to $100.00..." });
+            try {
+              const r1 = (await setDailyLimit(usdcToStroops(100))) as { tx_hash: string };
+              log({ icon: "tx", text: `TX: ${r1.tx_hash}`, link: EXPERT + r1.tx_hash });
+            } catch { /* already set */ }
+            log({ icon: "wait", text: "Restoring max tx to $5.00..." });
+            try {
+              const r2 = (await setMaxTx(usdcToStroops(5))) as { tx_hash: string };
+              log({ icon: "tx", text: `TX: ${r2.tx_hash}`, link: EXPERT + r2.tx_hash });
+            } catch { /* already set */ }
+            log({ icon: "ok", text: "Limits restored for next demo run" });
+            await refreshStatus();
+            return [
+              { chapter: 6, label: "Resumed", value: "ACTIVE", type: "status" },
+            ];
           },
         },
         {
@@ -505,12 +534,12 @@ export default function DemoPage() {
 
   function iconColor(icon: LogEntry["icon"]) {
     switch (icon) {
-      case "ok":    return "text-emerald-400";
-      case "err":   return "text-red-400";
-      case "wait":  return "text-amber-300";
-      case "tx":    return "text-blue-400";
-      case "block": return "text-red-500";
-      default:      return "text-slate-400";
+      case "ok":    return "text-success-400";
+      case "err":   return "text-error-400";
+      case "wait":  return "text-warning-400";
+      case "tx":    return "text-accent-400";
+      case "block": return "text-error-500";
+      default:      return "text-text-muted";
     }
   }
 
@@ -527,10 +556,10 @@ export default function DemoPage() {
 
   function evidenceTypeStyle(type: EvidenceCard["type"]) {
     switch (type) {
-      case "tx":     return "border-l-blue-500 bg-blue-50";
-      case "config": return "border-l-secondary bg-secondary/5";
-      case "block":  return "border-l-error bg-error-container/30";
-      case "status": return "border-l-tertiary-fixed-dim bg-tertiary-fixed/10";
+      case "tx":     return "border-l-accent-400 bg-accent-400/10";
+      case "config": return "border-l-primary-400 bg-primary-400/10";
+      case "block":  return "border-l-error-400 bg-error-400/10";
+      case "status": return "border-l-success-400 bg-success-400/10";
     }
   }
 
@@ -543,31 +572,31 @@ export default function DemoPage() {
   return (
     <div className="animate-fade-in flex flex-col h-[calc(100vh-56px)]">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-6 py-3 border-b border-outline-variant bg-white shrink-0">
+      <div className="flex items-center justify-between px-4 lg:px-6 py-3 border-b border-surface-border bg-dark-50/80 backdrop-blur-xl shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-lg flex items-center justify-center">
             <span className="material-symbols-outlined text-white text-[18px]">play_circle</span>
           </div>
           <div>
-            <h2 className="text-sm font-bold text-primary">SpendGuard Live Demo</h2>
-            <p className="text-[11px] text-on-surface-variant">
+            <h2 className="text-sm font-bold text-text-primary">SpendGuard Live Demo</h2>
+            <p className="text-[11px] text-text-muted hidden sm:block">
               Interactive x402 flow on Stellar Testnet — no wallet required
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 lg:gap-3">
           {status && (
-            <div className="flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full ${status.paused ? "bg-error animate-pulse" : "bg-tertiary-fixed-dim"}`} />
-              <span className="text-xs font-mono text-on-surface-variant">
+            <div className="hidden sm:flex items-center gap-2">
+              <span className={`w-2 h-2 rounded-full ${status.paused ? "bg-error-400 animate-pulse" : "bg-success-400"}`} />
+              <span className="text-xs font-mono text-text-muted">
                 ${balance?.balance_usdc ?? "?"} USDC
               </span>
             </div>
           )}
-          <button onClick={runAll} disabled={running} className="btn-primary text-xs py-2 px-4">
-            {running ? "Running..." : allDone ? "Run Again" : "Run All Chapters"}
+          <button onClick={runAll} disabled={running} className="btn-primary text-xs py-2 px-3 lg:px-4">
+            {running ? "Running..." : allDone ? "Run Again" : "Run All"}
           </button>
-          <button onClick={reset} disabled={running} className="btn-secondary text-xs py-2 px-4">
+          <button onClick={reset} disabled={running} className="btn-secondary text-xs py-2 px-3 lg:px-4">
             Reset
           </button>
         </div>
@@ -576,7 +605,7 @@ export default function DemoPage() {
       {/* Three-column layout */}
       <div className="flex flex-1 overflow-hidden">
         {/* ── LEFT: Chapter Sidebar ────────────────────────────── */}
-        <aside className="w-[260px] border-r border-outline-variant bg-surface-container-low overflow-y-auto shrink-0 no-scrollbar">
+        <aside className="hidden lg:block w-[260px] border-r border-surface-border bg-dark-50 overflow-y-auto shrink-0 no-scrollbar">
           <div className="p-4">
             <p className="stat-label mb-3">CHAPTERS</p>
             <div className="space-y-1">
@@ -594,20 +623,20 @@ export default function DemoPage() {
                     disabled={running && st !== "done"}
                     className={`w-full text-left px-3 py-2.5 rounded-lg transition-all flex items-center gap-3 group ${
                       isActive
-                        ? "bg-primary/5 border border-primary/20"
-                        : "border border-transparent hover:bg-surface-container"
+                        ? "bg-primary-500/10 border border-primary-500/20"
+                        : "border border-transparent hover:bg-dark-200"
                     } disabled:opacity-50`}
                   >
                     {/* Status indicator */}
                     <div
                       className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 transition-all ${
                         st === "done"
-                          ? "bg-tertiary-fixed-dim text-white"
+                          ? "bg-success-500 text-white"
                           : st === "running"
-                          ? "bg-secondary text-white animate-pulse"
+                          ? "bg-accent-500 text-white animate-pulse"
                           : isActive
-                          ? "bg-primary text-white"
-                          : "bg-surface-container text-on-surface-variant"
+                          ? "bg-primary-500 text-white"
+                          : "bg-dark-300 text-text-muted"
                       }`}
                     >
                       {st === "done" ? (
@@ -621,17 +650,17 @@ export default function DemoPage() {
                       <p
                         className={`text-xs font-semibold truncate ${
                           st === "done"
-                            ? "text-tertiary-fixed-dim"
+                            ? "text-success-400"
                             : st === "running"
-                            ? "text-secondary"
+                            ? "text-accent-400"
                             : isActive
-                            ? "text-primary"
-                            : "text-on-surface-variant"
+                            ? "text-primary-300"
+                            : "text-text-muted"
                         }`}
                       >
                         {ch.title}
                       </p>
-                      <p className="text-[10px] text-on-surface-variant truncate">
+                      <p className="text-[10px] text-text-disabled truncate">
                         {ch.steps.length} step{ch.steps.length > 1 ? "s" : ""}
                         {st === "done" && " · done"}
                         {st === "running" && " · running"}
@@ -644,7 +673,7 @@ export default function DemoPage() {
           </div>
 
           {/* Demo wallets info */}
-          <div className="p-4 border-t border-outline-variant">
+          <div className="p-4 border-t border-surface-border">
             <p className="stat-label mb-2">DEMO ACCOUNTS</p>
             <div className="space-y-2">
               {(["owner", "agent", "contract"] as const).map((role) => (
@@ -655,9 +684,9 @@ export default function DemoPage() {
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 group"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-secondary" />
-                  <span className="text-[10px] uppercase font-bold text-on-surface-variant w-14">{role}</span>
-                  <span className="text-[10px] font-mono text-secondary group-hover:underline">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent-400" />
+                  <span className="text-[10px] uppercase font-bold text-text-muted w-14">{role}</span>
+                  <span className="text-[10px] font-mono text-accent-400 group-hover:underline">
                     {shortAddress(DEMO_WALLETS[role])}
                   </span>
                 </a>
@@ -669,21 +698,21 @@ export default function DemoPage() {
         {/* ── CENTER: Terminal + Controls ──────────────────────── */}
         <main className="flex-1 flex flex-col overflow-hidden">
           {/* Chapter header card */}
-          <div className="px-6 py-4 border-b border-outline-variant bg-white">
+          <div className="px-4 lg:px-6 py-4 border-b border-surface-border bg-dark-50">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-surface-container rounded-xl flex items-center justify-center">
-                  <span className="material-symbols-outlined text-primary text-[20px]">
+                <div className="w-10 h-10 bg-dark-200 rounded-xl flex items-center justify-center">
+                  <span className="material-symbols-outlined text-primary-400 text-[20px]">
                     {currentChapter?.icon ?? "play_circle"}
                   </span>
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-bold text-primary">
+                    <h3 className="text-sm font-bold text-text-primary">
                       CH{activeChapter + 1}: {currentChapter?.title}
                     </h3>
                     {(chapterStatus[activeChapter] === "running") && (
-                      <span className="badge bg-secondary/10 text-secondary uppercase tracking-wider animate-pulse">
+                      <span className="badge bg-accent-400/10 text-accent-400 uppercase tracking-wider animate-pulse">
                         Running
                       </span>
                     )}
@@ -693,7 +722,7 @@ export default function DemoPage() {
                       </span>
                     )}
                   </div>
-                  <p className="text-[11px] text-on-surface-variant mt-0.5 max-w-lg">
+                  <p className="text-[11px] text-text-muted mt-0.5 max-w-lg hidden sm:block">
                     {currentChapter?.subtitle}
                   </p>
                 </div>
@@ -701,17 +730,17 @@ export default function DemoPage() {
 
               {/* Live status pills */}
               {status && (
-                <div className="flex items-center gap-2">
-                  <div className="px-3 py-1.5 rounded-lg bg-surface-container-low text-xs font-mono">
-                    <span className="text-on-surface-variant">Spent:</span>{" "}
-                    <span className="font-bold text-primary">${stroopsToUsdc(status.spent_today)}</span>
-                    <span className="text-on-surface-variant"> / ${stroopsToUsdc(status.daily_limit)}</span>
+                <div className="hidden md:flex items-center gap-2">
+                  <div className="px-3 py-1.5 rounded-lg bg-dark-200 text-xs font-mono">
+                    <span className="text-text-muted">Spent:</span>{" "}
+                    <span className="font-bold text-text-primary">${stroopsToUsdc(status.spent_today)}</span>
+                    <span className="text-text-muted"> / ${stroopsToUsdc(status.daily_limit)}</span>
                   </div>
                   <div
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
                       status.paused
-                        ? "bg-error-container text-on-error-container"
-                        : "bg-tertiary-fixed/20 text-on-tertiary-container"
+                        ? "bg-error-glow text-error-400"
+                        : "bg-success-glow text-success-400"
                     }`}
                   >
                     {status.paused ? "PAUSED" : "ACTIVE"}
@@ -728,20 +757,20 @@ export default function DemoPage() {
               className="terminal h-full overflow-y-auto rounded-xl text-[13px] leading-relaxed p-5"
             >
               {logs.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-slate-500 text-center">
-                  <span className="material-symbols-outlined text-[40px] text-slate-600 mb-3">terminal</span>
-                  <p className="text-sm font-semibold text-slate-400 mb-1">Ready to run</p>
-                  <p className="text-xs text-slate-500 max-w-sm">
-                    Click a chapter on the left or &ldquo;Run All Chapters&rdquo; to execute
+                <div className="flex flex-col items-center justify-center h-full text-text-muted text-center">
+                  <span className="material-symbols-outlined text-[40px] text-text-disabled mb-3">terminal</span>
+                  <p className="text-sm font-semibold text-text-secondary mb-1">Ready to run</p>
+                  <p className="text-xs text-text-muted max-w-sm">
+                    Click a chapter on the left or &ldquo;Run All&rdquo; to execute
                     real Soroban transactions on Stellar Testnet.
                   </p>
-                  <p className="text-xs text-blue-400 mt-3">No wallet connection needed.</p>
+                  <p className="text-xs text-accent-400 mt-3">No wallet connection needed.</p>
                 </div>
               ) : (
                 <div className="space-y-0.5">
                   {logs.map((entry, i) => (
                     <div key={i} className="flex items-start gap-2 font-mono">
-                      <span className="text-slate-600 text-[11px] flex-shrink-0 w-[60px]">
+                      <span className="text-text-disabled text-[11px] flex-shrink-0 w-[60px]">
                         {entry.time}
                       </span>
                       <span className={`flex-shrink-0 w-4 text-center ${iconColor(entry.icon)}`}>
@@ -752,7 +781,7 @@ export default function DemoPage() {
                           href={entry.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-400 hover:text-blue-300 hover:underline break-all"
+                          className="text-accent-400 hover:text-accent-300 hover:underline break-all"
                         >
                           {entry.text}
                         </a>
@@ -760,10 +789,10 @@ export default function DemoPage() {
                         <span
                           className={
                             entry.icon === "block"
-                              ? "text-red-400 font-bold"
+                              ? "text-error-400 font-bold"
                               : entry.icon === "info" && entry.text.startsWith("━")
-                              ? "text-slate-300 font-bold"
-                              : "text-slate-300"
+                              ? "text-text-secondary font-bold"
+                              : "text-text-secondary"
                           }
                         >
                           {entry.text}
@@ -773,9 +802,9 @@ export default function DemoPage() {
                   ))}
                   {running && (
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-slate-600 text-[11px] w-[60px]">{timestamp()}</span>
-                      <span className="text-amber-300 animate-pulse w-4 text-center">◌</span>
-                      <span className="text-amber-300 animate-pulse">executing...</span>
+                      <span className="text-text-disabled text-[11px] w-[60px]">{timestamp()}</span>
+                      <span className="text-warning-400 animate-pulse w-4 text-center">◌</span>
+                      <span className="text-warning-400 animate-pulse">executing...</span>
                     </div>
                   )}
                 </div>
@@ -784,24 +813,24 @@ export default function DemoPage() {
           </div>
 
           {/* Bottom action bar */}
-          <div className="px-6 py-3 border-t border-outline-variant bg-white flex items-center justify-between shrink-0">
-            <div className="text-xs text-on-surface-variant">
+          <div className="px-4 lg:px-6 py-3 border-t border-surface-border bg-dark-50 flex items-center justify-between shrink-0">
+            <div className="text-xs text-text-muted">
               {allDone ? (
                 <span className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-tertiary-fixed-dim text-[16px]">check_circle</span>
+                  <span className="material-symbols-outlined text-success-400 text-[16px]">check_circle</span>
                   All chapters complete — every TX verifiable on
                   <a
                     href={`https://stellar.expert/explorer/testnet/contract/${DEMO_WALLETS.contract}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-secondary font-semibold hover:underline ml-0.5"
+                    className="text-accent-400 font-semibold hover:underline ml-0.5"
                   >
                     Stellar Expert
                   </a>
                 </span>
               ) : running ? (
                 <span className="flex items-center gap-1.5">
-                  <svg className="w-3 h-3 animate-spin text-secondary" fill="none" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3 animate-spin text-accent-400" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
@@ -817,7 +846,7 @@ export default function DemoPage() {
                 onClick={() => executeChapter(nextChapterIndex)}
                 className="btn-primary text-xs py-2"
               >
-                {nextChapterIndex === 0 ? "Start Demo" : `Continue → CH${nextChapterIndex + 1}: ${chapters[nextChapterIndex].title}`}
+                {nextChapterIndex === 0 ? "Start Demo" : `CH${nextChapterIndex + 1}: ${chapters[nextChapterIndex].title}`}
               </button>
             )}
 
@@ -830,11 +859,11 @@ export default function DemoPage() {
         </main>
 
         {/* ── RIGHT: Evidence Sidebar ─────────────────────────── */}
-        <aside className="w-[280px] border-l border-outline-variant bg-white overflow-y-auto shrink-0 no-scrollbar hidden xl:block">
+        <aside className="w-[280px] border-l border-surface-border bg-dark-50 overflow-y-auto shrink-0 no-scrollbar hidden xl:block">
           {/* What We Built */}
-          <div className="p-4 border-b border-outline-variant">
+          <div className="p-4 border-b border-surface-border">
             <p className="stat-label mb-2">WHAT WE BUILT</p>
-            <p className="text-xs text-on-surface-variant leading-relaxed">
+            <p className="text-xs text-text-muted leading-relaxed">
               A Soroban spending-policy contract that governs x402 payments by AI agents.
               Daily limits, per-tx caps, merchant whitelists, and a kill switch — all enforced on-chain.
             </p>
@@ -842,7 +871,7 @@ export default function DemoPage() {
               {["Soroban", "x402", "USDC", "AI Agent", "Stellar"].map((tag) => (
                 <span
                   key={tag}
-                  className="px-2 py-0.5 bg-surface-container rounded text-[10px] font-bold text-on-surface-variant"
+                  className="px-2 py-0.5 bg-dark-300 rounded text-[10px] font-bold text-text-muted"
                 >
                   {tag}
                 </span>
@@ -851,15 +880,15 @@ export default function DemoPage() {
           </div>
 
           {/* Evidence Cards */}
-          <div className="p-4 border-b border-outline-variant">
+          <div className="p-4 border-b border-surface-border">
             <p className="stat-label mb-2">
               EVIDENCE
               {evidence.length > 0 && (
-                <span className="ml-1.5 text-secondary">{evidence.length}</span>
+                <span className="ml-1.5 text-accent-400">{evidence.length}</span>
               )}
             </p>
             {evidence.length === 0 ? (
-              <p className="text-[11px] text-on-surface-variant italic">
+              <p className="text-[11px] text-text-muted italic">
                 Evidence will appear as chapters complete...
               </p>
             ) : (
@@ -870,7 +899,7 @@ export default function DemoPage() {
                     className={`border-l-[3px] rounded-r-lg p-2.5 animate-slide-up ${evidenceTypeStyle(card.type)}`}
                   >
                     <div className="flex items-center justify-between mb-0.5">
-                      <span className="text-[9px] font-bold text-on-surface-variant uppercase">
+                      <span className="text-[9px] font-bold text-text-disabled uppercase">
                         CH{card.chapter}
                       </span>
                       {card.link && (
@@ -878,14 +907,14 @@ export default function DemoPage() {
                           href={card.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-[9px] text-secondary hover:underline font-mono"
+                          className="text-[9px] text-accent-400 hover:underline font-mono"
                         >
                           view tx
                         </a>
                       )}
                     </div>
-                    <p className="text-[11px] font-semibold text-primary">{card.label}</p>
-                    <p className="text-[10px] font-mono text-on-surface-variant">{card.value}</p>
+                    <p className="text-[11px] font-semibold text-text-primary">{card.label}</p>
+                    <p className="text-[10px] font-mono text-text-muted">{card.value}</p>
                   </div>
                 ))}
               </div>
@@ -897,11 +926,11 @@ export default function DemoPage() {
             <p className="stat-label mb-2">
               LIVE TRANSACTIONS
               {liveTransactions.length > 0 && (
-                <span className="ml-1.5 text-secondary">{liveTransactions.length}</span>
+                <span className="ml-1.5 text-accent-400">{liveTransactions.length}</span>
               )}
             </p>
             {liveTransactions.length === 0 ? (
-              <p className="text-[11px] text-on-surface-variant italic">
+              <p className="text-[11px] text-text-muted italic">
                 Transaction hashes will appear here...
               </p>
             ) : (
@@ -914,8 +943,8 @@ export default function DemoPage() {
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 group"
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0" />
-                    <span className="text-[10px] font-mono text-secondary group-hover:underline truncate">
+                    <span className="w-1.5 h-1.5 rounded-full bg-accent-400 flex-shrink-0" />
+                    <span className="text-[10px] font-mono text-accent-400 group-hover:underline truncate">
                       {tx.hash.slice(0, 16)}...
                     </span>
                   </a>

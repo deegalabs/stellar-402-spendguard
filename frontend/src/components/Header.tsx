@@ -4,67 +4,73 @@ import { usePathname } from "next/navigation";
 import { useFreighter } from "@/hooks/useFreighter";
 import { shortAddress } from "@/lib/format";
 
-// Fixed demo wallet (Owner account on Testnet)
 const DEMO_WALLET = "GBF5LCVZQ5VQ5DOE57DXY4PDDWS2BGACEJBGJUJYAJSGJKOWHZ5TTLOY";
 
 interface HeaderProps {
   paused?: boolean;
+  onMenuClick?: () => void;
 }
 
-export default function Header({ paused }: HeaderProps) {
+export default function Header({ paused, onMenuClick }: HeaderProps) {
   const pathname = usePathname();
   const isDemo = pathname === "/demo";
-  const { connected, publicKey, loading, connect, error } = useFreighter();
+  const { connected, publicKey, loading, connect } = useFreighter();
 
   const showWallet = isDemo || (connected && publicKey);
   const walletAddress = isDemo ? DEMO_WALLET : publicKey;
 
   return (
-    <header className="h-[56px] w-full bg-white sticky top-0 z-50 border-b border-outline-variant flex items-center justify-between px-6 shrink-0">
-      {/* Left: Title + Status */}
-      <div className="flex items-center gap-4">
-        <span className="text-sm font-bold text-primary flex items-center gap-2">
-          Deega Labs — SpendGuard
+    <header className="h-[56px] w-full bg-dark-50/80 backdrop-blur-xl sticky top-0 z-40 border-b border-surface-border flex items-center justify-between px-4 lg:px-6 shrink-0">
+      {/* Left */}
+      <div className="flex items-center gap-3">
+        {/* Mobile hamburger */}
+        <button
+          onClick={onMenuClick}
+          className="lg:hidden text-text-muted hover:text-text-primary p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+        >
+          <span className="material-symbols-outlined text-[22px]">menu</span>
+        </button>
+
+        <span className="text-sm font-bold text-text-primary hidden sm:flex items-center gap-2">
+          Deega Labs
+          <span className="text-text-muted font-normal">-</span>
+          <span className="gradient-text">SpendGuard</span>
         </span>
 
         {paused && (
-          <div className="flex items-center gap-1.5 bg-error-container text-on-error-container text-[10px] font-bold px-3 py-1 rounded animate-pulse">
-            <span className="w-1.5 h-1.5 bg-error rounded-full" />
-            CONTRACT PAUSED
+          <div className="flex items-center gap-1.5 bg-error-glow border border-error/30 text-error-400 text-[10px] font-bold px-3 py-1 rounded-full animate-pulse">
+            <span className="w-1.5 h-1.5 bg-error-400 rounded-full" />
+            PAUSED
           </div>
         )}
 
         {isDemo && (
-          <div className="flex items-center gap-1.5 bg-secondary/10 text-secondary text-[10px] font-bold px-3 py-1 rounded">
-            <span className="material-symbols-outlined text-[14px]">play_circle</span>
-            LIVE DEMO MODE
+          <div className="flex items-center gap-1.5 bg-accent-glow border border-accent/30 text-accent-400 text-[10px] font-bold px-3 py-1 rounded-full">
+            <span className="material-symbols-outlined text-[12px]">play_circle</span>
+            LIVE DEMO
           </div>
         )}
       </div>
 
-      {/* Right: Notification + Wallet */}
-      <div className="flex items-center gap-4">
-        {!isDemo && error && (
-          <span className="text-xs text-error">{error}</span>
-        )}
-
+      {/* Right */}
+      <div className="flex items-center gap-3">
         {/* Notification bell */}
-        <button className="material-symbols-outlined text-outline hover:bg-surface-container-low p-2 rounded-full transition-colors">
+        <button className="material-symbols-outlined text-text-muted hover:text-text-primary text-[20px] p-2 rounded-lg hover:bg-white/5 transition-colors">
           notifications
         </button>
 
-        {/* Wallet display */}
+        {/* Wallet */}
         {showWallet ? (
-          <div className="flex items-center gap-2 bg-surface-container-low px-3 py-1.5 rounded-lg border border-outline-variant">
-            <span className={`w-2 h-2 rounded-full ${isDemo ? "bg-secondary" : "bg-tertiary-fixed-dim"}`} />
-            <span className="text-sm font-mono text-on-surface-variant">
+          <div className="flex items-center gap-2 bg-surface-card border border-surface-border px-3 py-1.5 rounded-lg">
+            <span className={`w-2 h-2 rounded-full ${isDemo ? "bg-accent-400" : "bg-success-400"} animate-pulse`} />
+            <span className="text-xs font-mono text-text-secondary hidden sm:inline">
               {shortAddress(walletAddress!)}
             </span>
             {isDemo && (
-              <span className="text-[9px] font-bold text-secondary uppercase">Demo</span>
+              <span className="text-[9px] font-bold text-accent-400 uppercase">Demo</span>
             )}
-            <div className="w-8 h-8 rounded-full overflow-hidden border border-outline-variant bg-surface-container flex items-center justify-center ml-1">
-              <span className="material-symbols-outlined text-primary text-[18px]">
+            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center ml-1">
+              <span className="material-symbols-outlined text-white text-[14px]">
                 {isDemo ? "smart_toy" : "person"}
               </span>
             </div>
@@ -73,9 +79,9 @@ export default function Header({ paused }: HeaderProps) {
           <button
             onClick={connect}
             disabled={loading}
-            className="bg-primary text-white px-4 py-1.5 rounded text-[13px] font-medium hover:bg-primary-container transition-colors disabled:opacity-50"
+            className="btn-primary text-xs py-1.5 px-4"
           >
-            {loading ? "Connecting..." : "Connect Freighter Wallet"}
+            {loading ? "Connecting..." : "Connect Wallet"}
           </button>
         )}
       </div>

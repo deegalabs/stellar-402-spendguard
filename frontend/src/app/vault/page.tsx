@@ -15,9 +15,9 @@ import {
 } from "@/lib/api";
 
 function spendBarColor(pct: number): string {
-  if (pct >= 90) return "bg-error";
-  if (pct >= 70) return "bg-warning-500";
-  return "bg-secondary";
+  if (pct >= 90) return "bg-error-500";
+  if (pct >= 70) return "bg-warning-400";
+  return "bg-primary-500";
 }
 
 export default function VaultPage() {
@@ -55,7 +55,7 @@ export default function VaultPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="flex items-center gap-3 text-on-surface-variant">
+        <div className="flex items-center gap-3 text-text-muted">
           <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -77,8 +77,8 @@ export default function VaultPage() {
     <div className="space-y-8 animate-fade-in max-w-7xl mx-auto">
       {/* Header */}
       <div>
-        <h2 className="text-3xl font-bold tracking-tight text-primary">Agent Vault</h2>
-        <p className="text-on-surface-variant mt-1">
+        <h2 className="text-3xl font-bold tracking-tight text-text-primary">Agent Vault</h2>
+        <p className="text-text-muted mt-1">
           Precision governance for your Soroban-powered autonomous agent.
         </p>
       </div>
@@ -87,10 +87,10 @@ export default function VaultPage() {
       {message && (
         <div className={`flex items-center gap-2 p-3 rounded-lg text-sm animate-slide-up ${
           message.type === "ok"
-            ? "bg-tertiary-container text-tertiary-fixed-dim"
-            : "bg-error-container text-on-error-container"
+            ? "bg-success-glow text-success-400"
+            : "bg-error-glow text-error-400"
         }`}>
-          <span className={`w-2 h-2 rounded-full ${message.type === "ok" ? "bg-tertiary-fixed-dim" : "bg-error"}`} />
+          <span className={`w-2 h-2 rounded-full ${message.type === "ok" ? "bg-success-400" : "bg-error-500"}`} />
           {message.text}
         </div>
       )}
@@ -107,17 +107,17 @@ export default function VaultPage() {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="font-bold text-primary">Sentinel Alpha-1</h3>
+                  <h3 className="font-bold text-text-primary">Sentinel Alpha-1</h3>
                   <span className="badge-success uppercase tracking-wider text-[9px]">Active</span>
                 </div>
-                <p className="text-xs font-mono text-on-surface-variant">
+                <p className="text-xs font-mono text-text-muted">
                   ID: {shortAddress(status?.agent ?? "")}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center justify-between py-3 border-t border-surface-container">
-              <span className="text-sm font-semibold text-primary">Autonomous Mode</span>
+            <div className="flex items-center justify-between py-3 border-t border-surface-border">
+              <span className="text-sm font-semibold text-text-primary">Autonomous Mode</span>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
@@ -125,14 +125,14 @@ export default function VaultPage() {
                   onChange={() => setAutonomousMode(!autonomousMode)}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-surface-container peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary" />
+                <div className="w-11 h-6 bg-dark-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-dark-100 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-500" />
               </label>
             </div>
           </div>
 
           {/* Security Guardrails */}
           <div className="card">
-            <h3 className="font-semibold text-primary mb-4 flex items-center gap-2">
+            <h3 className="font-semibold text-text-primary mb-4 flex items-center gap-2">
               <span className="material-symbols-outlined text-[20px]">verified_user</span>
               Security Guardrails
             </h3>
@@ -140,12 +140,12 @@ export default function VaultPage() {
             <div className="space-y-3">
               <p className="stat-label">Merchant Whitelist</p>
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-on-surface">
-                  <input type="checkbox" checked readOnly className="w-4 h-4 text-primary rounded accent-primary" />
+                <div className="flex items-center gap-2 text-sm text-text-secondary">
+                  <input type="checkbox" checked readOnly className="w-4 h-4 text-text-primary rounded accent-primary" />
                   <span className="font-mono text-xs">stellar-dex.protocol.io</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-on-surface">
-                  <input type="checkbox" checked readOnly className="w-4 h-4 text-primary rounded accent-primary" />
+                <div className="flex items-center gap-2 text-sm text-text-secondary">
+                  <input type="checkbox" checked readOnly className="w-4 h-4 text-text-primary rounded accent-primary" />
                   <span className="font-mono text-xs">amm-liquidity.stellar.com</span>
                 </div>
               </div>
@@ -180,19 +180,19 @@ export default function VaultPage() {
                   Remove
                 </button>
               </div>
-              <button className="text-xs text-secondary font-semibold mt-2 hover:underline">
+              <button className="text-xs text-accent-400 font-semibold mt-2 hover:underline">
                 + Add New Merchant Endpoint
               </button>
             </div>
           </div>
 
           {/* Emergency Kill Switch */}
-          <div className="card border-2 border-error-container bg-error-container/10">
+          <div className="card border-2 border-error/30 bg-error-glow">
             <div className="flex items-center gap-2 mb-2">
-              <span className="material-symbols-outlined text-error text-[20px]">warning</span>
-              <h3 className="font-bold text-error uppercase text-sm tracking-wide">Emergency Kill Switch</h3>
+              <span className="material-symbols-outlined text-error-400 text-[20px]">warning</span>
+              <h3 className="font-bold text-error-400 uppercase text-sm tracking-wide">Emergency Kill Switch</h3>
             </div>
-            <p className="text-xs text-on-surface-variant mb-4">
+            <p className="text-xs text-text-muted mb-4">
               {status?.paused
                 ? "Contract is PAUSED. No new payments will be authorized."
                 : "Instantly revoke all Soroban authorization for this agent. This action cannot be undone without manual contract deployment."}
@@ -219,7 +219,7 @@ export default function VaultPage() {
 
         {/* Right: Budget Control Panel */}
         <div className="lg:col-span-3 card">
-          <h3 className="font-semibold text-primary mb-6 flex items-center gap-2">
+          <h3 className="font-semibold text-text-primary mb-6 flex items-center gap-2">
             <span className="material-symbols-outlined text-[20px]">account_balance</span>
             Budget Control Panel
           </h3>
@@ -228,21 +228,21 @@ export default function VaultPage() {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-2">
               <p className="stat-label">Daily Spending Limit</p>
-              <span className="text-xs text-on-surface-variant font-mono">
+              <span className="text-xs text-text-muted font-mono">
                 Used today: ${spentUsdc} ({spentPct}%)
               </span>
             </div>
-            <p className="text-3xl font-bold text-primary font-mono mb-3">
+            <p className="text-3xl font-bold text-text-primary font-mono mb-3">
               {Number(dailyLimitUsdc).toLocaleString("en-US", { minimumFractionDigits: 2 })}
-              <span className="text-sm font-normal text-on-surface-variant ml-2">USDC</span>
+              <span className="text-sm font-normal text-text-muted ml-2">USDC</span>
             </p>
-            <div className="w-full bg-surface-container rounded-full h-2.5 mb-2">
+            <div className="w-full bg-dark-300 rounded-full h-2.5 mb-2">
               <div
                 className={`h-2.5 rounded-full transition-all ${spendBarColor(spentPct)}`}
                 style={{ width: `${Math.min(spentPct, 100)}%` }}
               />
             </div>
-            <div className="flex justify-between text-[10px] text-on-surface-variant font-mono">
+            <div className="flex justify-between text-[10px] text-text-muted font-mono">
               <span>0 USDC</span>
               <span>{Number(dailyLimitUsdc).toLocaleString()} USDC</span>
             </div>
@@ -267,14 +267,14 @@ export default function VaultPage() {
           {/* Max Transaction Value */}
           <div className="mb-8">
             <p className="stat-label mb-2">Max Transaction Value</p>
-            <p className="text-3xl font-bold text-primary font-mono mb-3">
+            <p className="text-3xl font-bold text-text-primary font-mono mb-3">
               {Number(maxTxUsdc).toLocaleString("en-US", { minimumFractionDigits: 2 })}
-              <span className="text-sm font-normal text-on-surface-variant ml-2">USDC</span>
+              <span className="text-sm font-normal text-text-muted ml-2">USDC</span>
             </p>
-            <div className="w-full bg-surface-container rounded-full h-2.5 mb-2">
-              <div className="h-2.5 rounded-full bg-secondary" style={{ width: "50%" }} />
+            <div className="w-full bg-dark-300 rounded-full h-2.5 mb-2">
+              <div className="h-2.5 rounded-full bg-primary-500" style={{ width: "50%" }} />
             </div>
-            <div className="flex justify-between text-[10px] text-on-surface-variant font-mono">
+            <div className="flex justify-between text-[10px] text-text-muted font-mono">
               <span>0 USDC</span>
               <span>{Number(dailyLimitUsdc).toLocaleString()} USDC</span>
             </div>
@@ -297,18 +297,18 @@ export default function VaultPage() {
           </div>
 
           {/* Footer stats */}
-          <div className="grid grid-cols-2 gap-4 pt-6 border-t border-surface-container">
+          <div className="grid grid-cols-2 gap-4 pt-6 border-t border-surface-border">
             <div>
               <p className="stat-label">Policy Version</p>
-              <p className="text-sm font-bold text-primary mt-1 flex items-center gap-1">
-                <span className="material-symbols-outlined text-on-surface-variant text-[16px]">schedule</span>
+              <p className="text-sm font-bold text-text-primary mt-1 flex items-center gap-1">
+                <span className="material-symbols-outlined text-text-muted text-[16px]">schedule</span>
                 v0.1.0-STABLE
               </p>
             </div>
             <div>
               <p className="stat-label">Last Sync</p>
-              <p className="text-sm font-bold text-primary mt-1 flex items-center gap-1">
-                <span className="material-symbols-outlined text-tertiary-fixed-dim text-[16px]">sync</span>
+              <p className="text-sm font-bold text-text-primary mt-1 flex items-center gap-1">
+                <span className="material-symbols-outlined text-success-400 text-[16px]">sync</span>
                 2m ago
               </p>
             </div>
@@ -319,14 +319,14 @@ export default function VaultPage() {
       {/* Kill Switch Confirmation Modal */}
       {showKillModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-panel animate-slide-up">
+          <div className="bg-dark-100 rounded-xl p-6 max-w-md w-full mx-4 shadow-panel animate-slide-up">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-10 h-10 bg-error-container rounded-full flex items-center justify-center">
-                <span className="material-symbols-outlined text-error text-[20px]">warning</span>
+              <div className="w-10 h-10 bg-error-500-container rounded-full flex items-center justify-center">
+                <span className="material-symbols-outlined text-error-400 text-[20px]">warning</span>
               </div>
-              <h3 className="text-lg font-bold text-error">Confirm Emergency Pause</h3>
+              <h3 className="text-lg font-bold text-error-400">Confirm Emergency Pause</h3>
             </div>
-            <p className="text-sm text-on-surface-variant mb-6">
+            <p className="text-sm text-text-muted mb-6">
               This will immediately block all new payment authorizations.
               In-flight transactions already on the ledger are final and cannot be reversed.
             </p>

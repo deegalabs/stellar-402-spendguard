@@ -17,6 +17,27 @@ const router = Router();
 router.use(adminLimiter);
 router.use(adminAuth);
 
+function stellarError(err: unknown): string {
+  if (err instanceof Error) {
+    // Extract clean message from Soroban HostError
+    const msg = err.message;
+    const match = msg.match(/Error\(Contract, #(\d+)\)/);
+    if (match) {
+      const code = Number(match[1]);
+      const names: Record<number, string> = {
+        1: "AlreadyInitialized", 2: "NotInitialized", 3: "Unauthorized",
+        4: "ContractPaused", 5: "ExceedsDailyLimit", 6: "ExceedsMaxTx",
+        7: "MerchantNotWhitelisted", 8: "InvalidAmount", 9: "InsufficientBalance",
+        10: "ArithmeticOverflow", 11: "AlreadyPaused", 12: "NotPaused",
+        13: "MerchantAlreadyWhitelisted",
+      };
+      return names[code] ?? `ContractError(${code})`;
+    }
+    return msg.split("\n")[0]; // first line only
+  }
+  return "Unknown error";
+}
+
 router.post("/top-up", async (req, res) => {
   try {
     const { amount } = req.body;
@@ -31,7 +52,8 @@ router.post("/top-up", async (req, res) => {
       amount_deposited: String(amount),
     });
   } catch (err) {
-    res.status(502).json({ error: "Stellar transaction failed", code: "STELLAR_ERROR" });
+    console.error("[admin/top-up]", err);
+    res.status(502).json({ error: stellarError(err), code: "STELLAR_ERROR" });
   }
 });
 
@@ -49,7 +71,8 @@ router.post("/set-limit", async (req, res) => {
       new_limit: String(daily_limit),
     });
   } catch (err) {
-    res.status(502).json({ error: "Stellar transaction failed", code: "STELLAR_ERROR" });
+    console.error("[admin/set-limit]", err);
+    res.status(502).json({ error: stellarError(err), code: "STELLAR_ERROR" });
   }
 });
 
@@ -67,7 +90,8 @@ router.post("/set-max-tx", async (req, res) => {
       new_max_tx: String(max_tx_value),
     });
   } catch (err) {
-    res.status(502).json({ error: "Stellar transaction failed", code: "STELLAR_ERROR" });
+    console.error("[admin/set-max-tx]", err);
+    res.status(502).json({ error: stellarError(err), code: "STELLAR_ERROR" });
   }
 });
 
@@ -85,7 +109,8 @@ router.post("/whitelist", async (req, res) => {
       merchant,
     });
   } catch (err) {
-    res.status(502).json({ error: "Stellar transaction failed", code: "STELLAR_ERROR" });
+    console.error("[admin/whitelist]", err);
+    res.status(502).json({ error: stellarError(err), code: "STELLAR_ERROR" });
   }
 });
 
@@ -103,7 +128,8 @@ router.post("/remove-merchant", async (req, res) => {
       merchant,
     });
   } catch (err) {
-    res.status(502).json({ error: "Stellar transaction failed", code: "STELLAR_ERROR" });
+    console.error("[admin/remove-merchant]", err);
+    res.status(502).json({ error: stellarError(err), code: "STELLAR_ERROR" });
   }
 });
 
@@ -115,7 +141,8 @@ router.post("/pause", async (_req, res) => {
       paused: true,
     });
   } catch (err) {
-    res.status(409).json({ error: "Already paused", code: "ALREADY_PAUSED" });
+    console.error("[admin/pause]", err);
+    res.status(409).json({ error: stellarError(err), code: "STELLAR_ERROR" });
   }
 });
 
@@ -127,7 +154,8 @@ router.post("/unpause", async (_req, res) => {
       paused: false,
     });
   } catch (err) {
-    res.status(409).json({ error: "Not paused", code: "NOT_PAUSED" });
+    console.error("[admin/unpause]", err);
+    res.status(409).json({ error: stellarError(err), code: "STELLAR_ERROR" });
   }
 });
 

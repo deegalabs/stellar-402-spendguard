@@ -12,19 +12,28 @@ function StatCard({
   value,
   sub,
   alert,
+  icon,
   children,
 }: {
   label: string;
   value: string;
   sub?: string;
   alert?: boolean;
+  icon?: string;
   children?: React.ReactNode;
 }) {
   return (
-    <div className={`card ${alert ? "border border-error-container" : ""}`}>
-      <p className="stat-label mb-2">{label}</p>
-      <p className={`stat-value ${alert ? "text-error" : ""}`}>{value}</p>
-      {sub && <p className="text-xs text-on-surface-variant mt-1">{sub}</p>}
+    <div className={`card ${alert ? "border-error/30 shadow-glow-error" : ""}`}>
+      <div className="flex items-center justify-between mb-3">
+        <p className="stat-label">{label}</p>
+        {icon && (
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${alert ? "bg-error-glow" : "bg-primary-glow"}`}>
+            <span className={`material-symbols-outlined text-[18px] ${alert ? "text-error-400" : "text-primary-400"}`}>{icon}</span>
+          </div>
+        )}
+      </div>
+      <p className={`stat-value ${alert ? "text-error-400" : ""}`}>{value}</p>
+      {sub && <p className="text-xs text-text-muted mt-1">{sub}</p>}
       {children}
     </div>
   );
@@ -32,9 +41,9 @@ function StatCard({
 
 function StatusDot({ status }: { status: string }) {
   const color =
-    status === "settled" ? "bg-tertiary-fixed-dim" :
-    status === "blocked" ? "bg-error" :
-    "bg-warning-500";
+    status === "settled" ? "bg-success-400" :
+    status === "blocked" ? "bg-error-400" :
+    "bg-warning-400";
   return <span className={`w-2 h-2 rounded-full ${color}`} />;
 }
 
@@ -71,7 +80,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="flex items-center gap-3 text-on-surface-variant">
+        <div className="flex items-center gap-3 text-text-muted">
           <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -84,7 +93,7 @@ export default function DashboardPage() {
 
   if (error) {
     return (
-      <div className="card border border-error-container text-error">
+      <div className="card border-error/30 text-error-400">
         <p className="font-semibold">Connection Error</p>
         <p className="text-sm mt-1">{error}</p>
       </div>
@@ -99,143 +108,128 @@ export default function DashboardPage() {
   const limitUsdc = status ? stroopsToUsdc(status.daily_limit) : "0.00";
 
   return (
-    <div className="space-y-8 animate-fade-in max-w-7xl mx-auto">
+    <div className="space-y-6 lg:space-y-8 animate-fade-in max-w-7xl mx-auto">
       {/* Header */}
       <div>
-        <h2 className="text-3xl font-bold tracking-tight text-primary">Dashboard</h2>
-        <p className="text-on-surface-variant mt-1">
-          Institutional record of automated agent settlements and endpoint requests.
+        <h2 className="text-2xl lg:text-3xl font-bold tracking-tight text-text-primary">Dashboard</h2>
+        <p className="text-text-muted text-sm mt-1">
+          Real-time monitoring of automated agent settlements on Stellar.
         </p>
       </div>
 
       {/* KPI Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
         <StatCard
           label="Today&apos;s Spend"
           value={`$${spentUsdc}`}
           alert={spentPct > 80}
+          icon="payments"
         >
           <div className="mt-3">
-            <p className="text-[10px] text-on-surface-variant font-mono">
-              Daily Threshold: {spentPct}% utilization
-            </p>
-            <div className="flex gap-0.5 mt-1.5">
-              {Array.from({ length: 7 }).map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-4 flex-1 rounded-sm ${
-                    i < Math.ceil(spentPct / 14.3)
-                      ? "bg-primary"
-                      : "bg-surface-container"
-                  }`}
-                />
-              ))}
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-[10px] text-text-muted font-mono">{spentPct}% of limit</p>
+              <p className="text-[10px] text-text-muted font-mono">${limitUsdc}</p>
+            </div>
+            <div className="w-full h-1.5 bg-dark-300 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${
+                  spentPct > 80 ? "bg-error-400" : spentPct > 50 ? "bg-warning-400" : "bg-primary-400"
+                }`}
+                style={{ width: `${Math.min(spentPct, 100)}%` }}
+              />
             </div>
           </div>
         </StatCard>
 
         <StatCard
-          label="Transactions Today"
+          label="Transactions"
           value={String(transactions.length > 0 ? transactions.length : 0)}
+          sub="today"
+          icon="receipt_long"
         />
 
         <StatCard
-          label="Settlement Speed"
+          label="Settlement"
           value={demoSteps.find(s => s.settlement_time_ms)
             ? `${(demoSteps.find(s => s.settlement_time_ms)!.settlement_time_ms! / 1000).toFixed(1)}s`
             : "4.2s"
           }
-          sub="avg Stellar finality"
-        >
-          <p className="text-xs text-tertiary-fixed-dim font-semibold mt-1 flex items-center gap-1">
-            <span className="material-symbols-outlined text-[14px]">sync</span>
-            Real-time sync
-          </p>
-        </StatCard>
+          sub="avg finality"
+          icon="speed"
+        />
 
-        <StatCard label="Guard Status" value="">
-          <div className={`flex items-center gap-2 mt-1 ${status?.paused ? "text-error" : "text-on-tertiary-container"}`}>
-            <span className={`w-2.5 h-2.5 rounded-full ${status?.paused ? "bg-error animate-pulse" : "bg-tertiary-fixed-dim"}`} />
+        <StatCard label="Guard Status" value="" icon="verified_user">
+          <div className={`flex items-center gap-2 ${status?.paused ? "text-error-400" : "text-success-400"}`}>
+            <span className={`w-2 h-2 rounded-full ${status?.paused ? "bg-error-400 animate-pulse" : "bg-success-400"}`} />
             <span className="font-bold text-sm">
-              {status?.paused ? "PAUSED" : "ALL OPERATIONAL"}
+              {status?.paused ? "PAUSED" : "ACTIVE"}
             </span>
           </div>
-          {!status?.paused && (
-            <button
-              onClick={handleRunDemo}
-              disabled={demoRunning}
-              className="mt-3 w-full text-xs font-semibold text-error border border-error-container rounded-lg px-3 py-1.5 hover:bg-error-container transition-colors disabled:opacity-50"
-            >
-              EMERGENCY PAUSE
-            </button>
-          )}
         </StatCard>
       </div>
 
       {/* Main content row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
         {/* Live Payment Feed */}
         <div className="lg:col-span-2 card">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-primary">Live Payment Feed</h3>
-            <div className="flex items-center gap-3 text-xs">
-              <span className="flex items-center gap-1"><StatusDot status="settled" /> Safe</span>
-              <span className="flex items-center gap-1"><StatusDot status="pending" /> Warn</span>
+            <h3 className="font-semibold text-text-primary flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary-400 text-[18px]">monitoring</span>
+              Live Payment Feed
+            </h3>
+            <div className="hidden sm:flex items-center gap-3 text-xs text-text-muted">
+              <span className="flex items-center gap-1"><StatusDot status="settled" /> OK</span>
               <span className="flex items-center gap-1"><StatusDot status="blocked" /> Block</span>
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* Mobile: card layout / Desktop: table */}
+          <div className="hidden sm:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left bg-surface-container text-on-surface-variant text-[10px] font-mono uppercase tracking-widest">
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Endpoint</th>
-                  <th className="px-4 py-3 text-right">Value</th>
-                  <th className="px-4 py-3">Time</th>
-                  <th className="px-4 py-3">Hash</th>
+                <tr className="text-left text-text-muted text-[10px] font-mono uppercase tracking-widest border-b border-surface-border">
+                  <th className="px-3 py-3">Status</th>
+                  <th className="px-3 py-3">Endpoint</th>
+                  <th className="px-3 py-3 text-right">Value</th>
+                  <th className="px-3 py-3">Time</th>
+                  <th className="px-3 py-3">Hash</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-surface-container">
+              <tbody className="divide-y divide-surface-border">
                 {transactions.length > 0 ? transactions.map((tx) => (
-                  <tr key={tx.id} className="hover:bg-surface-container transition-colors">
-                    <td className="px-4 py-3">
+                  <tr key={tx.id} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="px-3 py-3">
                       <div className="flex items-center gap-2">
                         <StatusDot status={tx.status} />
-                        <span className="font-mono text-xs">
-                          {tx.status === "settled" ? "SUCCESS" : tx.status === "blocked" ? "DENIED" : "PENDING"}
+                        <span className="font-mono text-xs text-text-secondary">
+                          {tx.status === "settled" ? "OK" : tx.status === "blocked" ? "DENIED" : "PENDING"}
                         </span>
                       </div>
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <span className={`px-2 py-0.5 rounded font-mono text-[10px] ${
-                          tx.status === "blocked"
-                            ? "bg-error-container text-on-error-container"
-                            : "bg-surface-container text-on-primary-container"
-                        }`}>
-                          {tx.status === "blocked" ? "HTTP 403" : "HTTP 402"}
-                        </span>
-                        <span className="font-mono text-xs text-on-surface">
-                          {tx.type === "payment_authorized" ? "/v1/auth/settle" : "/v1/auth/reject"}
-                        </span>
-                      </div>
+                    <td className="px-3 py-3">
+                      <span className={`px-2 py-0.5 rounded font-mono text-[10px] ${
+                        tx.status === "blocked"
+                          ? "bg-error-glow text-error-400 border border-error/20"
+                          : "bg-primary-glow text-primary-300 border border-primary/20"
+                      }`}>
+                        {tx.status === "blocked" ? "403" : "402"}
+                      </span>
                     </td>
-                    <td className="px-4 py-3 text-right">
-                      <span className="font-mono font-bold text-on-surface">
+                    <td className="px-3 py-3 text-right">
+                      <span className="font-mono font-bold text-text-primary">
                         {stroopsToUsdc(tx.amount)}
                       </span>
-                      <span className="text-on-surface-variant ml-1 text-xs">USDC</span>
+                      <span className="text-text-muted ml-1 text-xs">USDC</span>
                     </td>
-                    <td className="px-4 py-3 text-xs text-on-surface-variant">
+                    <td className="px-3 py-3 text-xs text-text-muted">
                       {relativeTime(tx.timestamp)}
                     </td>
-                    <td className="px-4 py-3 font-mono text-xs">
+                    <td className="px-3 py-3 font-mono text-xs">
                       <a
                         href={tx.stellar_expert_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-secondary-container hover:text-secondary transition-colors"
+                        className="text-accent-400 hover:text-accent-300 transition-colors"
                       >
                         {tx.tx_hash.slice(0, 4)}...{tx.tx_hash.slice(-4)}
                       </a>
@@ -243,7 +237,7 @@ export default function DashboardPage() {
                   </tr>
                 )) : (
                   <tr>
-                    <td colSpan={5} className="py-8 text-center text-on-surface-variant text-sm">
+                    <td colSpan={5} className="py-8 text-center text-text-muted text-sm">
                       No transactions yet. Run a payment cycle to see data.
                     </td>
                   </tr>
@@ -251,13 +245,38 @@ export default function DashboardPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Mobile: card layout */}
+          <div className="sm:hidden space-y-2">
+            {transactions.length > 0 ? transactions.map((tx) => (
+              <div key={tx.id} className="flex items-center justify-between p-3 bg-dark-200 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <StatusDot status={tx.status} />
+                  <div>
+                    <span className="text-xs font-mono text-text-primary font-bold">${stroopsToUsdc(tx.amount)}</span>
+                    <span className="text-[10px] text-text-muted ml-1">{relativeTime(tx.timestamp)}</span>
+                  </div>
+                </div>
+                <a
+                  href={tx.stellar_expert_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-accent-400 text-[10px] font-mono"
+                >
+                  {tx.tx_hash.slice(0, 6)}...
+                </a>
+              </div>
+            )) : (
+              <p className="py-6 text-center text-text-muted text-sm">No transactions yet.</p>
+            )}
+          </div>
         </div>
 
         {/* Spend Velocity */}
         <div className="card">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-primary">Spend Velocity</h3>
-            <span className="text-[10px] text-on-surface-variant font-mono">24h Window</span>
+            <h3 className="font-semibold text-text-primary">Spend Velocity</h3>
+            <span className="text-[10px] text-text-muted font-mono">24h Window</span>
           </div>
 
           <div className="relative h-32 flex items-end gap-1">
@@ -269,95 +288,90 @@ export default function DashboardPage() {
                 <div
                   key={i}
                   className={`flex-1 rounded-t transition-all ${
-                    i < Math.ceil(spentPct / 8.3) ? "bg-secondary/70" : "bg-surface-container"
+                    i < Math.ceil(spentPct / 8.3) ? "bg-primary-500/60" : "bg-dark-400"
                   }`}
                   style={{ height: `${height}%` }}
                 />
               );
             })}
-            <div className="absolute top-4 left-0 right-0 border-t-2 border-dashed border-error/40">
-              <span className="absolute -top-3 right-0 text-[10px] text-error font-mono font-semibold">
+            <div className="absolute top-4 left-0 right-0 border-t-2 border-dashed border-error-400/40">
+              <span className="absolute -top-3 right-0 text-[10px] text-error-400 font-mono font-semibold">
                 LIMIT ${limitUsdc}
               </span>
             </div>
           </div>
 
-          <div className="flex items-center justify-between mt-3 text-[10px] text-on-surface-variant font-mono">
+          <div className="flex items-center justify-between mt-3 text-[10px] text-text-muted font-mono">
             <span>00:00</span>
             <span>23:59</span>
           </div>
-          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-surface-container">
-            <span className="w-3 h-3 bg-secondary/70 rounded-sm" />
-            <span className="text-xs text-on-surface-variant">Actual Spend</span>
-            <span className="ml-auto text-sm font-bold font-mono text-primary">
-              ${spentUsdc} total
+          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-surface-border">
+            <span className="w-3 h-3 bg-primary-500/60 rounded-sm" />
+            <span className="text-xs text-text-muted">Actual Spend</span>
+            <span className="ml-auto text-sm font-bold font-mono text-text-primary">
+              ${spentUsdc}
             </span>
           </div>
         </div>
       </div>
 
-      {/* Bottom row: Quick Actions + Integrations */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        <Link href="/vault" className="card-hover flex items-center gap-3 bg-primary text-white">
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <Link href="/vault" className="card-hover flex items-center gap-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white border-0">
           <span className="material-symbols-outlined text-[20px]">tune</span>
           <span className="text-sm font-semibold">Adjust Daily Limit</span>
         </Link>
 
         <Link href="/vault" className="card-hover flex items-center gap-3">
-          <span className="material-symbols-outlined text-[20px] text-on-surface-variant">person_add</span>
-          <span className="text-sm font-semibold text-primary">Add Merchant</span>
+          <span className="material-symbols-outlined text-[20px] text-text-muted">person_add</span>
+          <span className="text-sm font-semibold text-text-primary">Add Merchant</span>
         </Link>
 
-        <Link href="/vault" className="card-hover flex items-center gap-3 border border-error-container">
-          <span className="material-symbols-outlined text-[20px] text-error">warning</span>
-          <span className="text-sm font-semibold text-error">Emergency Pause</span>
+        <Link href="/vault" className="card-hover flex items-center gap-3 border-error/30">
+          <span className="material-symbols-outlined text-[20px] text-error-400">warning</span>
+          <span className="text-sm font-semibold text-error-400">Emergency Pause</span>
         </Link>
 
-        {/* Integrations Monitor */}
         <div className="card">
-          <p className="stat-label mb-3">Integrations Monitor</p>
-          <div className="space-y-2">
-            {[
-              { name: "OpenZeppelin Defender", online: true },
-              { name: "Freighter Wallet", online: true },
-              { name: "Horizon Node (Global)", online: true },
-            ].map((item) => (
-              <div key={item.name} className="flex items-center justify-between text-xs">
-                <span className="text-on-surface-variant">{item.name}</span>
-                <span className={`w-2 h-2 rounded-full ${item.online ? "bg-tertiary-fixed-dim" : "bg-error"}`} />
+          <p className="stat-label mb-2">Integrations</p>
+          <div className="space-y-1.5">
+            {["Soroban RPC", "Freighter", "Horizon"].map((name) => (
+              <div key={name} className="flex items-center justify-between text-xs">
+                <span className="text-text-muted">{name}</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-success-400" />
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Demo Terminal (shows after running) */}
+      {/* Demo Terminal */}
       {demoSteps.length > 0 && (
         <div className="card p-0 overflow-hidden">
-          <div className="flex items-center justify-between px-6 py-3 bg-[#1E293B] border-b border-slate-700">
-            <span className="text-slate-300 font-mono text-xs font-bold tracking-tight uppercase">x402 Agent Output</span>
+          <div className="flex items-center justify-between px-4 lg:px-6 py-3 bg-dark-200 border-b border-surface-border">
+            <span className="text-text-secondary font-mono text-xs font-bold tracking-tight uppercase">x402 Agent Output</span>
             <button
               onClick={handleRunDemo}
               disabled={demoRunning}
-              className="bg-secondary text-white text-xs font-medium px-3 py-1 rounded hover:opacity-90 transition-opacity disabled:opacity-50"
+              className="btn-accent text-xs px-3 py-1"
             >
-              {demoRunning ? "Running..." : "Run Payment Cycle"}
+              {demoRunning ? "Running..." : "Run Cycle"}
             </button>
           </div>
-          <div className="terminal rounded-none space-y-1.5">
+          <div className="terminal rounded-none border-0 space-y-1.5">
             {demoSteps.map((step, i) => (
               <div key={i} className="flex items-start gap-2">
-                <span className={step.status === "failed" || step.error ? "text-red-400" : "text-green-400"}>
+                <span className={step.status === "failed" || step.error ? "text-error-400" : "text-success-400"}>
                   {step.status === "failed" || step.error ? "x" : ">"}
                 </span>
                 <div>
-                  <span className="text-blue-400">[{step.step}]</span>{" "}
-                  {step.status !== undefined && <span>status={String(step.status)}</span>}
-                  {step.price && <span className="text-yellow-300"> price=${stroopsToUsdc(step.price)}</span>}
-                  {step.tx_hash && <span className="text-green-300"> tx={step.tx_hash.slice(0, 12)}...</span>}
-                  {step.settlement_time_ms && <span className="text-purple-300"> {step.settlement_time_ms}ms</span>}
-                  {step.data && <span className="text-white"> {step.data}</span>}
-                  {step.error && <span className="text-red-400"> {step.error}</span>}
+                  <span className="text-accent-400">[{step.step}]</span>{" "}
+                  {step.status !== undefined && <span className="text-text-secondary">status={String(step.status)}</span>}
+                  {step.price && <span className="text-warning-400"> price=${stroopsToUsdc(step.price)}</span>}
+                  {step.tx_hash && <span className="text-success-400"> tx={step.tx_hash.slice(0, 12)}...</span>}
+                  {step.settlement_time_ms && <span className="text-primary-300"> {step.settlement_time_ms}ms</span>}
+                  {step.data && <span className="text-text-primary"> {step.data}</span>}
+                  {step.error && <span className="text-error-400"> {step.error}</span>}
                 </div>
               </div>
             ))}

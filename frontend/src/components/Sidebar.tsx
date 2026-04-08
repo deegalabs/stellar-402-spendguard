@@ -12,31 +12,38 @@ const NAV_ITEMS = [
   { href: "/docs", label: "Docs", icon: "menu_book" },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  mobileOpen?: boolean;
+  onClose?: () => void;
+}
+
+export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
 
-  return (
-    <aside className="w-[220px] h-screen sticky left-0 bg-white border-r border-outline-variant flex flex-col py-4 shrink-0">
+  const content = (
+    <>
       {/* Brand */}
-      <div className="px-6 mb-8">
-        <div className="flex items-center gap-2 mb-1">
-          <div className="w-6 h-6 bg-primary rounded flex items-center justify-center">
+      <div className="px-5 mb-6">
+        <div className="flex items-center gap-2.5 mb-1">
+          <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-lg flex items-center justify-center shadow-glow-primary">
             <span
-              className="material-symbols-outlined text-white text-[16px]"
+              className="material-symbols-outlined text-white text-[18px]"
               style={{ fontVariationSettings: "'FILL' 1" }}
             >
               shield
             </span>
           </div>
-          <span className="text-[14px] font-bold text-primary">SpendGuard</span>
+          <div>
+            <span className="text-[14px] font-bold text-text-primary">SpendGuard</span>
+            <p className="text-[9px] uppercase tracking-[0.15em] text-text-muted font-bold leading-none">
+              AI Agent Governance
+            </p>
+          </div>
         </div>
-        <p className="text-[10px] uppercase tracking-wider text-outline font-bold">
-          Institutional Precision
-        </p>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1">
+      <nav className="flex-1 px-3 space-y-0.5">
         {NAV_ITEMS.map((item) => {
           const active =
             pathname === item.href || pathname.startsWith(item.href + "/");
@@ -44,14 +51,15 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-4 py-3 text-[14px] font-medium transition-all ${
+              onClick={onClose}
+              className={`flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium rounded-lg transition-all duration-200 ${
                 active
-                  ? "bg-[#EEF2FF] text-primary border-l-[3px] border-primary"
-                  : "text-[#64748B] hover:bg-surface-container-low"
+                  ? "bg-primary-500/10 text-primary-300 border border-primary-500/20"
+                  : "text-text-muted hover:text-text-secondary hover:bg-white/5 border border-transparent"
               }`}
             >
               <span
-                className="material-symbols-outlined text-[20px]"
+                className={`material-symbols-outlined text-[20px] ${active ? "text-primary-400" : ""}`}
                 style={active ? { fontVariationSettings: "'FILL' 1" } : undefined}
               >
                 {item.icon}
@@ -63,16 +71,41 @@ export default function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="mt-auto px-4 space-y-2 border-t border-outline-variant pt-6">
-        <div className="flex items-center gap-3 text-[#64748B] px-2 py-1 text-[12px] font-mono">
-          <span className="material-symbols-outlined text-[18px]">account_tree</span>
+      <div className="mt-auto px-4 space-y-2 border-t border-surface-border pt-4 mx-3">
+        <div className="flex items-center gap-3 text-text-muted px-1 py-1 text-[11px] font-mono">
+          <span className="material-symbols-outlined text-[16px]">account_tree</span>
           <span>G...4F2A</span>
         </div>
-        <div className="flex items-center gap-3 text-[#64748B] px-2 py-1 text-[12px] font-mono">
-          <span className="material-symbols-outlined text-[18px]">sensors</span>
-          <span>Stellar Testnet</span>
+        <div className="flex items-center gap-3 px-1 py-1 text-[11px] font-mono">
+          <span className="w-1.5 h-1.5 rounded-full bg-success-400 animate-pulse" />
+          <span className="text-success-400">Stellar Testnet</span>
         </div>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:flex w-[220px] h-screen sticky left-0 bg-dark-50 border-r border-surface-border flex-col py-5 shrink-0">
+        {content}
+      </aside>
+
+      {/* Mobile drawer overlay */}
+      {mobileOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 animate-fade-in">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+          <aside className="absolute left-0 top-0 bottom-0 w-[260px] bg-dark-50 border-r border-surface-border flex flex-col py-5 animate-slide-up">
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 text-text-muted hover:text-text-primary p-1"
+            >
+              <span className="material-symbols-outlined text-[20px]">close</span>
+            </button>
+            {content}
+          </aside>
+        </div>
+      )}
+    </>
   );
 }

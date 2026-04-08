@@ -39,16 +39,16 @@ export function relativeTime(iso: string): string {
 export function statusColor(status: "settled" | "blocked" | "pending"): string {
   switch (status) {
     case "settled":
-      return "text-accent-700 bg-accent-50";
+      return "text-success-400 bg-success-glow";
     case "blocked":
-      return "text-danger-700 bg-danger-50";
+      return "text-error-400 bg-error-glow";
     case "pending":
-      return "text-warning-600 bg-warning-50";
+      return "text-warning-400 bg-warning-400/10";
   }
 }
 
 export function spendPercentColor(pct: number): string {
-  if (pct > 80) return "bg-danger";
-  if (pct > 50) return "bg-warning";
-  return "bg-accent";
+  if (pct > 80) return "bg-error-400";
+  if (pct > 50) return "bg-warning-400";
+  return "bg-primary-400";
 }

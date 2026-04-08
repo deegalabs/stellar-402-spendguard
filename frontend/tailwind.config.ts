@@ -9,121 +9,98 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // ── Material Design 3 — Stitch Token System ────────────────
-        // Primary
-        primary: {
-          DEFAULT: "#010953",
-          fixed: "#dfe0ff",
-          "fixed-dim": "#bcc2ff",
-          container: "#1a2366",
+        // ── Dark Unicorn Palette ──────────────────────────────────
+        // Backgrounds
+        dark: {
+          DEFAULT: "#0B0F1A",
+          50: "#111827",
+          100: "#151B2B",
+          200: "#1A2035",
+          300: "#1F2740",
+          400: "#252D4A",
+          500: "#2D3555",
         },
-        "on-primary": "#ffffff",
-        "on-primary-container": "#848dd5",
-        "on-primary-fixed": "#071157",
-        "on-primary-fixed-variant": "#384184",
-        "inverse-primary": "#bcc2ff",
 
-        // Secondary
-        secondary: {
-          DEFAULT: "#2563EB",
-          fixed: "#dbe1ff",
-          "fixed-dim": "#b4c5ff",
-          container: "#316bf3",
-        },
-        "on-secondary": "#ffffff",
-        "on-secondary-container": "#fefcff",
-        "on-secondary-fixed": "#00174b",
-        "on-secondary-fixed-variant": "#003ea8",
-
-        // Tertiary (green / accent)
-        tertiary: {
-          DEFAULT: "#001b0f",
-          fixed: "#6ffbbe",
-          "fixed-dim": "#4edea3",
-          container: "#003220",
-        },
-        "on-tertiary": "#ffffff",
-        "on-tertiary-container": "#00a673",
-        "on-tertiary-fixed": "#002113",
-        "on-tertiary-fixed-variant": "#005236",
-
-        // Error
-        error: {
-          DEFAULT: "#ba1a1a",
-          container: "#ffdad6",
-        },
-        "on-error": "#ffffff",
-        "on-error-container": "#93000a",
-
-        // Surface system
+        // Surface / Cards
         surface: {
-          DEFAULT: "#f7f9fd",
-          dim: "#d8dade",
-          bright: "#f7f9fd",
-          tint: "#50599d",
-          variant: "#e0e3e6",
-          container: "#eceef2",
-          "container-low": "#f2f4f8",
-          "container-lowest": "#ffffff",
-          "container-high": "#e6e8ec",
-          "container-highest": "#e0e3e6",
-        },
-        "on-surface": "#191c1f",
-        "on-surface-variant": "#464650",
-        "inverse-surface": "#2d3134",
-        "inverse-on-surface": "#eff1f5",
-
-        // Outline
-        outline: {
-          DEFAULT: "#767681",
-          variant: "#c6c5d2",
+          DEFAULT: "#111827",
+          dim: "#0B0F1A",
+          bright: "#1A2035",
+          card: "#151B2B",
+          "card-hover": "#1A2035",
+          border: "#1E293B",
+          "border-light": "#334155",
         },
 
-        // Background
-        background: "#f4f6fa",
-        "on-background": "#191c1f",
+        // Primary — Electric Indigo
+        primary: {
+          DEFAULT: "#6366F1",
+          50: "#EEF2FF",
+          100: "#E0E7FF",
+          200: "#C7D2FE",
+          300: "#A5B4FC",
+          400: "#818CF8",
+          500: "#6366F1",
+          600: "#4F46E5",
+          700: "#4338CA",
+          800: "#3730A3",
+          900: "#312E81",
+          glow: "rgba(99, 102, 241, 0.15)",
+        },
 
-        // ── Legacy aliases (backward compat) ──────────────────────
+        // Accent — Cyan / Teal
         accent: {
+          DEFAULT: "#06B6D4",
+          50: "#ECFEFF",
+          100: "#CFFAFE",
+          200: "#A5F3FC",
+          300: "#67E8F9",
+          400: "#22D3EE",
+          500: "#06B6D4",
+          600: "#0891B2",
+          700: "#0E7490",
+          glow: "rgba(6, 182, 212, 0.15)",
+        },
+
+        // Success — Emerald
+        success: {
           DEFAULT: "#10B981",
           50: "#ECFDF5",
           100: "#D1FAE5",
-          200: "#A7F3D0",
-          300: "#6EE7B7",
           400: "#34D399",
           500: "#10B981",
           600: "#059669",
-          700: "#047857",
+          glow: "rgba(16, 185, 129, 0.15)",
         },
-        neutral: {
-          DEFAULT: "#F4F6FA",
-          50: "#FAFBFD",
-          100: "#F4F6FA",
-          200: "#E2E8F0",
-          300: "#CBD5E1",
-          400: "#94A3B8",
-          500: "#64748B",
-          600: "#475569",
-          700: "#334155",
-          800: "#1E293B",
-          900: "#0F172A",
+
+        // Error — Rose
+        error: {
+          DEFAULT: "#F43F5E",
+          50: "#FFF1F2",
+          100: "#FFE4E6",
+          400: "#FB7185",
+          500: "#F43F5E",
+          600: "#E11D48",
+          glow: "rgba(244, 63, 94, 0.15)",
         },
-        danger: {
-          DEFAULT: "#EF4444",
-          50: "#FEF2F2",
-          100: "#FEE2E2",
-          200: "#FECACA",
-          500: "#EF4444",
-          600: "#DC2626",
-          700: "#B91C1C",
-        },
+
+        // Warning — Amber
         warning: {
           DEFAULT: "#F59E0B",
           50: "#FFFBEB",
           100: "#FEF3C7",
-          300: "#FCD34D",
+          400: "#FBBF24",
           500: "#F59E0B",
           600: "#D97706",
+        },
+
+        // Text
+        text: {
+          DEFAULT: "#F8FAFC",
+          primary: "#F1F5F9",
+          secondary: "#94A3B8",
+          muted: "#64748B",
+          disabled: "#475569",
         },
       },
       fontFamily: {
@@ -137,19 +114,29 @@ const config: Config = {
         "label": ["0.75rem", { lineHeight: "1.5", letterSpacing: "0.05em", fontWeight: "600" }],
       },
       boxShadow: {
-        "card": "0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.03)",
-        "card-hover": "0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04)",
-        "panel": "0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.03)",
-        "bento": "0 24px 40px -15px rgba(1, 9, 83, 0.04)",
-        "hero": "0 24px 40px rgba(1, 9, 83, 0.06)",
+        "card": "0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.2)",
+        "card-hover": "0 4px 12px -1px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(99, 102, 241, 0.1)",
+        "glow-primary": "0 0 20px rgba(99, 102, 241, 0.3)",
+        "glow-accent": "0 0 20px rgba(6, 182, 212, 0.3)",
+        "glow-success": "0 0 20px rgba(16, 185, 129, 0.3)",
+        "glow-error": "0 0 20px rgba(244, 63, 94, 0.3)",
+        "panel": "0 10px 40px -10px rgba(0, 0, 0, 0.5)",
+        "glass": "0 8px 32px 0 rgba(0, 0, 0, 0.37)",
       },
       borderRadius: {
         "card": "12px",
+        "xl": "12px",
+        "2xl": "16px",
+      },
+      backdropBlur: {
+        "glass": "12px",
       },
       animation: {
         "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
         "fade-in": "fadeIn 0.3s ease-in-out",
         "slide-up": "slideUp 0.3s ease-out",
+        "shimmer": "shimmer 2s linear infinite",
+        "glow": "glow 2s ease-in-out infinite alternate",
       },
       keyframes: {
         fadeIn: {
@@ -159,6 +146,14 @@ const config: Config = {
         slideUp: {
           "0%": { opacity: "0", transform: "translateY(10px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        shimmer: {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
+        glow: {
+          "0%": { boxShadow: "0 0 5px rgba(99, 102, 241, 0.2)" },
+          "100%": { boxShadow: "0 0 20px rgba(99, 102, 241, 0.4)" },
         },
       },
     },
