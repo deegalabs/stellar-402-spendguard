@@ -1,13 +1,17 @@
 import { Router } from "express";
 import { getStatus } from "../stellar/contract.js";
 import { getContractTransactions, getContractBalance } from "../stellar/horizon.js";
+import { config } from "../config.js";
 
 const router = Router();
 
 router.get("/status", async (_req, res) => {
   try {
     const status = await getStatus();
-    res.json(status);
+    res.json({
+      ...status,
+      contract_address: config.contractAddress,
+    });
   } catch (err) {
     res.status(502).json({ error: "Failed to fetch contract status", code: "STELLAR_ERROR" });
   }

@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useContractStatus } from "@/hooks/useContractStatus";
+import { shortAddress } from "@/lib/format";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
@@ -19,6 +21,9 @@ interface SidebarProps {
 
 export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const { status } = useContractStatus();
+  const contractAddress = status?.contract_address;
+  const network = status?.network ?? "testnet";
 
   const content = (
     <>
@@ -72,13 +77,32 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
 
       {/* Footer */}
       <div className="mt-auto px-4 space-y-2 border-t border-surface-border pt-4 mx-3">
-        <div className="flex items-center gap-3 text-text-muted px-1 py-1 text-[11px] font-mono">
-          <span className="material-symbols-outlined text-[16px]">account_tree</span>
-          <span>G...4F2A</span>
-        </div>
+        {contractAddress ? (
+          <a
+            href={`https://stellar.expert/explorer/${network}/contract/${contractAddress}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 text-text-muted hover:text-text-primary px-1 py-1 text-[11px] font-mono transition-colors"
+            title={contractAddress}
+          >
+            <span className="material-symbols-outlined text-[16px]">account_tree</span>
+            <span>{shortAddress(contractAddress)}</span>
+          </a>
+        ) : (
+          <div className="flex items-center gap-3 text-text-muted px-1 py-1 text-[11px] font-mono">
+            <span className="material-symbols-outlined text-[16px]">account_tree</span>
+            <span>—</span>
+          </div>
+        )}
         <div className="flex items-center gap-3 px-1 py-1 text-[11px] font-mono">
-          <span className="w-1.5 h-1.5 rounded-full bg-success-400 animate-pulse" />
-          <span className="text-success-fg">Stellar Testnet</span>
+          <span
+            className={`w-1.5 h-1.5 rounded-full ${
+              status ? "bg-success-400 animate-pulse" : "bg-warning-400"
+            }`}
+          />
+          <span className={status ? "text-success-fg" : "text-warning-fg"}>
+            Stellar {network}
+          </span>
         </div>
       </div>
     </>

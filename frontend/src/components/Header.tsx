@@ -32,9 +32,7 @@ export default function Header({ paused, onMenuClick }: HeaderProps) {
           <span className="material-symbols-outlined text-[22px]">menu</span>
         </button>
 
-        <span className="text-sm font-bold text-text-primary hidden sm:flex items-center gap-2">
-          Deega Labs
-          <span className="text-text-muted font-normal">-</span>
+        <span className="text-sm font-bold hidden sm:flex items-center gap-2">
           <span className="gradient-text">SpendGuard</span>
         </span>
 

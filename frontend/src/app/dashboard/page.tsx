@@ -3,9 +3,30 @@
 import { useContractStatus } from "@/hooks/useContractStatus";
 import { stroopsToUsdc, relativeTime } from "@/lib/format";
 import { getTransactions, runAgent } from "@/lib/api";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type { DemoStepResult, TransactionEvent } from "@/lib/types";
 import Link from "next/link";
+
+const HOURS_IN_DAY = 24;
+const MS_IN_HOUR = 60 * 60 * 1000;
+const MS_IN_DAY = HOURS_IN_DAY * MS_IN_HOUR;
+
+/** Bucket transactions into 24 hourly USDC totals for the rolling 24h window. */
+function computeHourlyBuckets(
+  transactions: TransactionEvent[],
+  now: number = Date.now(),
+): number[] {
+  const buckets = new Array<number>(HOURS_IN_DAY).fill(0);
+  for (const tx of transactions) {
+    if (tx.status !== "settled") continue;
+    const ts = new Date(tx.timestamp).getTime();
+    const ageMs = now - ts;
+    if (ageMs < 0 || ageMs >= MS_IN_DAY) continue;
+    const idx = HOURS_IN_DAY - 1 - Math.floor(ageMs / MS_IN_HOUR);
+    buckets[idx] += Number(stroopsToUsdc(tx.amount));
+  }
+  return buckets;
+}
 
 function StatCard({
   label,
@@ -50,16 +71,45 @@ function StatusDot({ status }: { status: string }) {
 export default function DashboardPage() {
   const { status, loading, error, refresh } = useContractStatus();
   const [transactions, setTransactions] = useState<TransactionEvent[]>([]);
+  const [txLoadError, setTxLoadError] = useState(false);
   const [demoSteps, setDemoSteps] = useState<DemoStepResult[]>([]);
   const [demoRunning, setDemoRunning] = useState(false);
 
   useEffect(() => {
-    getTransactions(5).then((r) => setTransactions(r.transactions)).catch(() => {});
-    const interval = setInterval(() => {
-      getTransactions(5).then((r) => setTransactions(r.transactions)).catch(() => {});
-    }, 15000);
+    // Pull a full day of history so hourly buckets and 24h counts are accurate.
+    const load = () =>
+      getTransactions(200)
+        .then((r) => {
+          setTransactions(r.transactions);
+          setTxLoadError(false);
+        })
+        .catch(() => setTxLoadError(true));
+    load();
+    const interval = setInterval(load, 15000);
     return () => clearInterval(interval);
   }, []);
+
+  // Real 24-hour hourly spend buckets, computed from settled transactions.
+  const hourlyBuckets = useMemo(
+    () => computeHourlyBuckets(transactions),
+    [transactions],
+  );
+  const maxBucket = Math.max(...hourlyBuckets, 0.001);
+
+  // Real 24-hour transaction count.
+  const nowMs = Date.now();
+  const txInLast24h = transactions.filter(
+    (t) => nowMs - new Date(t.timestamp).getTime() < MS_IN_DAY,
+  );
+
+  // Average settlement time from recent demo runs (ground truth: demo steps).
+  const demoSettlementMs = demoSteps
+    .map((s) => s.settlement_time_ms)
+    .filter((ms): ms is number => typeof ms === "number");
+  const avgSettlementSec =
+    demoSettlementMs.length > 0
+      ? (demoSettlementMs.reduce((a, b) => a + b, 0) / demoSettlementMs.length / 1000).toFixed(1)
+      : null;
 
   async function handleRunDemo() {
     setDemoRunning(true);
@@ -143,18 +193,15 @@ export default function DashboardPage() {
 
         <StatCard
           label="Transactions"
-          value={String(transactions.length > 0 ? transactions.length : 0)}
-          sub="today"
+          value={String(txInLast24h.length)}
+          sub="last 24h"
           icon="receipt_long"
         />
 
         <StatCard
           label="Settlement"
-          value={demoSteps.find(s => s.settlement_time_ms)
-            ? `${(demoSteps.find(s => s.settlement_time_ms)!.settlement_time_ms! / 1000).toFixed(1)}s`
-            : "4.2s"
-          }
-          sub="avg finality"
+          value={avgSettlementSec !== null ? `${avgSettlementSec}s` : "—"}
+          sub={avgSettlementSec !== null ? "last cycle" : "run a cycle to measure"}
           icon="speed"
         />
 
@@ -279,16 +326,16 @@ export default function DashboardPage() {
             <span className="text-[10px] text-text-muted font-mono">24h Window</span>
           </div>
 
-          <div className="relative h-32 flex items-end gap-1">
-            {Array.from({ length: 12 }).map((_, i) => {
-              const height = i < Math.ceil(spentPct / 8.3)
-                ? 20 + Math.random() * 80
-                : 5 + Math.random() * 15;
+          <div className="relative h-32 flex items-end gap-[2px]">
+            {hourlyBuckets.map((value, i) => {
+              const height = Math.max((value / maxBucket) * 100, value > 0 ? 4 : 2);
+              const isEmpty = value === 0;
               return (
                 <div
                   key={i}
+                  title={`${23 - i}h ago: $${value.toFixed(2)}`}
                   className={`flex-1 rounded-t transition-all ${
-                    i < Math.ceil(spentPct / 8.3) ? "bg-primary-500/60" : "bg-dark-400"
+                    isEmpty ? "bg-dark-400/40" : "bg-primary-500/70"
                   }`}
                   style={{ height: `${height}%` }}
                 />
@@ -302,8 +349,8 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-center justify-between mt-3 text-[10px] text-text-muted font-mono">
-            <span>00:00</span>
-            <span>23:59</span>
+            <span>-24h</span>
+            <span>now</span>
           </div>
           <div className="flex items-center gap-2 mt-3 pt-3 border-t border-surface-border">
             <span className="w-3 h-3 bg-primary-500/60 rounded-sm" />
@@ -335,12 +382,30 @@ export default function DashboardPage() {
         <div className="card">
           <p className="stat-label mb-2">Integrations</p>
           <div className="space-y-1.5">
-            {["Soroban RPC", "Freighter", "Horizon"].map((name) => (
-              <div key={name} className="flex items-center justify-between text-xs">
-                <span className="text-text-muted">{name}</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-success-400" />
-              </div>
-            ))}
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-text-muted">Contract</span>
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  error ? "bg-error-400" : status ? "bg-success-400" : "bg-warning-400"
+                }`}
+                title={error ?? (status ? "Responding" : "Loading")}
+              />
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-text-muted">Horizon</span>
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  txLoadError ? "bg-error-400" : "bg-success-400"
+                }`}
+                title={txLoadError ? "Fetch failed" : "Responding"}
+              />
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-text-muted">Network</span>
+              <span className="text-[10px] font-mono text-text-secondary uppercase">
+                {status?.network ?? "—"}
+              </span>
+            </div>
           </div>
         </div>
       </div>

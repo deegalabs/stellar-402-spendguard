@@ -4,6 +4,7 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+import Footer from "./Footer";
 import { useContractStatus } from "@/hooks/useContractStatus";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
@@ -13,6 +14,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   // Docs pages use their own layout
   if (pathname.startsWith("/docs")) {
+    return <>{children}</>;
+  }
+
+  // Landing page (root) uses its own full-bleed layout with a footer
+  if (pathname === "/") {
     return <>{children}</>;
   }
 
@@ -33,6 +39,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             {children}
           </main>
         )}
+        <Footer />
       </div>
     </div>
   );

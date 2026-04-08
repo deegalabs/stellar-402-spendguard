@@ -8,6 +8,7 @@ export interface ContractStatus {
   paused: boolean;
   balance: string;
   network: string;
+  contract_address?: string;
 }
 
 export interface TransactionEvent {

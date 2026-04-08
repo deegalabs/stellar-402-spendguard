@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useContractStatus } from "@/hooks/useContractStatus";
 import { useFreighter } from "@/hooks/useFreighter";
-import { stroopsToUsdc, usdcToStroops, shortAddress } from "@/lib/format";
+import { stroopsToUsdc, usdcToStroops, shortAddress, relativeTime } from "@/lib/format";
 import {
   setDailyLimit,
   setMaxTx,
@@ -12,7 +12,9 @@ import {
   pauseContract,
   unpauseContract,
   setAuthAddress,
+  getTransactions,
 } from "@/lib/api";
+import type { TransactionEvent } from "@/lib/types";
 
 function spendBarColor(pct: number): string {
   if (pct >= 90) return "bg-error-500";
@@ -37,6 +39,38 @@ export default function VaultPage() {
   const [showKillModal, setShowKillModal] = useState(false);
   const [busy, setBusy] = useState(false);
   const [autonomousMode, setAutonomousMode] = useState(true);
+  const [recentTxs, setRecentTxs] = useState<TransactionEvent[]>([]);
+  const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
+
+  // Load recent merchant activity from the on-chain audit log.
+  useEffect(() => {
+    let active = true;
+    const load = () =>
+      getTransactions(50)
+        .then((r) => {
+          if (!active) return;
+          setRecentTxs(r.transactions);
+          setLastSyncAt(new Date().toISOString());
+        })
+        .catch(() => {});
+    load();
+    const id = setInterval(load, 15000);
+    return () => {
+      active = false;
+      clearInterval(id);
+    };
+  }, []);
+
+  // Distinct merchants the agent has recently paid — real data from Horizon.
+  const recentMerchants = useMemo(() => {
+    const seen = new Map<string, string>();
+    for (const tx of recentTxs) {
+      if (tx.status === "settled" && tx.merchant && !seen.has(tx.merchant)) {
+        seen.set(tx.merchant, tx.timestamp);
+      }
+    }
+    return Array.from(seen.entries()).slice(0, 5);
+  }, [recentTxs]);
 
   async function exec(label: string, fn: () => Promise<unknown>) {
     setBusy(true);
@@ -138,17 +172,36 @@ export default function VaultPage() {
             </h3>
 
             <div className="space-y-3">
-              <p className="stat-label">Merchant Whitelist</p>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-text-secondary">
-                  <input type="checkbox" checked readOnly className="w-4 h-4 text-text-primary rounded accent-primary" />
-                  <span className="font-mono text-xs">stellar-dex.protocol.io</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-text-secondary">
-                  <input type="checkbox" checked readOnly className="w-4 h-4 text-text-primary rounded accent-primary" />
-                  <span className="font-mono text-xs">amm-liquidity.stellar.com</span>
-                </div>
+              <div className="flex items-center justify-between">
+                <p className="stat-label">Recent Merchants</p>
+                <span className="text-[9px] font-mono uppercase tracking-wider text-text-disabled">
+                  On-Chain
+                </span>
               </div>
+              {recentMerchants.length > 0 ? (
+                <div className="space-y-1.5">
+                  {recentMerchants.map(([addr, ts]) => (
+                    <div
+                      key={addr}
+                      className="flex items-center justify-between gap-2 text-sm"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="w-1.5 h-1.5 rounded-full bg-success-400 shrink-0" />
+                        <span className="font-mono text-xs text-text-secondary truncate">
+                          {shortAddress(addr)}
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-mono text-text-muted shrink-0">
+                        {relativeTime(ts)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-text-muted italic">
+                  No settled payments yet. Whitelisted merchants will appear here after the first transaction.
+                </p>
+              )}
 
               {/* Add merchant */}
               <div className="flex gap-2 mt-3">
@@ -180,9 +233,9 @@ export default function VaultPage() {
                   Remove
                 </button>
               </div>
-              <button className="text-xs text-accent-fg font-semibold mt-2 hover:underline">
-                + Add New Merchant Endpoint
-              </button>
+              <p className="text-[10px] text-text-disabled italic mt-2">
+                Whitelist is enforced on-chain. Use Add / Remove above to update the contract directly.
+              </p>
             </div>
           </div>
 
@@ -272,11 +325,23 @@ export default function VaultPage() {
               <span className="text-sm font-normal text-text-muted ml-2">USDC</span>
             </p>
             <div className="w-full bg-dark-300 rounded-full h-2.5 mb-2">
-              <div className="h-2.5 rounded-full bg-primary-500" style={{ width: "50%" }} />
+              <div
+                className="h-2.5 rounded-full bg-primary-500 transition-all"
+                style={{
+                  width: `${
+                    Number(dailyLimitUsdc) > 0
+                      ? Math.min(
+                          (Number(maxTxUsdc) / Number(dailyLimitUsdc)) * 100,
+                          100,
+                        )
+                      : 0
+                  }%`,
+                }}
+              />
             </div>
             <div className="flex justify-between text-[10px] text-text-muted font-mono">
               <span>0 USDC</span>
-              <span>{Number(dailyLimitUsdc).toLocaleString()} USDC</span>
+              <span>{Number(dailyLimitUsdc).toLocaleString()} USDC (daily cap)</span>
             </div>
             <div className="flex gap-3 mt-4">
               <input
@@ -299,17 +364,17 @@ export default function VaultPage() {
           {/* Footer stats */}
           <div className="grid grid-cols-2 gap-4 pt-6 border-t border-surface-border">
             <div>
-              <p className="stat-label">Policy Version</p>
-              <p className="text-sm font-bold text-text-primary mt-1 flex items-center gap-1">
-                <span className="material-symbols-outlined text-text-muted text-[16px]">schedule</span>
-                v0.1.0-STABLE
+              <p className="stat-label">Network</p>
+              <p className="text-sm font-bold text-text-primary mt-1 flex items-center gap-1 uppercase font-mono">
+                <span className="material-symbols-outlined text-text-muted text-[16px]">lan</span>
+                Stellar {status?.network ?? "—"}
               </p>
             </div>
             <div>
               <p className="stat-label">Last Sync</p>
               <p className="text-sm font-bold text-text-primary mt-1 flex items-center gap-1">
                 <span className="material-symbols-outlined text-success-fg text-[16px]">sync</span>
-                2m ago
+                {lastSyncAt ? relativeTime(lastSyncAt) : "—"}
               </p>
             </div>
           </div>

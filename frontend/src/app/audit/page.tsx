@@ -85,22 +85,24 @@ export default function AuditLogPage() {
           <p className="stat-value">{transactions.length.toLocaleString()}</p>
         </div>
         <div className="card">
-          <p className="stat-label mb-2">Settlement Speed</p>
-          <p className="stat-value">0.8s</p>
+          <p className="stat-label mb-2">Unique Merchants</p>
+          <p className="stat-value">
+            {new Set(transactions.filter((t) => t.merchant).map((t) => t.merchant)).size || "—"}
+          </p>
         </div>
         <div className="card">
           <p className="stat-label mb-2">Total Volume</p>
           <p className="stat-value">
             {transactions.length > 0
-              ? `$${transactions.reduce((sum, t) => sum + Number(stroopsToUsdc(t.amount)), 0).toFixed(0)}`
-              : "$0"
+              ? `$${transactions.reduce((sum, t) => sum + Number(stroopsToUsdc(t.amount)), 0).toFixed(2)}`
+              : "—"
             }
           </p>
         </div>
         <div className="card">
           <p className="stat-label mb-2">Success Rate</p>
           <p className="stat-value">
-            {transactions.length > 0 ? `${((settled / transactions.length) * 100).toFixed(0)}%` : "---"}
+            {transactions.length > 0 ? `${((settled / transactions.length) * 100).toFixed(0)}%` : "—"}
           </p>
         </div>
       </div>
@@ -162,7 +164,13 @@ export default function AuditLogPage() {
                       <span className="text-text-muted ml-1 text-xs">USDC</span>
                     </td>
                     <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
-                      <span className="text-xs text-text-muted">Service Vault</span>
+                      {tx.merchant ? (
+                        <span className="font-mono text-xs text-text-secondary">
+                          {tx.merchant.slice(0, 6)}...{tx.merchant.slice(-4)}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-text-disabled">—</span>
+                      )}
                     </td>
                   </tr>
                 ))
