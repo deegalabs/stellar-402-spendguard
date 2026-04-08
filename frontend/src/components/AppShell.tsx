@@ -14,14 +14,20 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
+  const isDemo = pathname === "/demo";
+
   return (
     <div className="flex h-screen overflow-hidden bg-surface">
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <Header paused={status?.paused} />
-        <main className="flex-1 overflow-y-auto p-8 animate-fade-in">
-          {children}
-        </main>
+        {isDemo ? (
+          <div className="flex-1 overflow-hidden">{children}</div>
+        ) : (
+          <main className="flex-1 overflow-y-auto p-8 animate-fade-in">
+            {children}
+          </main>
+        )}
       </div>
     </div>
   );
