@@ -23,8 +23,32 @@ export function getNetworkPassphrase(): string {
     : Networks.PUBLIC;
 }
 
-export function getKeypair(secretKey: string): Keypair {
-  return Keypair.fromSecret(secretKey);
+/**
+ * Build a Keypair from a secret key. Throws a `ConfigError` (with a
+ * clear message) when the secret is missing or malformed, instead of
+ * the opaque "invalid encoded string" that Keypair.fromSecret throws.
+ */
+export class ConfigError extends Error {
+  readonly code = "CONFIG_ERROR";
+  constructor(message: string) {
+    super(message);
+    this.name = "ConfigError";
+  }
+}
+
+export function getKeypair(secretKey: string, label = "secret key"): Keypair {
+  if (!secretKey) {
+    throw new ConfigError(
+      `Server is missing a required ${label}. Set OWNER_SECRET_KEY and AGENT_SECRET_KEY in the backend environment.`
+    );
+  }
+  try {
+    return Keypair.fromSecret(secretKey);
+  } catch {
+    throw new ConfigError(
+      `The configured ${label} is not a valid Stellar secret (expected a "S…" strkey).`
+    );
+  }
 }
 
 export async function getAccount(publicKey: string) {

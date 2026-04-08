@@ -34,7 +34,7 @@ export async function getStatus(): Promise<ContractStatus> {
 }
 
 export async function setDailyLimit(amount: bigint) {
-  const signer = getKeypair(config.ownerSecretKey);
+  const signer = getKeypair(config.ownerSecretKey, "OWNER_SECRET_KEY");
   return callContractMutate(
     "set_daily_limit",
     signer,
@@ -43,12 +43,12 @@ export async function setDailyLimit(amount: bigint) {
 }
 
 export async function setMaxTx(amount: bigint) {
-  const signer = getKeypair(config.ownerSecretKey);
+  const signer = getKeypair(config.ownerSecretKey, "OWNER_SECRET_KEY");
   return callContractMutate("set_max_tx", signer, i128ToScVal(amount));
 }
 
 export async function whitelistMerchant(merchantAddress: string) {
-  const signer = getKeypair(config.ownerSecretKey);
+  const signer = getKeypair(config.ownerSecretKey, "OWNER_SECRET_KEY");
   return callContractMutate(
     "whitelist_merchant",
     signer,
@@ -57,7 +57,7 @@ export async function whitelistMerchant(merchantAddress: string) {
 }
 
 export async function removeMerchant(merchantAddress: string) {
-  const signer = getKeypair(config.ownerSecretKey);
+  const signer = getKeypair(config.ownerSecretKey, "OWNER_SECRET_KEY");
   return callContractMutate(
     "remove_merchant",
     signer,
@@ -66,17 +66,17 @@ export async function removeMerchant(merchantAddress: string) {
 }
 
 export async function emergencyPause() {
-  const signer = getKeypair(config.ownerSecretKey);
+  const signer = getKeypair(config.ownerSecretKey, "OWNER_SECRET_KEY");
   return callContractMutate("emergency_pause", signer);
 }
 
 export async function emergencyUnpause() {
-  const signer = getKeypair(config.ownerSecretKey);
+  const signer = getKeypair(config.ownerSecretKey, "OWNER_SECRET_KEY");
   return callContractMutate("emergency_unpause", signer);
 }
 
 export async function topUp(amount: bigint) {
-  const signer = getKeypair(config.ownerSecretKey);
+  const signer = getKeypair(config.ownerSecretKey, "OWNER_SECRET_KEY");
   return callContractMutate(
     "top_up",
     signer,
@@ -86,7 +86,7 @@ export async function topUp(amount: bigint) {
 }
 
 export async function authorizePayment(price: bigint, merchant: string) {
-  const signer = getKeypair(config.agentSecretKey);
+  const signer = getKeypair(config.agentSecretKey, "AGENT_SECRET_KEY");
   return callContractMutate(
     "authorize_payment",
     signer,

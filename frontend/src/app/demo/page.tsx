@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import {
   getStatus,
   getBalance,
@@ -18,11 +18,13 @@ import type { ContractStatus, BalanceInfo } from "@/lib/types";
 // ── Types ─────────────────────────────────────────────────────────
 
 interface LogEntry {
-  icon: "info" | "ok" | "err" | "wait" | "tx" | "block";
+  icon: "info" | "ok" | "err" | "wait" | "tx" | "block" | "narrate";
   text: string;
   time: string;
   link?: string;
 }
+
+type ChapterState = "idle" | "running" | "done" | "failed";
 
 interface EvidenceCard {
   chapter: number;
@@ -41,7 +43,15 @@ interface ChapterStep {
 interface Chapter {
   id: string;
   title: string;
+  /** One-line technical subtitle shown in the header. */
   subtitle: string;
+  /** Plain-language story line printed to the terminal before the
+   *  steps start, so a non-technical viewer knows why this chapter
+   *  exists. */
+  narrator: string;
+  /** One-line takeaway printed after all steps succeed — the point
+   *  that the chapter just proved. */
+  lesson: string;
   icon: string;
   steps: ChapterStep[];
 }
@@ -69,9 +79,7 @@ function timestamp(): string {
 
 export default function DemoPage() {
   const [activeChapter, setActiveChapter] = useState(0);
-  const [chapterStatus, setChapterStatus] = useState<
-    ("idle" | "running" | "done")[]
-  >([]);
+  const [chapterStatus, setChapterStatus] = useState<ChapterState[]>([]);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [evidence, setEvidence] = useState<EvidenceCard[]>([]);
   const [liveTransactions, setLiveTransactions] = useState<
@@ -107,12 +115,18 @@ export default function DemoPage() {
   }
 
   // ── Chapter Definitions ───────────────────────────────────────
+  // Memoised so the runChapter / executeChapter callbacks and the
+  // init effect don't re-fire on every render.
 
-  const chapters: Chapter[] = [
+  const chapters: Chapter[] = useMemo(() => [
     {
       id: "discover",
-      title: "Discover Contract",
-      subtitle: "Connect to the deployed BudgetGuard contract on Stellar Testnet and read its current state.",
+      title: "Meet the Contract",
+      subtitle: "Read the live rules governing this AI agent — straight from Stellar.",
+      narrator:
+        "Before anything else: let's look at the contract that controls this AI agent. It's already deployed on Stellar Testnet, it holds the money, and anyone on the internet can read its rules. That's the whole point — the guardrails don't live in our server.",
+      lesson:
+        "The spending rules are stored on the ledger, not in a database we control.",
       icon: "search",
       steps: [
         {
@@ -140,8 +154,12 @@ export default function DemoPage() {
     },
     {
       id: "configure",
-      title: "Configure Policies",
-      subtitle: "Set spending limits and whitelist merchants — all enforced on-chain by the Soroban contract.",
+      title: "Set the Guardrails",
+      subtitle: "Owner sets a daily cap, a per-transaction limit, and an allow-list of merchants.",
+      narrator:
+        "Now the owner sets three guardrails: a daily budget, a max per-transaction, and an allow-list of merchants. Every one of these is a signed transaction on Stellar, so if the agent ever exceeds them later, you can prove exactly who set the rules and when.",
+      lesson:
+        "Only the owner can change these rules — and every change leaves a permanent receipt.",
       icon: "tune",
       steps: [
         {
@@ -199,8 +217,12 @@ export default function DemoPage() {
     },
     {
       id: "payments",
-      title: "x402 Payments",
-      subtitle: "AI agent pays for API resources via HTTP 402 — each payment authorized on-chain by BudgetGuard.",
+      title: "The Agent Pays",
+      subtitle: "Agent hits a paid API, gets 402, asks the contract for permission, settles on-chain.",
+      narrator:
+        "Here's the actual use case. The AI agent calls an API that costs 10 cents. The server replies HTTP 402 Payment Required — the web's built-in \"pay to continue\" status. The agent asks the contract for permission, settles on Stellar, and only then gets the data. Every step is real. Every hash is clickable.",
+      lesson:
+        "The agent can't move money without the contract saying yes first.",
       icon: "payments",
       steps: [
         {
@@ -256,8 +278,12 @@ export default function DemoPage() {
     },
     {
       id: "guardrails",
-      title: "Guardrail Test",
-      subtitle: "Tighten the daily limit, then attempt a payment — the contract enforces the policy on-chain.",
+      title: "Hit the Limit",
+      subtitle: "Tighten the cap, then try another payment. Watch the contract say no.",
+      narrator:
+        "Now the interesting part. We shrink the daily limit down to 15 cents. The next payment the agent tries — even a routine 10-cent call — should be rejected. Not by our server. Not by a firewall. By the contract on Stellar itself. If our backend disappeared right now, the rejection would still happen.",
+      lesson:
+        "The policy is enforced on-chain. Turning off our server does not turn off the guardrail.",
       icon: "shield",
       steps: [
         {
@@ -306,8 +332,12 @@ export default function DemoPage() {
     },
     {
       id: "kill-switch",
-      title: "Kill Switch",
-      subtitle: "Emergency pause — owner blocks ALL agent payments instantly. Then verify it works.",
+      title: "Pull the Kill Switch",
+      subtitle: "Owner hits emergency pause — every future payment is blocked immediately.",
+      narrator:
+        "Suppose the agent starts behaving badly. Maybe a prompt injection, maybe a bad model update, maybe you just want to freeze things while you investigate. The owner hits emergency pause — one transaction — and every future payment, from any agent, is blocked on-chain until you unpause.",
+      lesson:
+        "You always have an off switch, and it doesn't depend on any of our infrastructure.",
       icon: "emergency_home",
       steps: [
         {
@@ -350,8 +380,12 @@ export default function DemoPage() {
     },
     {
       id: "recovery",
-      title: "Recovery & Audit",
-      subtitle: "Resume operations and verify the full audit trail — every transaction immutable on Stellar.",
+      title: "Resume & Audit",
+      subtitle: "Unpause, restore limits, and inspect the audit trail on Stellar Expert.",
+      narrator:
+        "Crisis over. The owner unpauses and restores the normal limits. Now look at the right panel — every single action you just watched left a transaction hash. Click any of them and you land on Stellar Expert, a public block explorer. Nothing in this demo is staged. You can audit all of it from any browser, forever.",
+      lesson:
+        "Every action is verifiable by anyone, long after the demo is over.",
       icon: "verified",
       steps: [
         {
@@ -403,40 +437,47 @@ export default function DemoPage() {
         },
       ],
     },
-  ];
+  ], [status]);
 
   // Initialize chapter status
   useEffect(() => {
     if (chapterStatus.length === 0) {
       setChapterStatus(chapters.map(() => "idle"));
     }
-  }, [chapters.length, chapterStatus.length]);
+  }, [chapters, chapterStatus.length]);
 
   // ── Execute a Chapter ─────────────────────────────────────────
+  //
+  // Honest orchestration: any step that throws flips the whole
+  // chapter to "failed". We never silently mark a chapter "done"
+  // when something blew up — that was the old bug where viewers
+  // saw "SpendGuard demo complete" on a demo where every contract
+  // call had failed.
 
-  const executeChapter = useCallback(
-    async (chapterIndex: number) => {
-      if (running) return;
-      setRunning(true);
+  const runChapter = useCallback(
+    async (chapterIndex: number): Promise<boolean> => {
+      const chapter = chapters[chapterIndex];
+
       setActiveChapter(chapterIndex);
-
-      // Mark running
       setChapterStatus((prev) => {
         const next = [...prev];
         next[chapterIndex] = "running";
         return next;
       });
 
-      const chapter = chapters[chapterIndex];
-      addLog({ icon: "info", text: `━━━ CH${chapterIndex + 1}: ${chapter.title.toUpperCase()} ━━━` });
+      addLog({
+        icon: "info",
+        text: `━━━ CH${chapterIndex + 1}: ${chapter.title.toUpperCase()} ━━━`,
+      });
+      addLog({ icon: "narrate", text: chapter.narrator });
+
+      let failed = false;
 
       for (const step of chapter.steps) {
         addLog({ icon: "info", text: `▸ ${step.title}` });
         try {
           const cards = await step.action(addLog);
-          // Collect evidence
           setEvidence((prev) => [...prev, ...cards]);
-          // Collect transactions
           for (const card of cards) {
             if (card.link) {
               setLiveTransactions((prev) => [
@@ -446,25 +487,41 @@ export default function DemoPage() {
             }
           }
         } catch (err) {
-          addLog({
-            icon: "err",
-            text: err instanceof Error ? err.message : "Unknown error",
-          });
+          failed = true;
+          const message = err instanceof Error ? err.message : "Unknown error";
+          addLog({ icon: "err", text: message });
         }
       }
 
-      addLog({ icon: "ok", text: `Chapter ${chapterIndex + 1} complete` });
+      if (failed) {
+        addLog({
+          icon: "err",
+          text: `Chapter ${chapterIndex + 1} did not finish cleanly — see error above.`,
+        });
+      } else {
+        addLog({ icon: "ok", text: `Chapter ${chapterIndex + 1} complete` });
+        addLog({ icon: "narrate", text: `Takeaway — ${chapter.lesson}` });
+      }
 
-      // Mark done
       setChapterStatus((prev) => {
         const next = [...prev];
-        next[chapterIndex] = "done";
+        next[chapterIndex] = failed ? "failed" : "done";
         return next;
       });
 
+      return !failed;
+    },
+    [chapters]
+  );
+
+  const executeChapter = useCallback(
+    async (chapterIndex: number) => {
+      if (running) return;
+      setRunning(true);
+      await runChapter(chapterIndex);
       setRunning(false);
     },
-    [running, status]
+    [running, runChapter]
   );
 
   // ── Run All Chapters ──────────────────────────────────────────
@@ -477,47 +534,14 @@ export default function DemoPage() {
     // Need a small delay for state to settle
     await new Promise((r) => setTimeout(r, 50));
 
+    setRunning(true);
     for (let i = 0; i < chapters.length; i++) {
-      setActiveChapter(i);
-      setRunning(true);
-      setChapterStatus((prev) => {
-        const next = [...prev];
-        next[i] = "running";
-        return next;
-      });
-
-      const chapter = chapters[i];
-      addLog({ icon: "info", text: `━━━ CH${i + 1}: ${chapter.title.toUpperCase()} ━━━` });
-
-      for (const step of chapter.steps) {
-        addLog({ icon: "info", text: `▸ ${step.title}` });
-        try {
-          const cards = await step.action(addLog);
-          setEvidence((prev) => [...prev, ...cards]);
-          for (const card of cards) {
-            if (card.link) {
-              setLiveTransactions((prev) => [
-                ...prev,
-                { hash: card.link!.replace(EXPERT, ""), label: card.label },
-              ]);
-            }
-          }
-        } catch (err) {
-          addLog({
-            icon: "err",
-            text: err instanceof Error ? err.message : "Unknown error",
-          });
-        }
-      }
-
-      addLog({ icon: "ok", text: `Chapter ${i + 1} complete` });
-      setChapterStatus((prev) => {
-        const next = [...prev];
-        next[i] = "done";
-        return next;
-      });
-      setRunning(false);
+      const ok = await runChapter(i);
+      // If the first chapter fails (e.g. server misconfigured) stop
+      // early instead of cascading a wall of red noise.
+      if (!ok && i === 0) break;
     }
+    setRunning(false);
   }
 
   function reset() {
@@ -534,23 +558,25 @@ export default function DemoPage() {
 
   function iconColor(icon: LogEntry["icon"]) {
     switch (icon) {
-      case "ok":    return "text-success-fg";
-      case "err":   return "text-error-fg";
-      case "wait":  return "text-warning-fg";
-      case "tx":    return "text-accent-fg";
-      case "block": return "text-error-fg";
-      default:      return "text-text-muted";
+      case "ok":      return "text-success-fg";
+      case "err":     return "text-error-fg";
+      case "wait":    return "text-warning-fg";
+      case "tx":      return "text-accent-fg";
+      case "block":   return "text-error-fg";
+      case "narrate": return "text-primary-fg";
+      default:        return "text-text-muted";
     }
   }
 
   function iconSymbol(icon: LogEntry["icon"]) {
     switch (icon) {
-      case "ok":    return "✓";
-      case "err":   return "✗";
-      case "wait":  return "◌";
-      case "tx":    return "⬡";
-      case "block": return "⊘";
-      default:      return "·";
+      case "ok":      return "✓";
+      case "err":     return "✗";
+      case "wait":    return "◌";
+      case "tx":      return "⬡";
+      case "block":   return "⊘";
+      case "narrate": return "❝";
+      default:        return "·";
     }
   }
 
@@ -564,6 +590,7 @@ export default function DemoPage() {
   }
 
   const allDone = chapterStatus.length > 0 && chapterStatus.every((s) => s === "done");
+  const anyFailed = chapterStatus.some((s) => s === "failed");
   const nextChapterIndex = chapterStatus.findIndex((s) => s === "idle");
   const currentChapter = chapters[activeChapter];
 
@@ -571,32 +598,61 @@ export default function DemoPage() {
 
   return (
     <div className="animate-fade-in flex flex-col h-[calc(100vh-56px)]">
-      {/* Top bar */}
-      <div className="flex items-center justify-between px-4 lg:px-6 py-3 border-b border-surface-border bg-dark-50/80 backdrop-blur-xl shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-lg flex items-center justify-center">
-            <span className="material-symbols-outlined text-white text-[18px]">play_circle</span>
+      {/* Progress strip — concise, no duplicate SpendGuard wordmark
+          (the header already identifies the product + LIVE DEMO). */}
+      <div className="flex items-center justify-between gap-3 px-4 lg:px-6 py-3 border-b border-surface-border bg-dark-50/80 backdrop-blur-xl shrink-0">
+        <div className="flex items-center gap-3 min-w-0">
+          <p className="text-[11px] font-mono uppercase tracking-[0.15em] text-text-muted shrink-0">
+            Chapter {Math.min(activeChapter + 1, chapters.length)} / {chapters.length}
+          </p>
+          <div className="hidden sm:flex items-center gap-1.5 flex-1 min-w-[120px] max-w-[260px]">
+            {chapters.map((ch, i) => {
+              const st = chapterStatus[i] ?? "idle";
+              return (
+                <div
+                  key={ch.id}
+                  className={`h-1 flex-1 rounded-full transition-colors ${
+                    st === "done"
+                      ? "bg-success-400"
+                      : st === "failed"
+                      ? "bg-error-400"
+                      : st === "running"
+                      ? "bg-accent-400 animate-pulse"
+                      : i === activeChapter
+                      ? "bg-primary-400/60"
+                      : "bg-dark-300"
+                  }`}
+                  title={ch.title}
+                />
+              );
+            })}
           </div>
-          <div>
-            <h2 className="text-sm font-bold text-text-primary">SpendGuard Live Demo</h2>
-            <p className="text-[11px] text-text-muted hidden sm:block">
-              Interactive x402 flow on Stellar Testnet — no wallet required
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 lg:gap-3">
           {status && (
-            <div className="hidden sm:flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full ${status.paused ? "bg-error-400 animate-pulse" : "bg-success-400"}`} />
-              <span className="text-xs font-mono text-text-muted">
-                ${balance?.balance_usdc ?? "?"} USDC
+            <div className="hidden md:flex items-center gap-1.5 pl-2 border-l border-surface-border">
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  status.paused ? "bg-error-400 animate-pulse" : "bg-success-400"
+                }`}
+              />
+              <span className="text-[11px] font-mono text-text-muted">
+                ${balance?.balance_usdc ?? "?"}
               </span>
             </div>
           )}
-          <button onClick={runAll} disabled={running} className="btn-primary text-xs py-2 px-3 lg:px-4">
-            {running ? "Running..." : allDone ? "Run Again" : "Run All"}
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={runAll}
+            disabled={running}
+            className="btn-primary text-xs py-2 px-3 lg:px-4"
+          >
+            {running ? "Running…" : allDone ? "Run Again" : anyFailed ? "Retry" : "Run All"}
           </button>
-          <button onClick={reset} disabled={running} className="btn-secondary text-xs py-2 px-3 lg:px-4">
+          <button
+            onClick={reset}
+            disabled={running}
+            className="btn-secondary text-xs py-2 px-3 lg:px-4"
+          >
             Reset
           </button>
         </div>
@@ -632,6 +688,8 @@ export default function DemoPage() {
                       className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 transition-all ${
                         st === "done"
                           ? "bg-success-500 text-white"
+                          : st === "failed"
+                          ? "bg-error-500 text-white"
                           : st === "running"
                           ? "bg-accent-500 text-white animate-pulse"
                           : isActive
@@ -641,6 +699,8 @@ export default function DemoPage() {
                     >
                       {st === "done" ? (
                         <span className="material-symbols-outlined text-[14px]">check</span>
+                      ) : st === "failed" ? (
+                        <span className="material-symbols-outlined text-[14px]">close</span>
                       ) : (
                         i + 1
                       )}
@@ -651,6 +711,8 @@ export default function DemoPage() {
                         className={`text-xs font-semibold truncate ${
                           st === "done"
                             ? "text-success-fg"
+                            : st === "failed"
+                            ? "text-error-fg"
                             : st === "running"
                             ? "text-accent-fg"
                             : isActive
@@ -664,6 +726,7 @@ export default function DemoPage() {
                         {ch.steps.length} step{ch.steps.length > 1 ? "s" : ""}
                         {st === "done" && " · done"}
                         {st === "running" && " · running"}
+                        {st === "failed" && " · failed"}
                       </p>
                     </div>
                   </button>
@@ -721,6 +784,11 @@ export default function DemoPage() {
                         Done
                       </span>
                     )}
+                    {(chapterStatus[activeChapter] === "failed") && (
+                      <span className="badge bg-error-400/10 text-error-fg uppercase tracking-wider">
+                        Failed
+                      </span>
+                    )}
                   </div>
                   <p className="text-[11px] text-text-muted mt-0.5 max-w-lg hidden sm:block">
                     {currentChapter?.subtitle}
@@ -757,49 +825,77 @@ export default function DemoPage() {
               className="terminal h-full overflow-y-auto rounded-xl text-[13px] leading-relaxed p-5"
             >
               {logs.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-text-muted text-center">
-                  <span className="material-symbols-outlined text-[40px] text-text-disabled mb-3">terminal</span>
-                  <p className="text-sm font-semibold text-text-secondary mb-1">Ready to run</p>
-                  <p className="text-xs text-text-muted max-w-sm">
-                    Click a chapter on the left or &ldquo;Run All&rdquo; to execute
-                    real Soroban transactions on Stellar Testnet.
+                <div className="flex flex-col items-center justify-center h-full text-center px-4">
+                  <span className="material-symbols-outlined text-[40px] text-primary-fg mb-3">
+                    smart_toy
+                  </span>
+                  <p className="text-base font-semibold text-text-primary mb-2 max-w-md">
+                    What if your AI agent had a credit card?
                   </p>
-                  <p className="text-xs text-accent-fg mt-3">No wallet connection needed.</p>
+                  <p className="text-xs text-text-muted max-w-md leading-relaxed">
+                    Six short chapters, about two minutes total. We&rsquo;ll give
+                    an AI agent real money on Stellar Testnet, then watch a
+                    smart contract keep it on a leash — daily cap, per-tx
+                    limit, allow-list, and an emergency kill switch.
+                  </p>
+                  <p className="text-[11px] text-accent-fg mt-4 font-mono uppercase tracking-wider">
+                    Press Run All — no wallet needed
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-0.5">
-                  {logs.map((entry, i) => (
-                    <div key={i} className="flex items-start gap-2 font-mono">
-                      <span className="text-text-disabled text-[11px] flex-shrink-0 w-[60px]">
-                        {entry.time}
-                      </span>
-                      <span className={`flex-shrink-0 w-4 text-center ${iconColor(entry.icon)}`}>
-                        {iconSymbol(entry.icon)}
-                      </span>
-                      {entry.link ? (
-                        <a
-                          href={entry.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-accent-fg hover:text-accent-fg hover:underline break-all"
-                        >
-                          {entry.text}
-                        </a>
-                      ) : (
+                  {logs.map((entry, i) => {
+                    const isNarrate = entry.icon === "narrate";
+                    return (
+                      <div
+                        key={i}
+                        className={`flex items-start gap-2 font-mono ${
+                          isNarrate
+                            ? "my-2 rounded-lg border-l-2 border-primary-400/50 bg-primary-400/5 px-3 py-2"
+                            : ""
+                        }`}
+                      >
                         <span
-                          className={
-                            entry.icon === "block"
-                              ? "text-error-fg font-bold"
-                              : entry.icon === "info" && entry.text.startsWith("━")
-                              ? "text-text-secondary font-bold"
-                              : "text-text-secondary"
-                          }
+                          className={`text-text-disabled text-[11px] flex-shrink-0 w-[60px] ${
+                            isNarrate ? "opacity-0" : ""
+                          }`}
                         >
-                          {entry.text}
+                          {entry.time}
                         </span>
-                      )}
-                    </div>
-                  ))}
+                        <span
+                          className={`flex-shrink-0 w-4 text-center ${iconColor(entry.icon)}`}
+                        >
+                          {iconSymbol(entry.icon)}
+                        </span>
+                        {entry.link ? (
+                          <a
+                            href={entry.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-accent-fg hover:text-accent-fg hover:underline break-all"
+                          >
+                            {entry.text}
+                          </a>
+                        ) : (
+                          <span
+                            className={
+                              isNarrate
+                                ? "text-text-primary italic text-[13px] leading-relaxed"
+                                : entry.icon === "block"
+                                ? "text-error-fg font-bold"
+                                : entry.icon === "err"
+                                ? "text-error-fg"
+                                : entry.icon === "info" && entry.text.startsWith("━")
+                                ? "text-text-secondary font-bold"
+                                : "text-text-secondary"
+                            }
+                          >
+                            {entry.text}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
                   {running && (
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-text-disabled text-[11px] w-[60px]">{timestamp()}</span>
@@ -814,7 +910,7 @@ export default function DemoPage() {
 
           {/* Bottom action bar */}
           <div className="px-4 lg:px-6 py-3 border-t border-surface-border bg-dark-50 flex items-center justify-between shrink-0">
-            <div className="text-xs text-text-muted">
+            <div className="text-xs text-text-muted min-w-0 flex-1">
               {allDone ? (
                 <span className="flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-success-fg text-[16px]">check_circle</span>
@@ -834,7 +930,12 @@ export default function DemoPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  Executing on Stellar Testnet...
+                  Executing on Stellar Testnet…
+                </span>
+              ) : anyFailed ? (
+                <span className="flex items-center gap-1.5 text-error-fg">
+                  <span className="material-symbols-outlined text-[16px]">error</span>
+                  Something went wrong — check the terminal and click Retry.
                 </span>
               ) : (
                 `Chapter ${activeChapter + 1} of ${chapters.length}`
@@ -860,12 +961,14 @@ export default function DemoPage() {
 
         {/* ── RIGHT: Evidence Sidebar ─────────────────────────── */}
         <aside className="w-[280px] border-l border-surface-border bg-dark-50 overflow-y-auto shrink-0 no-scrollbar hidden xl:block">
-          {/* What We Built */}
+          {/* What you're watching */}
           <div className="p-4 border-b border-surface-border">
-            <p className="stat-label mb-2">WHAT WE BUILT</p>
+            <p className="stat-label mb-2">WHAT YOU&rsquo;RE WATCHING</p>
             <p className="text-xs text-text-muted leading-relaxed">
-              A Soroban spending-policy contract that governs x402 payments by AI agents.
-              Daily limits, per-tx caps, merchant whitelists, and a kill switch — all enforced on-chain.
+              A real AI agent, a real USDC balance on Stellar Testnet, and
+              a Soroban contract that refuses to let the agent overspend.
+              Every green checkmark below is a transaction you can click
+              through to a public block explorer.
             </p>
             <div className="flex flex-wrap gap-1.5 mt-3">
               {["Soroban", "x402", "USDC", "AI Agent", "Stellar"].map((tag) => (

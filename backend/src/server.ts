@@ -9,6 +9,7 @@ import checkoutRouter from "./stripe/checkout.js";
 import { createEventStreamHandler } from "./stellar/event-stream.js";
 import { setupSwagger } from "./swagger.js";
 import { apiLimiter, demoLimiter } from "./middleware/rate-limit.js";
+import { Keypair } from "@stellar/stellar-sdk";
 
 const app = express();
 
@@ -48,14 +49,64 @@ app.get("/api/events", createEventStreamHandler() as express.RequestHandler);
 // Swagger / OpenAPI docs
 setupSwagger(app);
 
-// Health check
+/**
+ * Check which capabilities the server is actually wired up to do. This
+ * is what makes a misconfigured Railway deploy obvious from the outside
+ * instead of silently turning into "invalid encoded string" on every
+ * admin call.
+ */
+function capabilitiesSnapshot() {
+  const canSignAsOwner = isValidSecret(config.ownerSecretKey);
+  const canSignAsAgent = isValidSecret(config.agentSecretKey);
+  const hasContract = Boolean(config.contractAddress);
+  const mode = canSignAsOwner && canSignAsAgent && hasContract
+    ? "full"
+    : hasContract
+    ? "read-only"
+    : "unconfigured";
+  return {
+    mode,
+    contract: hasContract,
+    canSignAsOwner,
+    canSignAsAgent,
+  };
+}
+
+function isValidSecret(secret: string): boolean {
+  if (!secret) return false;
+  try {
+    Keypair.fromSecret(secret);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Health check — reports readiness so a broken deploy is obvious.
 app.get("/health", (_req, res) => {
-  res.json({ status: "ok", network: config.stellarNetwork });
+  const caps = capabilitiesSnapshot();
+  res.json({
+    status: caps.mode === "unconfigured" ? "degraded" : "ok",
+    network: config.stellarNetwork,
+    ...caps,
+  });
 });
 
 app.listen(config.port, "0.0.0.0", () => {
+  const caps = capabilitiesSnapshot();
   console.log(`SpendGuard backend running on port ${config.port}`);
   console.log(`Network: ${config.stellarNetwork}`);
   console.log(`Contract: ${config.contractAddress || "not configured"}`);
+  console.log(`Mode: ${caps.mode}`);
+  if (!caps.canSignAsOwner) {
+    console.warn(
+      "⚠  OWNER_SECRET_KEY is missing or invalid — admin endpoints will return 503"
+    );
+  }
+  if (!caps.canSignAsAgent) {
+    console.warn(
+      "⚠  AGENT_SECRET_KEY is missing or invalid — /api/demo/run-agent will return 503"
+    );
+  }
   console.log(`API Docs: http://localhost:${config.port}/api/docs`);
 });

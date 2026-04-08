@@ -7,6 +7,7 @@ import {
   x402Paywall,
   x402PricingTable,
 } from "../middleware/x402-spendguard.js";
+import { ConfigError } from "../stellar/client.js";
 
 const router = Router();
 
@@ -91,8 +92,10 @@ router.post("/run-agent", async (req, res) => {
     res.json({ success: retry.status === 200, steps });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
+    const status = err instanceof ConfigError ? 503 : 502;
+    const code = err instanceof ConfigError ? err.code : "STELLAR_ERROR";
     steps.push({ step: "error", status: "failed", error: message });
-    res.status(502).json({ success: false, steps, error: message });
+    res.status(status).json({ success: false, steps, error: message, code });
   }
 });
 

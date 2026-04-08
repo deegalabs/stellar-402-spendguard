@@ -10,6 +10,7 @@ import {
 } from "../stellar/contract.js";
 import { adminAuth } from "../middleware/admin-auth.js";
 import { adminLimiter } from "../middleware/rate-limit.js";
+import { ConfigError } from "../stellar/client.js";
 
 const router = Router();
 
@@ -52,6 +53,9 @@ interface StellarErrorInfo {
 }
 
 function stellarError(err: unknown): StellarErrorInfo {
+  if (err instanceof ConfigError) {
+    return { status: 503, code: err.code, message: err.message };
+  }
   if (err instanceof Error) {
     // Extract clean message from Soroban HostError
     const msg = err.message;
