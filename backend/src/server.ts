@@ -21,20 +21,23 @@ app.use(
 );
 app.use(express.json());
 
-// Global rate limiting
-app.use("/api", apiLimiter);
+// Rate limiting — tiered buckets per route class.
+// Dashboard reads are high-volume (polling widgets across many tabs), so
+// they go through a permissive bucket. Admin / demo / general mutations
+// share tighter buckets so abuse of those surfaces doesn't drain the
+// read quota.
 
-// Dashboard (read-only)
+// Dashboard (read-only) — permissive bucket is applied inside the router
 app.use("/api", dashboardRouter);
 
-// Admin (owner operations)
+// Admin (owner operations) — limiter applied inside the router
 app.use("/api/admin", adminRouter);
 
 // Demo (x402 agent flow) — stricter rate limit
 app.use("/api/demo", demoLimiter, demoRouter);
 
-// Stripe checkout (test mode)
-app.use("/api/stripe", checkoutRouter);
+// Stripe checkout (test mode) — general API bucket
+app.use("/api/stripe", apiLimiter, checkoutRouter);
 
 // Stripe webhooks
 app.use("/webhooks", webhookRouter);

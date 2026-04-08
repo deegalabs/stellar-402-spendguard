@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import AppShell from "@/components/AppShell";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { ContractStatusProvider } from "@/hooks/useContractStatus";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -39,7 +40,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider>
-          <AppShell>{children}</AppShell>
+          <ContractStatusProvider>
+            <AppShell>{children}</AppShell>
+          </ContractStatusProvider>
         </ThemeProvider>
       </body>
     </html>

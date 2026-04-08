@@ -1,36 +1,66 @@
 /**
  * Rate Limiting Middleware
  *
- * Protects API endpoints from abuse with tiered limits:
- * - General API: 100 requests per 15 minutes
- * - Admin endpoints: 20 requests per 15 minutes
- * - Demo/agent endpoints: 30 requests per 15 minutes
+ * Tiered buckets that match the traffic shape of the app:
+ * - Reads (GET /api/status, /api/balance, /api/transactions): cheap,
+ *   high volume because multiple UI widgets poll them. Permissive.
+ * - General mutations (POST /api/stripe/*, etc.): moderate.
+ * - Admin (POST /api/admin/*): owner-only, hand-triggered. Tight.
+ * - Demo/agent (POST /api/demo/*): runs the full x402 round-trip, which
+ *   is expensive. Tight.
+ *
+ * Limits can be overridden via env in case Railway needs different
+ * thresholds per environment.
  */
 
 import rateLimit from "express-rate-limit";
 
-/** General API rate limit — 100 req / 15 min */
-export const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
+function envNum(name: string, fallback: number): number {
+  const raw = process.env[name];
+  if (!raw) return fallback;
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+const WINDOW_MS = 15 * 60 * 1000;
+
+/**
+ * Read-only GETs — /api/status, /api/balance, /api/transactions.
+ *
+ * Every dashboard page has polling widgets, and a single browser tab
+ * can legitimately issue ~60 reads/min even with the shared poller.
+ * Budget for several tabs and a demo audience watching live.
+ */
+export const readLimiter = rateLimit({
+  windowMs: WINDOW_MS,
+  max: envNum("RATE_LIMIT_READS", 2000),
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Too many requests", code: "RATE_LIMITED" },
 });
 
-/** Admin endpoints — 20 req / 15 min */
+/** General API rate limit — non-read POSTs (Stripe simulate, etc.) */
+export const apiLimiter = rateLimit({
+  windowMs: WINDOW_MS,
+  max: envNum("RATE_LIMIT_GENERAL", 300),
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many requests", code: "RATE_LIMITED" },
+});
+
+/** Admin endpoints — owner-triggered, low volume. */
 export const adminLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 20,
+  windowMs: WINDOW_MS,
+  max: envNum("RATE_LIMIT_ADMIN", 60),
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Too many admin requests", code: "RATE_LIMITED" },
 });
 
-/** Demo/agent endpoints — 30 req / 15 min */
+/** Demo/agent endpoints — expensive, keep tight. */
 export const demoLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 30,
+  windowMs: WINDOW_MS,
+  max: envNum("RATE_LIMIT_DEMO", 60),
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Too many demo requests", code: "RATE_LIMITED" },

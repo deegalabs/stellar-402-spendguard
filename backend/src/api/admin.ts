@@ -17,25 +17,62 @@ const router = Router();
 router.use(adminLimiter);
 router.use(adminAuth);
 
-function stellarError(err: unknown): string {
+/**
+ * Contract error code → (HTTP status, canonical name).
+ *
+ * The HTTP status is chosen to reflect *why* the call failed from the
+ * caller's perspective, so clients (and Railway's 5xx alerting) don't
+ * treat a legitimate policy denial as an upstream outage.
+ *
+ * - 403 Forbidden — authorization / policy denials
+ * - 402 Payment Required — balance or limit issues
+ * - 409 Conflict — current state blocks the action (already paused, etc.)
+ * - 400 Bad Request — caller supplied invalid input
+ */
+const CONTRACT_ERRORS: Record<number, { name: string; status: number }> = {
+  1: { name: "AlreadyInitialized", status: 409 },
+  2: { name: "NotInitialized", status: 409 },
+  3: { name: "Unauthorized", status: 403 },
+  4: { name: "ContractPaused", status: 409 },
+  5: { name: "ExceedsDailyLimit", status: 402 },
+  6: { name: "ExceedsMaxTx", status: 402 },
+  7: { name: "MerchantNotWhitelisted", status: 403 },
+  8: { name: "InvalidAmount", status: 400 },
+  9: { name: "InsufficientBalance", status: 402 },
+  10: { name: "ArithmeticOverflow", status: 400 },
+  11: { name: "AlreadyPaused", status: 409 },
+  12: { name: "NotPaused", status: 409 },
+  13: { name: "MerchantAlreadyWhitelisted", status: 409 },
+};
+
+interface StellarErrorInfo {
+  status: number;
+  code: string;
+  message: string;
+}
+
+function stellarError(err: unknown): StellarErrorInfo {
   if (err instanceof Error) {
     // Extract clean message from Soroban HostError
     const msg = err.message;
     const match = msg.match(/Error\(Contract, #(\d+)\)/);
     if (match) {
-      const code = Number(match[1]);
-      const names: Record<number, string> = {
-        1: "AlreadyInitialized", 2: "NotInitialized", 3: "Unauthorized",
-        4: "ContractPaused", 5: "ExceedsDailyLimit", 6: "ExceedsMaxTx",
-        7: "MerchantNotWhitelisted", 8: "InvalidAmount", 9: "InsufficientBalance",
-        10: "ArithmeticOverflow", 11: "AlreadyPaused", 12: "NotPaused",
-        13: "MerchantAlreadyWhitelisted",
-      };
-      return names[code] ?? `ContractError(${code})`;
+      const num = Number(match[1]);
+      const known = CONTRACT_ERRORS[num];
+      if (known) {
+        return { status: known.status, code: known.name, message: known.name };
+      }
+      return { status: 500, code: "CONTRACT_ERROR", message: `ContractError(${num})` };
     }
-    return msg.split("\n")[0]; // first line only
+    // Not a contract error → genuine Stellar RPC / network failure.
+    return { status: 502, code: "STELLAR_ERROR", message: msg.split("\n")[0] };
   }
-  return "Unknown error";
+  return { status: 500, code: "UNKNOWN_ERROR", message: "Unknown error" };
+}
+
+function sendError(res: import("express").Response, err: unknown) {
+  const info = stellarError(err);
+  res.status(info.status).json({ error: info.message, code: info.code });
 }
 
 router.post("/top-up", async (req, res) => {
@@ -53,7 +90,7 @@ router.post("/top-up", async (req, res) => {
     });
   } catch (err) {
     console.error("[admin/top-up]", err);
-    res.status(502).json({ error: stellarError(err), code: "STELLAR_ERROR" });
+    sendError(res, err);
   }
 });
 
@@ -72,7 +109,7 @@ router.post("/set-limit", async (req, res) => {
     });
   } catch (err) {
     console.error("[admin/set-limit]", err);
-    res.status(502).json({ error: stellarError(err), code: "STELLAR_ERROR" });
+    sendError(res, err);
   }
 });
 
@@ -91,7 +128,7 @@ router.post("/set-max-tx", async (req, res) => {
     });
   } catch (err) {
     console.error("[admin/set-max-tx]", err);
-    res.status(502).json({ error: stellarError(err), code: "STELLAR_ERROR" });
+    sendError(res, err);
   }
 });
 
@@ -110,7 +147,7 @@ router.post("/whitelist", async (req, res) => {
     });
   } catch (err) {
     console.error("[admin/whitelist]", err);
-    res.status(502).json({ error: stellarError(err), code: "STELLAR_ERROR" });
+    sendError(res, err);
   }
 });
 
@@ -129,7 +166,7 @@ router.post("/remove-merchant", async (req, res) => {
     });
   } catch (err) {
     console.error("[admin/remove-merchant]", err);
-    res.status(502).json({ error: stellarError(err), code: "STELLAR_ERROR" });
+    sendError(res, err);
   }
 });
 
@@ -142,7 +179,7 @@ router.post("/pause", async (_req, res) => {
     });
   } catch (err) {
     console.error("[admin/pause]", err);
-    res.status(409).json({ error: stellarError(err), code: "STELLAR_ERROR" });
+    sendError(res, err);
   }
 });
 
@@ -155,7 +192,7 @@ router.post("/unpause", async (_req, res) => {
     });
   } catch (err) {
     console.error("[admin/unpause]", err);
-    res.status(409).json({ error: stellarError(err), code: "STELLAR_ERROR" });
+    sendError(res, err);
   }
 });
 

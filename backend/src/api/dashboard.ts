@@ -2,8 +2,14 @@ import { Router } from "express";
 import { getStatus } from "../stellar/contract.js";
 import { getContractTransactions, getContractBalance } from "../stellar/horizon.js";
 import { config } from "../config.js";
+import { readLimiter } from "../middleware/rate-limit.js";
 
 const router = Router();
+
+// Read-only dashboard endpoints get the permissive bucket. UI widgets
+// poll these every 30s across multiple open tabs, so they need far
+// more headroom than the general mutation bucket.
+router.use(readLimiter);
 
 router.get("/status", async (_req, res) => {
   try {
