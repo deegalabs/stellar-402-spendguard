@@ -62,6 +62,67 @@ export function getContract(): Contract {
   return new Contract(config.contractAddress);
 }
 
+/**
+ * Walk an ScVal looking for a contract error code. The RPC puts
+ * failed-contract-call errors in diagnostic events as an `ScError`
+ * of type `sceContract`, sometimes wrapped inside a vec/map.
+ */
+function findContractErrorInScVal(scv: xdr.ScVal): number | null {
+  try {
+    const tag = scv.switch().name;
+    if (tag === "scvError") {
+      const err = scv.error();
+      if (err.switch().name === "sceContract") {
+        return err.contractCode();
+      }
+    }
+    if (tag === "scvVec") {
+      for (const item of scv.vec() ?? []) {
+        const code = findContractErrorInScVal(item);
+        if (code !== null) return code;
+      }
+    }
+    if (tag === "scvMap") {
+      for (const entry of scv.map() ?? []) {
+        const code = findContractErrorInScVal(entry.val());
+        if (code !== null) return code;
+      }
+    }
+  } catch {
+    /* ignore malformed XDR */
+  }
+  return null;
+}
+
+/**
+ * Pull the first contract error code out of a failed transaction's
+ * diagnostic events, so the admin API's error mapper can name it
+ * (ExceedsDailyLimit, ContractPaused, …) instead of surfacing a
+ * generic "transaction failed".
+ */
+function extractContractError(
+  events: xdr.DiagnosticEvent[] | undefined
+): number | null {
+  if (!events) return null;
+  for (const ev of events) {
+    try {
+      const bodyValue = ev.event().body().value() as {
+        topics?: () => xdr.ScVal[];
+        data?: () => xdr.ScVal;
+      };
+      const topics = typeof bodyValue.topics === "function" ? bodyValue.topics() : [];
+      const data = typeof bodyValue.data === "function" ? [bodyValue.data()] : [];
+      for (const scv of [...topics, ...data]) {
+        const code = findContractErrorInScVal(scv);
+        if (code !== null) return code;
+      }
+    } catch {
+      /* ignore malformed events */
+    }
+  }
+  return null;
+}
+
 export async function submitTransaction(
   tx: TransactionBuilder,
   signer: Keypair
@@ -76,21 +137,40 @@ export async function submitTransaction(
 
   const response = await server.sendTransaction(prepared);
 
-  if (response.status === "PENDING") {
-    let result = await server.getTransaction(response.hash);
-    const maxAttempts = 30; // 30 seconds timeout
-    let attempts = 0;
-    while (result.status === "NOT_FOUND") {
-      if (++attempts >= maxAttempts) {
-        throw new Error(`Transaction ${response.hash} not confirmed after ${maxAttempts}s`);
-      }
-      await new Promise((r) => setTimeout(r, 1000));
-      result = await server.getTransaction(response.hash);
-    }
-    return { hash: response.hash, result };
+  if (response.status !== "PENDING") {
+    // sendTransaction already rejected the tx (ERROR, DUPLICATE,
+    // TRY_AGAIN_LATER). Don't pretend the submit was successful.
+    throw new Error(
+      `sendTransaction returned ${response.status} for ${response.hash ?? "(no hash)"}`
+    );
   }
 
-  return { hash: response.hash, result: response };
+  let result = await server.getTransaction(response.hash);
+  const maxAttempts = 30; // 30 seconds timeout
+  let attempts = 0;
+  while (result.status === "NOT_FOUND") {
+    if (++attempts >= maxAttempts) {
+      throw new Error(
+        `Transaction ${response.hash} not confirmed after ${maxAttempts}s`
+      );
+    }
+    await new Promise((r) => setTimeout(r, 1000));
+    result = await server.getTransaction(response.hash);
+  }
+
+  if (result.status !== "SUCCESS") {
+    // The tx was accepted by the mempool but reverted on-chain. The
+    // old code returned the hash here anyway, so callers happily
+    // reported success for a reverted tx. Throw instead, and include
+    // the contract error code so the HTTP layer can name it.
+    const code = extractContractError(result.diagnosticEventsXdr);
+    const suffix = code !== null ? ` Error(Contract, #${code})` : "";
+    throw new Error(
+      `Transaction ${response.hash} reverted on-chain (status=${result.status}).${suffix}`
+    );
+  }
+
+  return { hash: response.hash, result };
 }
 
 export async function callContractView(

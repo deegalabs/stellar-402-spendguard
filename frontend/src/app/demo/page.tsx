@@ -279,35 +279,34 @@ export default function DemoPage() {
     {
       id: "guardrails",
       title: "Hit the Limit",
-      subtitle: "Tighten the cap, then try another payment. Watch the contract say no.",
+      subtitle: "Tighten the per-tx cap, then try another payment. Watch the contract say no.",
       narrator:
-        "Now the interesting part. We shrink the daily limit down to 15 cents. The next payment the agent tries — even a routine 10-cent call — should be rejected. Not by our server. Not by a firewall. By the contract on Stellar itself. If our backend disappeared right now, the rejection would still happen.",
+        "Now the interesting part. We shrink the per-transaction cap down to 5 cents. The next payment the agent tries — a routine 10-cent call — should be rejected. Not by our server. Not by a firewall. By the contract on Stellar itself. If our backend disappeared right now, the rejection would still happen.",
       lesson:
         "The policy is enforced on-chain. Turning off our server does not turn off the guardrail.",
       icon: "shield",
       steps: [
         {
           id: "tighten-limits",
-          title: "Tighten Limits to $0.15",
+          title: "Tighten Max-Tx to $0.05",
           action: async (log) => {
-            // First lower max_tx (must be <= new daily_limit)
-            log({ icon: "info", text: "Tightening guardrails to trigger a block..." });
-            const maxTxAmount = usdcToStroops(0.15);
-            log({ icon: "wait", text: `Lowering max_tx to $0.15 USDC...` });
-            const res1 = (await setMaxTx(maxTxAmount)) as { tx_hash: string };
-            log({ icon: "tx", text: `TX: ${res1.tx_hash}`, link: EXPERT + res1.tx_hash });
-
-            // Then lower daily_limit (must be >= max_tx)
-            const limitAmount = usdcToStroops(0.15);
-            log({ icon: "wait", text: `Lowering daily_limit to $0.15 USDC...` });
-            const res2 = (await setDailyLimit(limitAmount)) as { tx_hash: string };
-            log({ icon: "tx", text: `TX: ${res2.tx_hash}`, link: EXPERT + res2.tx_hash });
+            // Single-TX block: lower max_tx below the next payment
+            // amount ($0.10). We used to lower both daily_limit and
+            // max_tx sequentially, but that was brittle — the RPC
+            // simulator sometimes saw a stale max_tx when preflighting
+            // the second tx and rejected set_daily_limit with
+            // InvalidAmount. One call, no races.
+            log({ icon: "info", text: "Tightening the per-tx cap to trigger a block..." });
+            const maxTxAmount = usdcToStroops(0.05);
+            log({ icon: "wait", text: `Calling contract.set_max_tx(${maxTxAmount})...` });
+            const res = (await setMaxTx(maxTxAmount)) as { tx_hash: string };
+            log({ icon: "tx", text: `TX: ${res.tx_hash}`, link: EXPERT + res.tx_hash });
 
             const { status: s } = await refreshStatus();
-            log({ icon: "ok", text: `Daily limit: $${stroopsToUsdc(s.daily_limit)} | Spent: $${stroopsToUsdc(s.spent_today)}` });
-            log({ icon: "info", text: "Any new payment will exceed the limit" });
+            log({ icon: "ok", text: `Max per tx: $${stroopsToUsdc(s.max_tx_value)} USDC` });
+            log({ icon: "info", text: "A $0.10 payment now exceeds the per-tx cap" });
             return [
-              { chapter: 4, label: "Tightened", value: "$0.15 daily limit", type: "config", link: EXPERT + res2.tx_hash },
+              { chapter: 4, label: "Tightened", value: "$0.05 max per tx", type: "config", link: EXPERT + res.tx_hash },
             ];
           },
         },
@@ -319,13 +318,18 @@ export default function DemoPage() {
             const res = await runAgent();
             const lastStep = res.steps[res.steps.length - 1];
             if (!res.success) {
-              log({ icon: "block", text: `BLOCKED: ${lastStep?.error?.split("\n")[0] ?? "ExceedsDailyLimit"}` });
+              log({ icon: "block", text: `BLOCKED: ${lastStep?.error?.split("\n")[0] ?? res.error ?? "ExceedsMaxTx"}` });
               log({ icon: "ok", text: "Guardrail working — contract rejected the payment on-chain" });
-            } else {
-              log({ icon: "ok", text: "Payment went through (limit not yet reached)" });
+              await refreshStatus();
+              return [{ chapter: 4, label: "Guardrail", value: "ExceedsMaxTx", type: "block" }];
             }
+            // If the payment went through, the guardrail silently
+            // failed — surface it as a hard error so the chapter
+            // marks failed instead of pretending it worked.
             await refreshStatus();
-            return [{ chapter: 4, label: "Guardrail", value: "ExceedsDailyLimit", type: "block" }];
+            throw new Error(
+              "Expected ExceedsMaxTx — the $0.10 payment was accepted despite the $0.05 cap"
+            );
           },
         },
       ],
@@ -370,10 +374,13 @@ export default function DemoPage() {
               log({ icon: "block", text: "BLOCKED: ContractPaused" });
               log({ icon: "ok", text: "Kill switch confirmed: zero payments while paused" });
               return [{ chapter: 5, label: "Paused Test", value: "Correctly blocked", type: "block" }];
-            } else {
-              log({ icon: "err", text: "Unexpected: payment succeeded while paused" });
-              return [{ chapter: 5, label: "Paused Test", value: "ERROR: went through", type: "block" }];
             }
+            // Throwing is the only way to flip the chapter to
+            // "failed" — the old code just logged an err icon and
+            // let the chapter self-certify as complete.
+            throw new Error(
+              "Expected ContractPaused — the payment was accepted while the contract was paused"
+            );
           },
         },
       ],

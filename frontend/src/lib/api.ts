@@ -92,7 +92,8 @@ export const simulatePayment = (amount_usd: number) =>
 
 // Demo
 export const runAgent = () =>
-  request<{ success: boolean; steps: import("./types").DemoStepResult[] }>(
-    "/api/demo/run-agent",
-    { method: "POST", body: "{}" }
-  );
+  request<{
+    success: boolean;
+    steps: import("./types").DemoStepResult[];
+    error?: string;
+  }>("/api/demo/run-agent", { method: "POST", body: "{}" });
