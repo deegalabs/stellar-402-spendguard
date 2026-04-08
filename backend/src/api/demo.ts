@@ -92,8 +92,23 @@ router.post("/run-agent", async (req, res) => {
     res.json({ success: retry.status === 200, steps });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
-    const status = err instanceof ConfigError ? 503 : 502;
-    const code = err instanceof ConfigError ? err.code : "STELLAR_ERROR";
+    // A contract revert is an expected business outcome for this demo
+    // (CH4 ExceedsMaxTx, CH5 ContractPaused), not a gateway error. The
+    // client.ts submit helper tags reverts with "reverted on-chain" in
+    // the message — return 200 so the frontend can distinguish "the
+    // contract correctly said no" from "the server failed to reach the
+    // contract". Infra errors (ConfigError, RPC unreachable) still 5xx.
+    const isContractRevert = /reverted on-chain/i.test(message);
+    const status = err instanceof ConfigError
+      ? 503
+      : isContractRevert
+      ? 200
+      : 502;
+    const code = err instanceof ConfigError
+      ? err.code
+      : isContractRevert
+      ? "CONTRACT_REVERT"
+      : "STELLAR_ERROR";
     steps.push({ step: "error", status: "failed", error: message });
     res.status(status).json({ success: false, steps, error: message, code });
   }

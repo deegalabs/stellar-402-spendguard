@@ -83,12 +83,31 @@ function isValidSecret(secret: string): boolean {
 }
 
 // Health check — reports readiness so a broken deploy is obvious.
+// Also exposes the public keys the backend will sign with, so you can
+// detect Railway-replica env drift (same code, different env) without
+// having to inspect failed txs on-chain.
 app.get("/health", (_req, res) => {
   const caps = capabilitiesSnapshot();
+  let ownerPubkey: string | null = null;
+  let agentPubkey: string | null = null;
+  try {
+    if (config.ownerSecretKey) {
+      ownerPubkey = Keypair.fromSecret(config.ownerSecretKey).publicKey();
+    }
+  } catch { /* invalid secret */ }
+  try {
+    if (config.agentSecretKey) {
+      agentPubkey = Keypair.fromSecret(config.agentSecretKey).publicKey();
+    }
+  } catch { /* invalid secret */ }
   res.json({
     status: caps.mode === "unconfigured" ? "degraded" : "ok",
     network: config.stellarNetwork,
     ...caps,
+    signer: {
+      owner: ownerPubkey,
+      agent: agentPubkey,
+    },
   });
 });
 
