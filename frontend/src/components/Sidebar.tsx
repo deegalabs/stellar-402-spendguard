@@ -54,12 +54,12 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
               onClick={onClose}
               className={`flex items-center gap-3 px-3 py-2.5 text-[13px] font-medium rounded-lg transition-all duration-200 ${
                 active
-                  ? "bg-primary-500/10 text-primary-300 border border-primary-500/20"
+                  ? "bg-primary-500/10 text-primary-fg border border-primary-500/20"
                   : "text-text-muted hover:text-text-secondary hover:bg-white/5 border border-transparent"
               }`}
             >
               <span
-                className={`material-symbols-outlined text-[20px] ${active ? "text-primary-400" : ""}`}
+                className={`material-symbols-outlined text-[20px] ${active ? "text-primary-fg" : ""}`}
                 style={active ? { fontVariationSettings: "'FILL' 1" } : undefined}
               >
                 {item.icon}
@@ -78,7 +78,7 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
         </div>
         <div className="flex items-center gap-3 px-1 py-1 text-[11px] font-mono">
           <span className="w-1.5 h-1.5 rounded-full bg-success-400 animate-pulse" />
-          <span className="text-success-400">Stellar Testnet</span>
+          <span className="text-success-fg">Stellar Testnet</span>
         </div>
       </div>
     </>

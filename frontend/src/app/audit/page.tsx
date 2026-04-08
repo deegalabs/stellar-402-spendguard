@@ -45,7 +45,7 @@ export default function AuditLogPage() {
 
   if (error) {
     return (
-      <div className="card border-error/30 text-error-400">
+      <div className="card border-error/30 text-error-fg">
         <p className="font-semibold">Connection Error</p>
         <p className="text-sm mt-1">{error}</p>
       </div>
@@ -135,8 +135,8 @@ export default function AuditLogPage() {
                           tx.status === "blocked" ? "bg-error-400" : "bg-warning-400"
                         }`} />
                         <span className={`font-mono text-xs ${
-                          tx.status === "settled" ? "text-success-400" :
-                          tx.status === "blocked" ? "text-error-400" : "text-warning-400"
+                          tx.status === "settled" ? "text-success-fg" :
+                          tx.status === "blocked" ? "text-error-fg" : "text-warning-fg"
                         }`}>
                           {tx.status === "settled" ? "SUCCESS" : tx.status === "blocked" ? "DENIED" : "PENDING"}
                         </span>
@@ -150,7 +150,7 @@ export default function AuditLogPage() {
                         href={tx.stellar_expert_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="font-mono text-xs text-accent-400 hover:text-accent-300 transition-colors"
+                        className="font-mono text-xs text-accent-fg hover:text-accent-fg transition-colors"
                       >
                         {tx.tx_hash.slice(0, 8)}...{tx.tx_hash.slice(-4)}
                       </a>
@@ -213,8 +213,8 @@ export default function AuditLogPage() {
                     tx.status === "blocked" ? "bg-error-400" : "bg-warning-400"
                   }`} />
                   <span className={`font-mono text-xs font-bold ${
-                    tx.status === "settled" ? "text-success-400" :
-                    tx.status === "blocked" ? "text-error-400" : "text-warning-400"
+                    tx.status === "settled" ? "text-success-fg" :
+                    tx.status === "blocked" ? "text-error-fg" : "text-warning-fg"
                   }`}>
                     {tx.status === "settled" ? "SUCCESS" : tx.status === "blocked" ? "DENIED" : "PENDING"}
                   </span>
@@ -227,7 +227,7 @@ export default function AuditLogPage() {
                   href={tx.stellar_expert_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-mono text-[10px] text-accent-400"
+                  className="font-mono text-[10px] text-accent-fg"
                 >
                   {tx.tx_hash.slice(0, 8)}...
                 </a>
@@ -243,13 +243,13 @@ export default function AuditLogPage() {
           <span className="text-text-secondary font-bold text-xs uppercase tracking-wider">System Log</span>
           <span className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-success-400 animate-pulse" />
-            <span className="text-[10px] font-mono text-success-400">LIVE</span>
+            <span className="text-[10px] font-mono text-success-fg">LIVE</span>
           </span>
         </div>
         {transactions.slice(0, 10).map((tx) => (
           <div key={tx.id} className="mb-1">
             <span className="text-text-disabled">[{tx.timestamp}]</span>{" "}
-            <span className={tx.status === "settled" ? "text-accent-400" : "text-warning-400"}>
+            <span className={tx.status === "settled" ? "text-accent-fg" : "text-warning-fg"}>
               {tx.status === "settled" ? "INFO" : "WARN"}
             </span>:{" "}
             <span className="text-text-secondary">
@@ -263,7 +263,7 @@ export default function AuditLogPage() {
         {transactions.length === 0 && (
           <div className="text-text-disabled">Waiting for events...</div>
         )}
-        <div className="animate-pulse text-primary-400">_</div>
+        <div className="animate-pulse text-primary-fg">_</div>
       </div>
     </div>
   );

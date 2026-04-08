@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useFreighter } from "@/hooks/useFreighter";
 import { shortAddress } from "@/lib/format";
+import ThemeToggle from "./ThemeToggle";
 
 const DEMO_WALLET = "GBF5LCVZQ5VQ5DOE57DXY4PDDWS2BGACEJBGJUJYAJSGJKOWHZ5TTLOY";
 
@@ -26,7 +27,7 @@ export default function Header({ paused, onMenuClick }: HeaderProps) {
         {/* Mobile hamburger */}
         <button
           onClick={onMenuClick}
-          className="lg:hidden text-text-muted hover:text-text-primary p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+          className="lg:hidden text-text-muted hover:text-text-primary p-1.5 rounded-lg hover:bg-surface-bright transition-colors"
         >
           <span className="material-symbols-outlined text-[22px]">menu</span>
         </button>
@@ -38,14 +39,14 @@ export default function Header({ paused, onMenuClick }: HeaderProps) {
         </span>
 
         {paused && (
-          <div className="flex items-center gap-1.5 bg-error-glow border border-error/30 text-error-400 text-[10px] font-bold px-3 py-1 rounded-full animate-pulse">
+          <div className="flex items-center gap-1.5 bg-error-glow border border-error/30 text-error-fg text-[10px] font-bold px-3 py-1 rounded-full animate-pulse">
             <span className="w-1.5 h-1.5 bg-error-400 rounded-full" />
             PAUSED
           </div>
         )}
 
         {isDemo && (
-          <div className="flex items-center gap-1.5 bg-accent-glow border border-accent/30 text-accent-400 text-[10px] font-bold px-3 py-1 rounded-full">
+          <div className="flex items-center gap-1.5 bg-accent-glow border border-accent/30 text-accent-fg text-[10px] font-bold px-3 py-1 rounded-full">
             <span className="material-symbols-outlined text-[12px]">play_circle</span>
             LIVE DEMO
           </div>
@@ -53,9 +54,12 @@ export default function Header({ paused, onMenuClick }: HeaderProps) {
       </div>
 
       {/* Right */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 lg:gap-3">
+        {/* Theme toggle */}
+        <ThemeToggle />
+
         {/* Notification bell */}
-        <button className="material-symbols-outlined text-text-muted hover:text-text-primary text-[20px] p-2 rounded-lg hover:bg-white/5 transition-colors">
+        <button className="material-symbols-outlined text-text-muted hover:text-text-primary text-[20px] p-2 rounded-lg hover:bg-surface-bright transition-colors">
           notifications
         </button>
 
@@ -67,7 +71,7 @@ export default function Header({ paused, onMenuClick }: HeaderProps) {
               {shortAddress(walletAddress!)}
             </span>
             {isDemo && (
-              <span className="text-[9px] font-bold text-accent-400 uppercase">Demo</span>
+              <span className="text-[9px] font-bold text-accent-fg uppercase">Demo</span>
             )}
             <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center ml-1">
               <span className="material-symbols-outlined text-white text-[14px]">

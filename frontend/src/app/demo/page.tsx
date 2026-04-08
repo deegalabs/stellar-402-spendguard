@@ -534,11 +534,11 @@ export default function DemoPage() {
 
   function iconColor(icon: LogEntry["icon"]) {
     switch (icon) {
-      case "ok":    return "text-success-400";
-      case "err":   return "text-error-400";
-      case "wait":  return "text-warning-400";
-      case "tx":    return "text-accent-400";
-      case "block": return "text-error-500";
+      case "ok":    return "text-success-fg";
+      case "err":   return "text-error-fg";
+      case "wait":  return "text-warning-fg";
+      case "tx":    return "text-accent-fg";
+      case "block": return "text-error-fg";
       default:      return "text-text-muted";
     }
   }
@@ -650,11 +650,11 @@ export default function DemoPage() {
                       <p
                         className={`text-xs font-semibold truncate ${
                           st === "done"
-                            ? "text-success-400"
+                            ? "text-success-fg"
                             : st === "running"
-                            ? "text-accent-400"
+                            ? "text-accent-fg"
                             : isActive
-                            ? "text-primary-300"
+                            ? "text-primary-fg"
                             : "text-text-muted"
                         }`}
                       >
@@ -686,7 +686,7 @@ export default function DemoPage() {
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-accent-400" />
                   <span className="text-[10px] uppercase font-bold text-text-muted w-14">{role}</span>
-                  <span className="text-[10px] font-mono text-accent-400 group-hover:underline">
+                  <span className="text-[10px] font-mono text-accent-fg group-hover:underline">
                     {shortAddress(DEMO_WALLETS[role])}
                   </span>
                 </a>
@@ -702,7 +702,7 @@ export default function DemoPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-dark-200 rounded-xl flex items-center justify-center">
-                  <span className="material-symbols-outlined text-primary-400 text-[20px]">
+                  <span className="material-symbols-outlined text-primary-fg text-[20px]">
                     {currentChapter?.icon ?? "play_circle"}
                   </span>
                 </div>
@@ -712,7 +712,7 @@ export default function DemoPage() {
                       CH{activeChapter + 1}: {currentChapter?.title}
                     </h3>
                     {(chapterStatus[activeChapter] === "running") && (
-                      <span className="badge bg-accent-400/10 text-accent-400 uppercase tracking-wider animate-pulse">
+                      <span className="badge bg-accent-400/10 text-accent-fg uppercase tracking-wider animate-pulse">
                         Running
                       </span>
                     )}
@@ -739,8 +739,8 @@ export default function DemoPage() {
                   <div
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
                       status.paused
-                        ? "bg-error-glow text-error-400"
-                        : "bg-success-glow text-success-400"
+                        ? "bg-error-glow text-error-fg"
+                        : "bg-success-glow text-success-fg"
                     }`}
                   >
                     {status.paused ? "PAUSED" : "ACTIVE"}
@@ -764,7 +764,7 @@ export default function DemoPage() {
                     Click a chapter on the left or &ldquo;Run All&rdquo; to execute
                     real Soroban transactions on Stellar Testnet.
                   </p>
-                  <p className="text-xs text-accent-400 mt-3">No wallet connection needed.</p>
+                  <p className="text-xs text-accent-fg mt-3">No wallet connection needed.</p>
                 </div>
               ) : (
                 <div className="space-y-0.5">
@@ -781,7 +781,7 @@ export default function DemoPage() {
                           href={entry.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-accent-400 hover:text-accent-300 hover:underline break-all"
+                          className="text-accent-fg hover:text-accent-fg hover:underline break-all"
                         >
                           {entry.text}
                         </a>
@@ -789,7 +789,7 @@ export default function DemoPage() {
                         <span
                           className={
                             entry.icon === "block"
-                              ? "text-error-400 font-bold"
+                              ? "text-error-fg font-bold"
                               : entry.icon === "info" && entry.text.startsWith("━")
                               ? "text-text-secondary font-bold"
                               : "text-text-secondary"
@@ -803,8 +803,8 @@ export default function DemoPage() {
                   {running && (
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-text-disabled text-[11px] w-[60px]">{timestamp()}</span>
-                      <span className="text-warning-400 animate-pulse w-4 text-center">◌</span>
-                      <span className="text-warning-400 animate-pulse">executing...</span>
+                      <span className="text-warning-fg animate-pulse w-4 text-center">◌</span>
+                      <span className="text-warning-fg animate-pulse">executing...</span>
                     </div>
                   )}
                 </div>
@@ -817,20 +817,20 @@ export default function DemoPage() {
             <div className="text-xs text-text-muted">
               {allDone ? (
                 <span className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-success-400 text-[16px]">check_circle</span>
+                  <span className="material-symbols-outlined text-success-fg text-[16px]">check_circle</span>
                   All chapters complete — every TX verifiable on
                   <a
                     href={`https://stellar.expert/explorer/testnet/contract/${DEMO_WALLETS.contract}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-accent-400 font-semibold hover:underline ml-0.5"
+                    className="text-accent-fg font-semibold hover:underline ml-0.5"
                   >
                     Stellar Expert
                   </a>
                 </span>
               ) : running ? (
                 <span className="flex items-center gap-1.5">
-                  <svg className="w-3 h-3 animate-spin text-accent-400" fill="none" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3 animate-spin text-accent-fg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
@@ -884,7 +884,7 @@ export default function DemoPage() {
             <p className="stat-label mb-2">
               EVIDENCE
               {evidence.length > 0 && (
-                <span className="ml-1.5 text-accent-400">{evidence.length}</span>
+                <span className="ml-1.5 text-accent-fg">{evidence.length}</span>
               )}
             </p>
             {evidence.length === 0 ? (
@@ -907,7 +907,7 @@ export default function DemoPage() {
                           href={card.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-[9px] text-accent-400 hover:underline font-mono"
+                          className="text-[9px] text-accent-fg hover:underline font-mono"
                         >
                           view tx
                         </a>
@@ -926,7 +926,7 @@ export default function DemoPage() {
             <p className="stat-label mb-2">
               LIVE TRANSACTIONS
               {liveTransactions.length > 0 && (
-                <span className="ml-1.5 text-accent-400">{liveTransactions.length}</span>
+                <span className="ml-1.5 text-accent-fg">{liveTransactions.length}</span>
               )}
             </p>
             {liveTransactions.length === 0 ? (
@@ -944,7 +944,7 @@ export default function DemoPage() {
                     className="flex items-center gap-2 group"
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-accent-400 flex-shrink-0" />
-                    <span className="text-[10px] font-mono text-accent-400 group-hover:underline truncate">
+                    <span className="text-[10px] font-mono text-accent-fg group-hover:underline truncate">
                       {tx.hash.slice(0, 16)}...
                     </span>
                   </a>

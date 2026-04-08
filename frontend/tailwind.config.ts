@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: "class",
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -9,29 +10,39 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // ── Dark Unicorn Palette ──────────────────────────────────
-        // Backgrounds
+        // ── Theme-aware tokens (swap via CSS variables) ────────────
+        // Background scale (page → elevated)
         dark: {
-          DEFAULT: "#0B0F1A",
-          50: "#111827",
-          100: "#151B2B",
-          200: "#1A2035",
-          300: "#1F2740",
-          400: "#252D4A",
-          500: "#2D3555",
+          DEFAULT: "rgb(var(--color-bg-DEFAULT) / <alpha-value>)",
+          50: "rgb(var(--color-bg-50) / <alpha-value>)",
+          100: "rgb(var(--color-bg-100) / <alpha-value>)",
+          200: "rgb(var(--color-bg-200) / <alpha-value>)",
+          300: "rgb(var(--color-bg-300) / <alpha-value>)",
+          400: "rgb(var(--color-bg-400) / <alpha-value>)",
+          500: "rgb(var(--color-bg-500) / <alpha-value>)",
         },
 
         // Surface / Cards
         surface: {
-          DEFAULT: "#111827",
-          dim: "#0B0F1A",
-          bright: "#1A2035",
-          card: "#151B2B",
-          "card-hover": "#1A2035",
-          border: "#1E293B",
-          "border-light": "#334155",
+          DEFAULT: "rgb(var(--color-surface-DEFAULT) / <alpha-value>)",
+          dim: "rgb(var(--color-surface-dim) / <alpha-value>)",
+          bright: "rgb(var(--color-surface-bright) / <alpha-value>)",
+          card: "rgb(var(--color-surface-card) / <alpha-value>)",
+          "card-hover": "rgb(var(--color-surface-card-hover) / <alpha-value>)",
+          border: "rgb(var(--color-surface-border) / <alpha-value>)",
+          "border-light": "rgb(var(--color-surface-border-light) / <alpha-value>)",
         },
 
+        // Text scale
+        text: {
+          DEFAULT: "rgb(var(--color-text-DEFAULT) / <alpha-value>)",
+          primary: "rgb(var(--color-text-primary) / <alpha-value>)",
+          secondary: "rgb(var(--color-text-secondary) / <alpha-value>)",
+          muted: "rgb(var(--color-text-muted) / <alpha-value>)",
+          disabled: "rgb(var(--color-text-disabled) / <alpha-value>)",
+        },
+
+        // ── Brand colors (literal, theme-independent) ──────────────
         // Primary — Electric Indigo
         primary: {
           DEFAULT: "#6366F1",
@@ -46,6 +57,7 @@ const config: Config = {
           800: "#3730A3",
           900: "#312E81",
           glow: "rgba(99, 102, 241, 0.15)",
+          fg: "rgb(var(--color-primary-fg) / <alpha-value>)",
         },
 
         // Accent — Cyan / Teal
@@ -60,6 +72,7 @@ const config: Config = {
           600: "#0891B2",
           700: "#0E7490",
           glow: "rgba(6, 182, 212, 0.15)",
+          fg: "rgb(var(--color-accent-fg) / <alpha-value>)",
         },
 
         // Success — Emerald
@@ -71,6 +84,7 @@ const config: Config = {
           500: "#10B981",
           600: "#059669",
           glow: "rgba(16, 185, 129, 0.15)",
+          fg: "rgb(var(--color-success-fg) / <alpha-value>)",
         },
 
         // Error — Rose
@@ -82,6 +96,7 @@ const config: Config = {
           500: "#F43F5E",
           600: "#E11D48",
           glow: "rgba(244, 63, 94, 0.15)",
+          fg: "rgb(var(--color-error-fg) / <alpha-value>)",
         },
 
         // Warning — Amber
@@ -92,15 +107,8 @@ const config: Config = {
           400: "#FBBF24",
           500: "#F59E0B",
           600: "#D97706",
-        },
-
-        // Text
-        text: {
-          DEFAULT: "#F8FAFC",
-          primary: "#F1F5F9",
-          secondary: "#94A3B8",
-          muted: "#64748B",
-          disabled: "#475569",
+          glow: "rgba(245, 158, 11, 0.15)",
+          fg: "rgb(var(--color-warning-fg) / <alpha-value>)",
         },
       },
       fontFamily: {
@@ -114,13 +122,13 @@ const config: Config = {
         "label": ["0.75rem", { lineHeight: "1.5", letterSpacing: "0.05em", fontWeight: "600" }],
       },
       boxShadow: {
-        "card": "0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.2)",
-        "card-hover": "0 4px 12px -1px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(99, 102, 241, 0.1)",
+        "card": "var(--shadow-card)",
+        "card-hover": "var(--shadow-card-hover)",
         "glow-primary": "0 0 20px rgba(99, 102, 241, 0.3)",
         "glow-accent": "0 0 20px rgba(6, 182, 212, 0.3)",
         "glow-success": "0 0 20px rgba(16, 185, 129, 0.3)",
         "glow-error": "0 0 20px rgba(244, 63, 94, 0.3)",
-        "panel": "0 10px 40px -10px rgba(0, 0, 0, 0.5)",
+        "panel": "var(--shadow-panel)",
         "glass": "0 8px 32px 0 rgba(0, 0, 0, 0.37)",
       },
       borderRadius: {

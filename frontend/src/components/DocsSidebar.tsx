@@ -26,10 +26,10 @@ export default function DocsSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed left-0 top-16 bottom-0 w-64 flex flex-col p-4 bg-slate-50 border-r border-slate-200/40">
+    <aside className="fixed left-0 top-16 bottom-0 w-64 flex flex-col p-4 bg-dark-50 border-r border-surface-border">
       <div className="mb-8 px-4">
-        <h2 className="text-lg font-black text-primary uppercase tracking-tighter">Stellar 402</h2>
-        <p className="text-[10px] font-mono text-on-surface-variant uppercase tracking-widest mt-1">Technical Docs v1.2</p>
+        <h2 className="text-lg font-black text-text-primary uppercase tracking-tighter">Stellar 402</h2>
+        <p className="text-[10px] font-mono text-text-secondary uppercase tracking-widest mt-1">Technical Docs v1.2</p>
       </div>
 
       <nav className="flex-1 space-y-1">
@@ -41,8 +41,8 @@ export default function DocsSidebar() {
               href={item.href}
               className={`flex items-center gap-3 px-4 py-2 rounded-lg font-mono text-xs uppercase tracking-widest transition-all ${
                 active
-                  ? "text-secondary font-bold bg-white shadow-sm"
-                  : "text-slate-600 hover:bg-slate-200/50"
+                  ? "text-accent-fg font-bold bg-surface-card shadow-sm"
+                  : "text-text-secondary hover:bg-dark-200"
               }`}
             >
               <span className="material-symbols-outlined text-sm">{item.icon}</span>
@@ -52,15 +52,15 @@ export default function DocsSidebar() {
         })}
       </nav>
 
-      <div className="mt-auto space-y-1 pt-4 border-t border-slate-100">
-        <button className="w-full mb-4 bg-secondary text-white py-2 rounded-xl text-xs font-mono uppercase tracking-widest hover:opacity-90 transition-opacity">
+      <div className="mt-auto space-y-1 pt-4 border-t border-surface-border">
+        <button className="w-full mb-4 bg-accent-500 text-white py-2 rounded-xl text-xs font-mono uppercase tracking-widest hover:opacity-90 transition-opacity">
           Export PDF
         </button>
         {BOTTOM_LINKS.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            className="flex items-center gap-3 px-4 py-2 text-slate-600 font-mono text-[10px] uppercase tracking-widest hover:text-primary transition-colors"
+            className="flex items-center gap-3 px-4 py-2 text-text-secondary font-mono text-[10px] uppercase tracking-widest hover:text-text-primary transition-colors"
           >
             <span className="material-symbols-outlined text-sm">{item.icon}</span>
             <span>{item.label}</span>

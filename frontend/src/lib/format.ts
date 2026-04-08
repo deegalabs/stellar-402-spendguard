@@ -39,11 +39,11 @@ export function relativeTime(iso: string): string {
 export function statusColor(status: "settled" | "blocked" | "pending"): string {
   switch (status) {
     case "settled":
-      return "text-success-400 bg-success-glow";
+      return "text-success-fg bg-success-glow";
     case "blocked":
-      return "text-error-400 bg-error-glow";
+      return "text-error-fg bg-error-glow";
     case "pending":
-      return "text-warning-400 bg-warning-400/10";
+      return "text-warning-fg bg-warning-400/10";
   }
 }
 

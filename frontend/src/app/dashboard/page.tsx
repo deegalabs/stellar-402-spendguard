@@ -28,11 +28,11 @@ function StatCard({
         <p className="stat-label">{label}</p>
         {icon && (
           <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${alert ? "bg-error-glow" : "bg-primary-glow"}`}>
-            <span className={`material-symbols-outlined text-[18px] ${alert ? "text-error-400" : "text-primary-400"}`}>{icon}</span>
+            <span className={`material-symbols-outlined text-[18px] ${alert ? "text-error-fg" : "text-primary-fg"}`}>{icon}</span>
           </div>
         )}
       </div>
-      <p className={`stat-value ${alert ? "text-error-400" : ""}`}>{value}</p>
+      <p className={`stat-value ${alert ? "text-error-fg" : ""}`}>{value}</p>
       {sub && <p className="text-xs text-text-muted mt-1">{sub}</p>}
       {children}
     </div>
@@ -93,7 +93,7 @@ export default function DashboardPage() {
 
   if (error) {
     return (
-      <div className="card border-error/30 text-error-400">
+      <div className="card border-error/30 text-error-fg">
         <p className="font-semibold">Connection Error</p>
         <p className="text-sm mt-1">{error}</p>
       </div>
@@ -159,7 +159,7 @@ export default function DashboardPage() {
         />
 
         <StatCard label="Guard Status" value="" icon="verified_user">
-          <div className={`flex items-center gap-2 ${status?.paused ? "text-error-400" : "text-success-400"}`}>
+          <div className={`flex items-center gap-2 ${status?.paused ? "text-error-fg" : "text-success-fg"}`}>
             <span className={`w-2 h-2 rounded-full ${status?.paused ? "bg-error-400 animate-pulse" : "bg-success-400"}`} />
             <span className="font-bold text-sm">
               {status?.paused ? "PAUSED" : "ACTIVE"}
@@ -174,7 +174,7 @@ export default function DashboardPage() {
         <div className="lg:col-span-2 card">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-text-primary flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary-400 text-[18px]">monitoring</span>
+              <span className="material-symbols-outlined text-primary-fg text-[18px]">monitoring</span>
               Live Payment Feed
             </h3>
             <div className="hidden sm:flex items-center gap-3 text-xs text-text-muted">
@@ -209,8 +209,8 @@ export default function DashboardPage() {
                     <td className="px-3 py-3">
                       <span className={`px-2 py-0.5 rounded font-mono text-[10px] ${
                         tx.status === "blocked"
-                          ? "bg-error-glow text-error-400 border border-error/20"
-                          : "bg-primary-glow text-primary-300 border border-primary/20"
+                          ? "bg-error-glow text-error-fg border border-error/20"
+                          : "bg-primary-glow text-primary-fg border border-primary/20"
                       }`}>
                         {tx.status === "blocked" ? "403" : "402"}
                       </span>
@@ -229,7 +229,7 @@ export default function DashboardPage() {
                         href={tx.stellar_expert_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-accent-400 hover:text-accent-300 transition-colors"
+                        className="text-accent-fg hover:text-accent-fg transition-colors"
                       >
                         {tx.tx_hash.slice(0, 4)}...{tx.tx_hash.slice(-4)}
                       </a>
@@ -261,7 +261,7 @@ export default function DashboardPage() {
                   href={tx.stellar_expert_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-accent-400 text-[10px] font-mono"
+                  className="text-accent-fg text-[10px] font-mono"
                 >
                   {tx.tx_hash.slice(0, 6)}...
                 </a>
@@ -295,7 +295,7 @@ export default function DashboardPage() {
               );
             })}
             <div className="absolute top-4 left-0 right-0 border-t-2 border-dashed border-error-400/40">
-              <span className="absolute -top-3 right-0 text-[10px] text-error-400 font-mono font-semibold">
+              <span className="absolute -top-3 right-0 text-[10px] text-error-fg font-mono font-semibold">
                 LIMIT ${limitUsdc}
               </span>
             </div>
@@ -328,8 +328,8 @@ export default function DashboardPage() {
         </Link>
 
         <Link href="/vault" className="card-hover flex items-center gap-3 border-error/30">
-          <span className="material-symbols-outlined text-[20px] text-error-400">warning</span>
-          <span className="text-sm font-semibold text-error-400">Emergency Pause</span>
+          <span className="material-symbols-outlined text-[20px] text-error-fg">warning</span>
+          <span className="text-sm font-semibold text-error-fg">Emergency Pause</span>
         </Link>
 
         <div className="card">
@@ -361,17 +361,17 @@ export default function DashboardPage() {
           <div className="terminal rounded-none border-0 space-y-1.5">
             {demoSteps.map((step, i) => (
               <div key={i} className="flex items-start gap-2">
-                <span className={step.status === "failed" || step.error ? "text-error-400" : "text-success-400"}>
+                <span className={step.status === "failed" || step.error ? "text-error-fg" : "text-success-fg"}>
                   {step.status === "failed" || step.error ? "x" : ">"}
                 </span>
                 <div>
-                  <span className="text-accent-400">[{step.step}]</span>{" "}
+                  <span className="text-accent-fg">[{step.step}]</span>{" "}
                   {step.status !== undefined && <span className="text-text-secondary">status={String(step.status)}</span>}
-                  {step.price && <span className="text-warning-400"> price=${stroopsToUsdc(step.price)}</span>}
-                  {step.tx_hash && <span className="text-success-400"> tx={step.tx_hash.slice(0, 12)}...</span>}
-                  {step.settlement_time_ms && <span className="text-primary-300"> {step.settlement_time_ms}ms</span>}
+                  {step.price && <span className="text-warning-fg"> price=${stroopsToUsdc(step.price)}</span>}
+                  {step.tx_hash && <span className="text-success-fg"> tx={step.tx_hash.slice(0, 12)}...</span>}
+                  {step.settlement_time_ms && <span className="text-primary-fg"> {step.settlement_time_ms}ms</span>}
                   {step.data && <span className="text-text-primary"> {step.data}</span>}
-                  {step.error && <span className="text-error-400"> {step.error}</span>}
+                  {step.error && <span className="text-error-fg"> {step.error}</span>}
                 </div>
               </div>
             ))}

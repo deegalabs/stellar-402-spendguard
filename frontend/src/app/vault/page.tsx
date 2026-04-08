@@ -87,8 +87,8 @@ export default function VaultPage() {
       {message && (
         <div className={`flex items-center gap-2 p-3 rounded-lg text-sm animate-slide-up ${
           message.type === "ok"
-            ? "bg-success-glow text-success-400"
-            : "bg-error-glow text-error-400"
+            ? "bg-success-glow text-success-fg"
+            : "bg-error-glow text-error-fg"
         }`}>
           <span className={`w-2 h-2 rounded-full ${message.type === "ok" ? "bg-success-400" : "bg-error-500"}`} />
           {message.text}
@@ -180,7 +180,7 @@ export default function VaultPage() {
                   Remove
                 </button>
               </div>
-              <button className="text-xs text-accent-400 font-semibold mt-2 hover:underline">
+              <button className="text-xs text-accent-fg font-semibold mt-2 hover:underline">
                 + Add New Merchant Endpoint
               </button>
             </div>
@@ -189,8 +189,8 @@ export default function VaultPage() {
           {/* Emergency Kill Switch */}
           <div className="card border-2 border-error/30 bg-error-glow">
             <div className="flex items-center gap-2 mb-2">
-              <span className="material-symbols-outlined text-error-400 text-[20px]">warning</span>
-              <h3 className="font-bold text-error-400 uppercase text-sm tracking-wide">Emergency Kill Switch</h3>
+              <span className="material-symbols-outlined text-error-fg text-[20px]">warning</span>
+              <h3 className="font-bold text-error-fg uppercase text-sm tracking-wide">Emergency Kill Switch</h3>
             </div>
             <p className="text-xs text-text-muted mb-4">
               {status?.paused
@@ -308,7 +308,7 @@ export default function VaultPage() {
             <div>
               <p className="stat-label">Last Sync</p>
               <p className="text-sm font-bold text-text-primary mt-1 flex items-center gap-1">
-                <span className="material-symbols-outlined text-success-400 text-[16px]">sync</span>
+                <span className="material-symbols-outlined text-success-fg text-[16px]">sync</span>
                 2m ago
               </p>
             </div>
@@ -321,10 +321,10 @@ export default function VaultPage() {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
           <div className="bg-dark-100 rounded-xl p-6 max-w-md w-full mx-4 shadow-panel animate-slide-up">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-10 h-10 bg-error-500-container rounded-full flex items-center justify-center">
-                <span className="material-symbols-outlined text-error-400 text-[20px]">warning</span>
+              <div className="w-10 h-10 bg-error-glow rounded-full flex items-center justify-center">
+                <span className="material-symbols-outlined text-error-fg text-[20px]">warning</span>
               </div>
-              <h3 className="text-lg font-bold text-error-400">Confirm Emergency Pause</h3>
+              <h3 className="text-lg font-bold text-error-fg">Confirm Emergency Pause</h3>
             </div>
             <p className="text-sm text-text-muted mb-6">
               This will immediately block all new payment authorizations.

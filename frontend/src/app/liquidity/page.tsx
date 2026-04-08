@@ -96,7 +96,7 @@ export default function LiquidityPage() {
           <section className="card">
             <div className="flex items-center justify-between mb-6">
               <h4 className="font-semibold text-text-primary flex items-center gap-2">
-                <span className="material-symbols-outlined text-[20px] text-primary-400">bolt</span>
+                <span className="material-symbols-outlined text-[20px] text-primary-fg">bolt</span>
                 Initialize Bridge
               </h4>
               <span className="badge-info">SECURE PCI-DSS</span>
@@ -116,8 +116,8 @@ export default function LiquidityPage() {
                 >
                   <span className={`text-[10px] font-bold uppercase ${
                     amount === String(tier.amount)
-                      ? "text-accent-400"
-                      : "text-text-muted group-hover:text-accent-400"
+                      ? "text-accent-fg"
+                      : "text-text-muted group-hover:text-accent-fg"
                   }`}>
                     {tier.label}
                   </span>
@@ -156,8 +156,8 @@ export default function LiquidityPage() {
             {result && (
               <div className={`mt-4 flex items-center gap-2 p-3 rounded-lg text-sm animate-slide-up ${
                 result.ok
-                  ? "bg-success-glow text-success-400"
-                  : "bg-error-glow text-error-400"
+                  ? "bg-success-glow text-success-fg"
+                  : "bg-error-glow text-error-fg"
               }`}>
                 <span className={`w-2 h-2 rounded-full ${result.ok ? "bg-success-400" : "bg-error-500"}`} />
                 {result.text}
@@ -205,7 +205,7 @@ export default function LiquidityPage() {
                   className="sr-only peer"
                 />
                 <div className="w-11 h-6 bg-dark-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-dark-100 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-500" />
-                <span className="ml-3 text-[10px] font-bold text-accent-400 uppercase">
+                <span className="ml-3 text-[10px] font-bold text-accent-fg uppercase">
                   {autoRefill ? "Active" : "Off"}
                 </span>
               </label>
@@ -253,7 +253,7 @@ export default function LiquidityPage() {
               {/* Info Box */}
               <div className="bg-accent-400/5 border-l-4 border-accent-400 p-4 rounded-r-lg">
                 <div className="flex gap-3">
-                  <span className="material-symbols-outlined text-accent-400 text-sm">info</span>
+                  <span className="material-symbols-outlined text-accent-fg text-sm">info</span>
                   <div className="space-y-1">
                     <h5 className="text-xs font-bold text-text-primary">Operational Gas Warning</h5>
                     <p className="text-[11px] text-text-muted leading-relaxed">
@@ -263,7 +263,7 @@ export default function LiquidityPage() {
                 </div>
               </div>
 
-              <button className="w-full py-3 border-2 border-accent-400 text-accent-400 font-bold rounded-lg hover:bg-accent-400 hover:text-white transition-all text-sm">
+              <button className="w-full py-3 border-2 border-accent-400 text-accent-fg font-bold rounded-lg hover:bg-accent-400 hover:text-white transition-all text-sm">
                 Update Refill Parameters
               </button>
             </div>
@@ -273,7 +273,7 @@ export default function LiquidityPage() {
           <section className="card flex items-center justify-between cursor-pointer hover:border-primary-500/30 transition-all">
             <div className="flex items-center gap-4">
               <div className="p-2 bg-primary-glow rounded-lg">
-                <span className="material-symbols-outlined text-primary-400">analytics</span>
+                <span className="material-symbols-outlined text-primary-fg">analytics</span>
               </div>
               <div>
                 <h4 className="text-sm font-bold text-text-primary">Predictive Liquidity Mode</h4>
@@ -290,15 +290,15 @@ export default function LiquidityPage() {
         <div className="flex flex-wrap gap-6 lg:gap-8">
           <div className="flex flex-col gap-1">
             <span className="font-bold text-text-disabled">Audit Trail ID</span>
-            <span className="text-primary-400 font-bold">SHA-256:7B92..41A</span>
+            <span className="text-primary-fg font-bold">SHA-256:7B92..41A</span>
           </div>
           <div className="flex flex-col gap-1">
             <span className="font-bold text-text-disabled">Agent Uptime</span>
-            <span className="text-success-400 font-bold">99.998%</span>
+            <span className="text-success-fg font-bold">99.998%</span>
           </div>
           <div className="flex flex-col gap-1">
             <span className="font-bold text-text-disabled">API Status</span>
-            <span className="text-primary-400 font-bold">V0.1 STABLE</span>
+            <span className="text-primary-fg font-bold">V0.1 STABLE</span>
           </div>
         </div>
         <div className="flex items-center gap-2">
