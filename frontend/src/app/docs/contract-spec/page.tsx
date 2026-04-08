@@ -84,7 +84,7 @@ export default function ContractSpecPage() {
   ];
 
   const callerColors: Record<string, string> = {
-    Owner: "bg-warning-50 text-warning-600",
+    Owner: "bg-warning-glow text-warning-fg",
     Agent: "bg-success-glow text-success-fg",
     Anyone: "bg-dark-200 text-text-secondary",
   };

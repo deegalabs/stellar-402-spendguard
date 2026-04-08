@@ -164,7 +164,7 @@ Agent: "Here's your forecast: Mon 25°C, Tue 23°C...
       <section>
         <h2 className="text-xl font-bold text-text-primary mb-4">Security</h2>
         <div className="bg-error-glow border border-error/20 rounded-xl p-4">
-          <p className="text-error-fg-fg text-sm">
+          <p className="text-error-fg text-sm">
             The MCP server only exposes agent-facing tools. Admin tools (set limits,
             pause, whitelist) are intentionally NOT available via MCP — the agent
             should never have admin access. Policy management is done through the

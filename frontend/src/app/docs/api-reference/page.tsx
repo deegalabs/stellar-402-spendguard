@@ -100,14 +100,14 @@ export default function APIReferencePage() {
 
   const tagColors: Record<string, string> = {
     Dashboard: "bg-success-glow text-success-fg",
-    Admin: "bg-warning-50 text-warning-600",
+    Admin: "bg-warning-glow text-warning-fg",
     Demo: "bg-accent-glow/30 text-accent-fg",
     System: "bg-dark-200 text-text-secondary",
   };
 
   const methodColors: Record<string, string> = {
     GET: "text-success-fg",
-    POST: "text-warning-600",
+    POST: "text-warning-fg",
   };
 
   return (

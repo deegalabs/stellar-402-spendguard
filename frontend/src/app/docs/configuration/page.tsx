@@ -30,7 +30,7 @@ export default function ConfigurationPage() {
       </div>
 
       <div className="bg-error-glow border border-error/20 rounded-xl p-4">
-        <p className="text-error-fg-fg text-sm">
+        <p className="text-error-fg text-sm">
           <strong>Security:</strong> Never commit secret keys (<code className="bg-surface-card/50 px-1 rounded text-xs">*_SECRET_KEY</code>)
           to the repository. Use <code className="bg-surface-card/50 px-1 rounded text-xs">.env</code> files which are gitignored.
         </p>
@@ -81,8 +81,8 @@ NEXT_PUBLIC_CONTRACT_ADDRESS=CCABMNFY3VKK7BI3YBWXJEE2EXX2NW5S573NASTCFXA6KBXR5PD
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...`}</code></pre>
 
-        <div className="bg-warning-50 border border-warning-300/30 rounded-xl p-4 mt-4">
-          <p className="text-warning-600 text-sm">
+        <div className="bg-warning-glow border border-warning-fg/20 rounded-xl p-4 mt-4">
+          <p className="text-warning-fg text-sm">
             <strong>Note:</strong> Stripe is optional. The core spending governance works without it — Stripe only powers the simulated USDC deposit flow.
           </p>
         </div>
