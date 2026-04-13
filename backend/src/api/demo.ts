@@ -14,6 +14,17 @@ const router = Router();
 const DEMO_PRICE = "1000000"; // 0.10 USDC in stroops
 const DEMO_MERCHANT = config.agentPublicKey; // for demo, agent pays to a known address
 
+// The demo is a single shared testnet contract — two visitors running
+// /run-agent at the same time would collide on `spent_today`, sequence
+// numbers, and each other's audit events. Serialize execution with a
+// module-scope flag so only one run is in flight at a time. Cleared in
+// a finally below, even on error, so a crashed run can't wedge the demo.
+let demoInFlight = false;
+// Hard cap on how long a run can hold the lock before we force-release.
+// Normal runs are ~15s; 60s is generous headroom for a slow RPC.
+const DEMO_LOCK_TIMEOUT_MS = 60_000;
+let demoLockAcquiredAt = 0;
+
 router.get("/protected-resource", (req, res) => {
   const proof = req.headers["x-payment-proof"] as string | undefined;
 
@@ -44,6 +55,25 @@ router.get("/protected-resource", (req, res) => {
 });
 
 router.post("/run-agent", async (req, res) => {
+  // If another run is in flight, reject fast with 429 so the frontend
+  // can show "another demo is running, try again in ~15s" instead of
+  // letting two concurrent runs stomp on the contract's shared state.
+  // The timeout guard covers the edge case where a previous run died
+  // without releasing the flag (e.g. node process hung on RPC).
+  const now = Date.now();
+  if (demoInFlight && now - demoLockAcquiredAt < DEMO_LOCK_TIMEOUT_MS) {
+    res.status(429).json({
+      success: false,
+      steps: [],
+      error:
+        "Another demo run is in progress on this shared testnet contract. Please wait ~15s and try again.",
+      code: "DEMO_BUSY",
+    });
+    return;
+  }
+  demoInFlight = true;
+  demoLockAcquiredAt = now;
+
   const targetUrl =
     (req.body.target_url as string) ||
     `http://localhost:${config.port}/api/demo/protected-resource`;
@@ -111,6 +141,8 @@ router.post("/run-agent", async (req, res) => {
       : "STELLAR_ERROR";
     steps.push({ step: "error", status: "failed", error: message });
     res.status(status).json({ success: false, steps, error: message, code });
+  } finally {
+    demoInFlight = false;
   }
 });
 
