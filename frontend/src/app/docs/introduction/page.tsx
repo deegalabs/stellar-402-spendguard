@@ -37,6 +37,52 @@ export default function IntroductionPage() {
         </div>
       </section>
 
+      {/* Demo deployment model disclosure */}
+      <section className="max-w-3xl">
+        <div className="bg-warning-glow border border-warning/30 rounded-xl p-6">
+          <div className="flex items-center gap-3 mb-3">
+            <span
+              translate="no"
+              aria-hidden="true"
+              className="material-symbols-outlined text-warning-fg text-[22px]"
+            >
+              public
+            </span>
+            <h2 className="text-lg font-bold text-warning-fg tracking-tight">
+              Demo deployment model
+            </h2>
+          </div>
+          <div className="text-sm text-text-secondary leading-relaxed space-y-3">
+            <p>
+              The hackathon instance you are currently looking at runs against a{" "}
+              <strong className="text-text-primary">single Soroban contract</strong>{" "}
+              deployed on Stellar testnet. Every visitor reads and writes the same
+              state — daily limit, per-transaction cap, paused flag, whitelisted
+              merchants, and{" "}
+              <span className="font-mono text-accent-fg">spent_today</span>. It is a
+              public shared sandbox, not a per-user product.
+            </p>
+            <p>
+              To make the demo click-to-run for judges, the backend holds{" "}
+              <span className="font-mono">OWNER_SECRET_KEY</span> and{" "}
+              <span className="font-mono">AGENT_SECRET_KEY</span> and signs admin and
+              agent transactions on behalf of the viewer. That is why the{" "}
+              <em>Pause</em> button works without requesting a Freighter signature —
+              it is a hackathon-scope shortcut, not the production auth model. In
+              production, each tenant deploys their own contract and admin actions
+              are signed by the owner&apos;s own wallet.
+            </p>
+            <p>
+              Two guards keep the shared sandbox usable under concurrent visitors:
+              the <span className="font-mono">/run-agent</span> endpoint serialises
+              execution with a 60-second mutex, and Chapter 1 of the live demo
+              normalises any leftover state (unpaused, $100 daily, $5 per-tx) before
+              the scenario runs.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Key Capabilities Grid (Bento Style) */}
       <section>
         <div className="flex items-center justify-between mb-8">
