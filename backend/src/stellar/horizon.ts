@@ -1,23 +1,30 @@
 import { config } from "../config.js";
+import { scValToNative } from "@stellar/stellar-sdk";
+import { getServer } from "./client.js";
 import type { TransactionEvent } from "../types.js";
 
-const HORIZON_BASE = config.horizonUrl;
+// Soroban contract events emit topics like ("SpendGuard", "<name>"). Map
+// the second-topic symbol to the public TransactionEvent.type string the
+// audit UI expects. Anything not listed here passes through under its
+// raw name so unknown events still show up rather than vanishing.
+const TOPIC_TO_TYPE: Record<string, string> = {
+  payment: "payment_authorized",
+  rejected: "payment_rejected",
+  topup: "treasury_topup",
+  pause: "emergency_pause",
+  unpause: "emergency_unpause",
+  limit: "limit_updated",
+  max_tx: "max_tx_updated",
+  whitelist: "merchant_whitelisted",
+  remove: "merchant_removed",
+  agent: "agent_updated",
+  reset: "daily_reset",
+};
 
-interface HorizonEffect {
-  id: string;
-  type: string;
-  created_at: string;
-  paging_token: string;
-}
-
-interface HorizonTransaction {
-  id: string;
-  hash: string;
-  created_at: string;
-  ledger_attr: number;
-  source_account: string;
-  successful: boolean;
-}
+// ~14h of testnet ledgers (5s block time). Sits inside the testnet
+// event-retention window so a fresh `startLedger` query rarely trips
+// the "before retention" RPC error.
+const LOOKBACK_LEDGERS = 10000;
 
 export async function getContractTransactions(
   limit: number = 50,
@@ -27,47 +34,93 @@ export async function getContractTransactions(
     return { transactions: [], cursor: "" };
   }
 
-  const params = new URLSearchParams({
-    limit: String(limit),
-    order: "desc",
-  });
+  const server = getServer();
+  const filters = [
+    { type: "contract" as const, contractIds: [config.contractAddress] },
+  ];
+
+  // Soroban RPC's getEvents takes EITHER startLedger OR cursor — never
+  // both. Without a cursor we anchor to (latest - LOOKBACK_LEDGERS); the
+  // SDK enforces this exclusivity at the type level.
+  let request: Parameters<typeof server.getEvents>[0];
   if (cursor) {
-    params.set("cursor", cursor);
+    request = { filters, cursor, limit };
+  } else {
+    const latest = await server.getLatestLedger();
+    const startLedger = Math.max(latest.sequence - LOOKBACK_LEDGERS, 2);
+    request = { filters, startLedger, limit };
   }
 
-  const url = `${HORIZON_BASE}/accounts/${config.contractAddress}/transactions?${params}`;
-
+  let response;
   try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      return { transactions: [], cursor: "" };
+    response = await server.getEvents(request);
+  } catch (err) {
+    // Old code swallowed every error into an empty array, which is why
+    // the production audit log silently showed "0 transactions" instead
+    // of surfacing the underlying RPC failure. Log + rethrow so the
+    // dashboard route can return a proper 502 and the UI shows an error.
+    console.error("[horizon] getEvents failed:", err);
+    throw err;
+  }
+
+  const events: TransactionEvent[] = response.events.map((ev) => {
+    const topics = ev.topic.map((t) => {
+      try {
+        return scValToNative(t);
+      } catch {
+        return null;
+      }
+    });
+    const eventName =
+      typeof topics[1] === "string" ? (topics[1] as string) : "unknown";
+    const type = TOPIC_TO_TYPE[eventName] ?? eventName;
+
+    let merchant = "";
+    let amount = "0";
+    let spent_today = "0";
+    let status: "settled" | "blocked" | "pending" = "settled";
+
+    try {
+      const value = scValToNative(ev.value);
+      if (eventName === "payment" && Array.isArray(value)) {
+        merchant = String(value[0] ?? "");
+        amount = String(value[1] ?? "0");
+        spent_today = String(value[2] ?? "0");
+        status = "settled";
+      } else if (eventName === "rejected" && Array.isArray(value)) {
+        merchant = String(value[0] ?? "");
+        amount = String(value[1] ?? "0");
+        status = "blocked";
+      } else if (eventName === "topup" && Array.isArray(value)) {
+        amount = String(value[1] ?? "0");
+      } else if (
+        (eventName === "limit" || eventName === "max_tx") &&
+        (typeof value === "bigint" || typeof value === "number")
+      ) {
+        amount = String(value);
+      }
+    } catch {
+      /* leave defaults — unknown event shapes shouldn't drop the row */
     }
 
-    const data = await response.json();
-    const records = data._embedded?.records ?? [];
+    return {
+      id: ev.id,
+      type,
+      timestamp: ev.ledgerClosedAt,
+      merchant,
+      amount,
+      spent_today,
+      tx_hash: ev.txHash,
+      ledger: ev.ledger,
+      status,
+      stellar_expert_url: `https://stellar.expert/explorer/testnet/tx/${ev.txHash}`,
+    };
+  });
 
-    const transactions: TransactionEvent[] = records.map(
-      (tx: HorizonTransaction) => ({
-        id: tx.id,
-        type: tx.successful ? "payment_authorized" : "payment_rejected",
-        timestamp: tx.created_at,
-        merchant: "",
-        amount: "0",
-        spent_today: "0",
-        tx_hash: tx.hash,
-        ledger: tx.ledger_attr,
-        status: tx.successful ? ("settled" as const) : ("blocked" as const),
-        stellar_expert_url: `https://stellar.expert/explorer/testnet/tx/${tx.hash}`,
-      })
-    );
+  // RPC returns events oldest-first; the audit UI expects newest-first.
+  events.reverse();
 
-    const lastToken =
-      records.length > 0 ? records[records.length - 1].paging_token : "";
-
-    return { transactions, cursor: lastToken };
-  } catch {
-    return { transactions: [], cursor: "" };
-  }
+  return { transactions: events, cursor: response.cursor };
 }
 
 export async function getContractBalance(): Promise<{
