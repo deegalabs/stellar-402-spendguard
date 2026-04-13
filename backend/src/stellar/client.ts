@@ -63,6 +63,33 @@ export function getContract(): Contract {
 }
 
 /**
+ * Mirrors the Error enum in contracts/budget-guard/src/error.rs.
+ * Turns a raw contract error code into a human-readable name so
+ * reverts surface as named guardrail outcomes ("ExceedsMaxTx")
+ * instead of opaque codes ("Error #6"). Kept in sync manually with
+ * the Rust enum — if you add a variant there, add it here too.
+ */
+const CONTRACT_ERROR_NAMES: Record<number, string> = {
+  1: "AlreadyInitialized",
+  2: "NotInitialized",
+  3: "Unauthorized",
+  4: "ContractPaused",
+  5: "ExceedsDailyLimit",
+  6: "ExceedsMaxTx",
+  7: "MerchantNotWhitelisted",
+  8: "InvalidAmount",
+  9: "InsufficientBalance",
+  10: "ArithmeticOverflow",
+  11: "AlreadyPaused",
+  12: "NotPaused",
+  13: "MerchantAlreadyWhitelisted",
+};
+
+export function namedContractError(code: number): string {
+  return CONTRACT_ERROR_NAMES[code] ?? "ContractError";
+}
+
+/**
  * Walk an ScVal looking for a contract error code. The RPC puts
  * failed-contract-call errors in diagnostic events as an `ScError`
  * of type `sceContract`, sometimes wrapped inside a vec/map.
@@ -144,8 +171,12 @@ export async function submitTransaction(
     const raw = err instanceof Error ? err.message : String(err);
     const match = raw.match(/Error\(Contract,\s*#(\d+)\)/);
     if (match) {
+      const code = Number(match[1]);
+      const name = namedContractError(code);
+      // Keep the literal "Error(Contract, #N)" substring — the admin
+      // API error mapper parses it out to decide HTTP status codes.
       throw new Error(
-        `Transaction reverted on-chain at simulation. Error(Contract, #${match[1]})`
+        `${name}: reverted on-chain at simulation. Error(Contract, #${code})`
       );
     }
     throw err;
@@ -181,11 +212,13 @@ export async function submitTransaction(
     // The tx was accepted by the mempool but reverted on-chain. The
     // old code returned the hash here anyway, so callers happily
     // reported success for a reverted tx. Throw instead, and include
-    // the contract error code so the HTTP layer can name it.
+    // the contract error code so the HTTP layer can name it. Keep
+    // the "Error(Contract, #N)" substring for admin.ts's regex.
     const code = extractContractError(result.diagnosticEventsXdr);
+    const name = code !== null ? namedContractError(code) : "ContractError";
     const suffix = code !== null ? ` Error(Contract, #${code})` : "";
     throw new Error(
-      `Transaction ${response.hash} reverted on-chain (status=${result.status}).${suffix}`
+      `${name}: tx ${response.hash} reverted on-chain (status=${result.status}).${suffix}`
     );
   }
 
