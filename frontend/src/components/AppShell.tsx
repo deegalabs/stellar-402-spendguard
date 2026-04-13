@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import Footer from "./Footer";
+import SharedDemoBanner from "./SharedDemoBanner";
 import { useContractStatus } from "@/hooks/useContractStatus";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
@@ -25,7 +26,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const isDemo = pathname === "/demo";
 
   return (
-    <div className="flex h-screen overflow-hidden bg-dark">
+    <div className="flex flex-col h-screen overflow-hidden bg-dark">
+      <SharedDemoBanner />
+      <div className="flex flex-1 min-h-0">
       <Sidebar mobileOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
       <div className="flex-1 flex flex-col min-w-0">
         <Header
@@ -40,6 +43,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </main>
         )}
         {!isDemo && <Footer />}
+      </div>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import { useContractStatus } from "@/hooks/useContractStatus";
 import { stroopsToUsdc, shortAddress } from "@/lib/format";
 import SpendGuardLogo from "@/components/SpendGuardLogo";
 import ThemeToggle from "@/components/ThemeToggle";
+import SharedDemoBanner from "@/components/SharedDemoBanner";
 
 const FEATURES = [
   {
@@ -49,6 +50,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-dark text-text-primary flex flex-col">
+      <SharedDemoBanner />
       {/* Top Nav */}
       <header className="border-b border-surface-border bg-dark-50/60 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 lg:px-8 h-14 flex items-center justify-between">
