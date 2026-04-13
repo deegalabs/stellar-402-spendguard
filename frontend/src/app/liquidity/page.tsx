@@ -126,7 +126,7 @@ export default function LiquidityPage() {
           <section className="card">
             <div className="flex items-center justify-between mb-6">
               <h4 className="font-semibold text-text-primary flex items-center gap-2">
-                <span className="material-symbols-outlined text-[20px] text-primary-fg">bolt</span>
+                <span translate="no" className="material-symbols-outlined text-[20px] text-primary-fg">bolt</span>
                 Fund Vault
               </h4>
               <span className="badge-info">TESTNET</span>
@@ -179,7 +179,7 @@ export default function LiquidityPage() {
               disabled={busy || !amount || Number(amount) <= 0}
               className="btn-primary w-full justify-center py-4 text-base"
             >
-              <span className="material-symbols-outlined text-lg">bolt</span>
+              <span translate="no" className="material-symbols-outlined text-lg">bolt</span>
               {busy ? "Broadcasting..." : "Simulate Deposit"}
             </button>
 
@@ -250,7 +250,7 @@ export default function LiquidityPage() {
           {/* Info Box */}
           <div className="bg-accent-400/5 border-l-4 border-accent-400 p-4 rounded-r-lg">
             <div className="flex gap-3">
-              <span className="material-symbols-outlined text-accent-fg text-sm">info</span>
+              <span translate="no" className="material-symbols-outlined text-accent-fg text-sm">info</span>
               <div className="space-y-1">
                 <h5 className="text-xs font-bold text-text-primary">Operational Gas Note</h5>
                 <p className="text-[11px] text-text-muted leading-relaxed">

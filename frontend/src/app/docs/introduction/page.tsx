@@ -6,7 +6,7 @@ export default function IntroductionPage() {
       {/* Breadcrumbs */}
       <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-text-disabled">
         <span>Docs</span>
-        <span className="material-symbols-outlined text-xs">chevron_right</span>
+        <span translate="no" className="material-symbols-outlined text-xs">chevron_right</span>
         <span className="text-accent-fg font-bold">Introduction</span>
       </div>
 
@@ -50,7 +50,7 @@ export default function IntroductionPage() {
           <div className="md:col-span-2 lg:col-span-3 bg-surface-card p-8 rounded-xl shadow-card border border-surface-border flex flex-col justify-between group hover:border-accent-fg/40 transition-colors">
             <div>
               <div className="w-12 h-12 rounded-lg bg-accent-glow flex items-center justify-center mb-6 text-accent-fg">
-                <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                <span translate="no" className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
                   calendar_today
                 </span>
               </div>
@@ -68,7 +68,7 @@ export default function IntroductionPage() {
           <div className="md:col-span-1 lg:col-span-3 bg-primary-600 p-8 rounded-xl text-white shadow-xl flex flex-col justify-between">
             <div>
               <div className="w-12 h-12 rounded-lg bg-surface-card/10 flex items-center justify-center mb-6">
-                <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                <span translate="no" className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
                   payments
                 </span>
               </div>
@@ -86,7 +86,7 @@ export default function IntroductionPage() {
           <div className="md:col-span-1 lg:col-span-2 bg-surface-card p-8 rounded-xl shadow-card border border-surface-border flex flex-col justify-between">
             <div>
               <div className="w-10 h-10 rounded bg-success-glow flex items-center justify-center mb-6 text-text-secondary">
-                <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                <span translate="no" className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
                   verified_user
                 </span>
               </div>
@@ -101,7 +101,7 @@ export default function IntroductionPage() {
           <div className="md:col-span-1 lg:col-span-2 bg-surface-card p-8 rounded-xl shadow-card border border-surface-border flex flex-col justify-between">
             <div>
               <div className="w-10 h-10 rounded bg-error-glow flex items-center justify-center mb-6 text-error-fg">
-                <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                <span translate="no" className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
                   gpp_maybe
                 </span>
               </div>
@@ -116,7 +116,7 @@ export default function IntroductionPage() {
           <div className="md:col-span-1 lg:col-span-2 bg-surface-card p-8 rounded-xl shadow-card border border-surface-border flex flex-col justify-between">
             <div>
               <div className="w-10 h-10 rounded bg-dark-200 flex items-center justify-center mb-6 text-text-primary">
-                <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                <span translate="no" className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
                   list_alt
                 </span>
               </div>
@@ -152,7 +152,7 @@ export default function IntroductionPage() {
               <span className="text-[10px] font-mono text-text-muted uppercase tracking-widest">
                 Protocol implementation (x402)
               </span>
-              <span className="material-symbols-outlined text-sm text-text-disabled cursor-pointer hover:text-text-primary transition-colors">
+              <span translate="no" className="material-symbols-outlined text-sm text-text-disabled cursor-pointer hover:text-text-primary transition-colors">
                 content_copy
               </span>
             </div>
@@ -187,7 +187,7 @@ export default function IntroductionPage() {
           </ul>
           <div className="mt-8 pt-8 border-t border-surface-border">
             <div className="rounded-lg w-full h-32 bg-gradient-to-br from-primary-600 to-primary flex items-center justify-center">
-              <span className="material-symbols-outlined text-white/40 text-[64px]">hub</span>
+              <span translate="no" className="material-symbols-outlined text-white/40 text-[64px]">hub</span>
             </div>
           </div>
         </div>

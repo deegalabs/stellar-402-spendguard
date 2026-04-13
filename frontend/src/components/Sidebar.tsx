@@ -60,6 +60,7 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
               }`}
             >
               <span
+                translate="no"
                 className={`material-symbols-outlined text-[20px] ${active ? "text-primary-fg" : ""}`}
                 style={active ? { fontVariationSettings: "'FILL' 1" } : undefined}
               >
@@ -81,12 +82,12 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
             className="flex items-center gap-3 text-text-muted hover:text-text-primary px-1 py-1 text-[11px] font-mono transition-colors"
             title={contractAddress}
           >
-            <span className="material-symbols-outlined text-[16px]">account_tree</span>
+            <span translate="no" className="material-symbols-outlined text-[16px]">account_tree</span>
             <span>{shortAddress(contractAddress)}</span>
           </a>
         ) : (
           <div className="flex items-center gap-3 text-text-muted px-1 py-1 text-[11px] font-mono">
-            <span className="material-symbols-outlined text-[16px]">account_tree</span>
+            <span translate="no" className="material-symbols-outlined text-[16px]">account_tree</span>
             <span>—</span>
           </div>
         )}
@@ -120,7 +121,7 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
               onClick={onClose}
               className="absolute top-4 right-4 text-text-muted hover:text-text-primary p-1"
             >
-              <span className="material-symbols-outlined text-[20px]">close</span>
+              <span translate="no" className="material-symbols-outlined text-[20px]">close</span>
             </button>
             {content}
           </aside>

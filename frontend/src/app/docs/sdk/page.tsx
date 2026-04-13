@@ -5,7 +5,7 @@ export default function SDKPage() {
     <div className="flex flex-col gap-8 max-w-3xl">
       <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-text-disabled">
         <span>Docs</span>
-        <span className="material-symbols-outlined text-xs">chevron_right</span>
+        <span translate="no" className="material-symbols-outlined text-xs">chevron_right</span>
         <span className="text-accent-fg font-bold">TypeScript SDK</span>
       </div>
 

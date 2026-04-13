@@ -49,7 +49,7 @@ function StatCard({
         <p className="stat-label">{label}</p>
         {icon && (
           <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${alert ? "bg-error-glow" : "bg-primary-glow"}`}>
-            <span className={`material-symbols-outlined text-[18px] ${alert ? "text-error-fg" : "text-primary-fg"}`}>{icon}</span>
+            <span translate="no" className={`material-symbols-outlined text-[18px] ${alert ? "text-error-fg" : "text-primary-fg"}`}>{icon}</span>
           </div>
         )}
       </div>
@@ -221,7 +221,7 @@ export default function DashboardPage() {
         <div className="lg:col-span-2 card">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-text-primary flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary-fg text-[18px]">monitoring</span>
+              <span translate="no" className="material-symbols-outlined text-primary-fg text-[18px]">monitoring</span>
               Live Payment Feed
             </h3>
             <div className="hidden sm:flex items-center gap-3 text-xs text-text-muted">
@@ -365,17 +365,17 @@ export default function DashboardPage() {
       {/* Quick Actions */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <Link href="/vault" className="card-hover flex items-center gap-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white border-0">
-          <span className="material-symbols-outlined text-[20px]">tune</span>
+          <span translate="no" className="material-symbols-outlined text-[20px]">tune</span>
           <span className="text-sm font-semibold">Adjust Daily Limit</span>
         </Link>
 
         <Link href="/vault" className="card-hover flex items-center gap-3">
-          <span className="material-symbols-outlined text-[20px] text-text-muted">person_add</span>
+          <span translate="no" className="material-symbols-outlined text-[20px] text-text-muted">person_add</span>
           <span className="text-sm font-semibold text-text-primary">Add Merchant</span>
         </Link>
 
         <Link href="/vault" className="card-hover flex items-center gap-3 border-error/30">
-          <span className="material-symbols-outlined text-[20px] text-error-fg">warning</span>
+          <span translate="no" className="material-symbols-outlined text-[20px] text-error-fg">warning</span>
           <span className="text-sm font-semibold text-error-fg">Emergency Pause</span>
         </Link>
 

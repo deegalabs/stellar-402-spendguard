@@ -93,7 +93,7 @@ export default function Home() {
             </p>
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <Link href="/demo" className="btn-primary">
-                <span className="material-symbols-outlined text-[18px]">play_arrow</span>
+                <span translate="no" className="material-symbols-outlined text-[18px]">play_arrow</span>
                 See Live Demo
               </Link>
               <Link href="/dashboard" className="btn-secondary">
@@ -178,7 +178,7 @@ export default function Home() {
           {FEATURES.map((f) => (
             <div key={f.title} className="card hover:border-primary-500/30 transition-colors">
               <div className="w-10 h-10 rounded-lg bg-primary-glow flex items-center justify-center mb-4">
-                <span className="material-symbols-outlined text-primary-fg text-[20px]">
+                <span translate="no" className="material-symbols-outlined text-primary-fg text-[20px]">
                   {f.icon}
                 </span>
               </div>
@@ -225,7 +225,7 @@ export default function Home() {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Link href="/demo" className="btn-primary">
-              <span className="material-symbols-outlined text-[18px]">play_arrow</span>
+              <span translate="no" className="material-symbols-outlined text-[18px]">play_arrow</span>
               Run the Demo
             </Link>
             <Link href="/dashboard" className="btn-secondary">

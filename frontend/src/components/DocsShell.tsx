@@ -28,7 +28,7 @@ export default function DocsShell({ children }: { children: React.ReactNode }) {
             className="lg:hidden text-text-muted hover:text-text-primary p-1 -ml-1 shrink-0"
             aria-label="Open documentation navigation"
           >
-            <span className="material-symbols-outlined text-[24px]">menu</span>
+            <span translate="no" className="material-symbols-outlined text-[24px]">menu</span>
           </button>
 
           <Link href="/" className="flex items-center gap-2 sm:gap-3 group min-w-0">
@@ -73,14 +73,14 @@ export default function DocsShell({ children }: { children: React.ReactNode }) {
             </span>
           </div>
           <ThemeToggle />
-          <button className="hidden sm:inline-flex material-symbols-outlined text-text-muted hover:text-text-primary text-[20px] p-2 rounded-lg hover:bg-surface-bright transition-colors">
+          <button translate="no" className="hidden sm:inline-flex material-symbols-outlined text-text-muted hover:text-text-primary text-[20px] p-2 rounded-lg hover:bg-surface-bright transition-colors">
             help
           </button>
-          <button className="hidden sm:inline-flex material-symbols-outlined text-text-muted hover:text-text-primary text-[20px] p-2 rounded-lg hover:bg-surface-bright transition-colors">
+          <button translate="no" className="hidden sm:inline-flex material-symbols-outlined text-text-muted hover:text-text-primary text-[20px] p-2 rounded-lg hover:bg-surface-bright transition-colors">
             notifications
           </button>
           <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 overflow-hidden ml-1 flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-white text-[16px]">person</span>
+            <span translate="no" className="material-symbols-outlined text-white text-[16px]">person</span>
           </div>
         </div>
       </header>

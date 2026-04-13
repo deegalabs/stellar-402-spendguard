@@ -128,7 +128,7 @@ export default function VaultPage() {
           <div className="card">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                <span className="material-symbols-outlined text-white text-[20px]">smart_toy</span>
+                <span translate="no" className="material-symbols-outlined text-white text-[20px]">smart_toy</span>
               </div>
               <div>
                 <div className="flex items-center gap-2">
@@ -158,7 +158,7 @@ export default function VaultPage() {
           {/* Security Guardrails */}
           <div className="card">
             <h3 className="font-semibold text-text-primary mb-4 flex items-center gap-2">
-              <span className="material-symbols-outlined text-[20px]">verified_user</span>
+              <span translate="no" className="material-symbols-outlined text-[20px]">verified_user</span>
               Security Guardrails
             </h3>
 
@@ -233,7 +233,7 @@ export default function VaultPage() {
           {/* Emergency Kill Switch */}
           <div className="card border-2 border-error/30 bg-error-glow">
             <div className="flex items-center gap-2 mb-2">
-              <span className="material-symbols-outlined text-error-fg text-[20px]">warning</span>
+              <span translate="no" className="material-symbols-outlined text-error-fg text-[20px]">warning</span>
               <h3 className="font-bold text-error-fg uppercase text-sm tracking-wide">Emergency Kill Switch</h3>
             </div>
             <p className="text-xs text-text-muted mb-4">
@@ -264,7 +264,7 @@ export default function VaultPage() {
         {/* Right: Budget Control Panel */}
         <div className="lg:col-span-3 card">
           <h3 className="font-semibold text-text-primary mb-6 flex items-center gap-2">
-            <span className="material-symbols-outlined text-[20px]">account_balance</span>
+            <span translate="no" className="material-symbols-outlined text-[20px]">account_balance</span>
             Budget Control Panel
           </h3>
 
@@ -357,14 +357,14 @@ export default function VaultPage() {
             <div>
               <p className="stat-label">Network</p>
               <p className="text-sm font-bold text-text-primary mt-1 flex items-center gap-1 uppercase font-mono">
-                <span className="material-symbols-outlined text-text-muted text-[16px]">lan</span>
+                <span translate="no" className="material-symbols-outlined text-text-muted text-[16px]">lan</span>
                 Stellar {status?.network ?? "—"}
               </p>
             </div>
             <div>
               <p className="stat-label">Last Sync</p>
               <p className="text-sm font-bold text-text-primary mt-1 flex items-center gap-1">
-                <span className="material-symbols-outlined text-success-fg text-[16px]">sync</span>
+                <span translate="no" className="material-symbols-outlined text-success-fg text-[16px]">sync</span>
                 {lastSyncAt ? relativeTime(lastSyncAt) : "—"}
               </p>
             </div>
@@ -378,7 +378,7 @@ export default function VaultPage() {
           <div className="bg-dark-100 rounded-xl p-6 max-w-md w-full mx-4 shadow-panel animate-slide-up">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-10 h-10 bg-error-glow rounded-full flex items-center justify-center">
-                <span className="material-symbols-outlined text-error-fg text-[20px]">warning</span>
+                <span translate="no" className="material-symbols-outlined text-error-fg text-[20px]">warning</span>
               </div>
               <h3 className="text-lg font-bold text-error-fg">Confirm Emergency Pause</h3>
             </div>

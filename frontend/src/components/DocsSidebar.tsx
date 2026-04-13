@@ -83,7 +83,7 @@ export default function DocsSidebar({ mobileOpen, onClose }: DocsSidebarProps) {
                         : "text-text-secondary hover:bg-dark-200"
                     }`}
                   >
-                    <span className="material-symbols-outlined text-sm">
+                    <span translate="no" className="material-symbols-outlined text-sm">
                       {item.icon}
                     </span>
                     <span>{item.label}</span>
@@ -102,7 +102,7 @@ export default function DocsSidebar({ mobileOpen, onClose }: DocsSidebarProps) {
           rel="noopener noreferrer"
           className="flex items-center gap-3 px-4 py-2 text-text-secondary font-mono text-[10px] uppercase tracking-widest hover:text-text-primary transition-colors"
         >
-          <span className="material-symbols-outlined text-sm">code</span>
+          <span translate="no" className="material-symbols-outlined text-sm">code</span>
           <span>GitHub</span>
         </a>
         <a
@@ -111,7 +111,7 @@ export default function DocsSidebar({ mobileOpen, onClose }: DocsSidebarProps) {
           rel="noopener noreferrer"
           className="flex items-center gap-3 px-4 py-2 text-text-secondary font-mono text-[10px] uppercase tracking-widest hover:text-text-primary transition-colors"
         >
-          <span className="material-symbols-outlined text-sm">open_in_new</span>
+          <span translate="no" className="material-symbols-outlined text-sm">open_in_new</span>
           <span>Live Contract</span>
         </a>
       </div>
@@ -138,7 +138,7 @@ export default function DocsSidebar({ mobileOpen, onClose }: DocsSidebarProps) {
               className="absolute top-4 right-4 text-text-muted hover:text-text-primary p-1"
               aria-label="Close navigation"
             >
-              <span className="material-symbols-outlined text-[20px]">close</span>
+              <span translate="no" className="material-symbols-outlined text-[20px]">close</span>
             </button>
             {content}
           </aside>

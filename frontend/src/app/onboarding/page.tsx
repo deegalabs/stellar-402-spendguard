@@ -10,6 +10,7 @@ export default function OnboardingPage() {
         <div className="relative mb-8">
           <div className="w-[120px] h-[120px] lg:w-[140px] lg:h-[140px] bg-gradient-to-br from-primary-500/20 to-accent-500/20 rounded-2xl flex items-center justify-center border border-primary/20 shadow-glow-primary">
             <span
+              translate="no"
               className="material-symbols-outlined text-[56px] lg:text-[64px] text-primary-fg"
               style={{ fontVariationSettings: "'FILL' 1" }}
             >
@@ -31,7 +32,7 @@ export default function OnboardingPage() {
 
         <div className="flex flex-col sm:flex-row items-center gap-3 mb-16">
           <Link href="/liquidity" className="btn-primary">
-            <span className="material-symbols-outlined text-[18px]">bolt</span>
+            <span translate="no" className="material-symbols-outlined text-[18px]">bolt</span>
             Top Up with Stripe
           </Link>
           <Link href="/docs" className="btn-secondary">
@@ -42,7 +43,7 @@ export default function OnboardingPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full text-left">
           <div className="card flex gap-4">
             <div className="shrink-0 w-10 h-10 bg-primary-glow flex items-center justify-center rounded-lg">
-              <span className="material-symbols-outlined text-primary-fg text-[20px]">verified_user</span>
+              <span translate="no" className="material-symbols-outlined text-primary-fg text-[20px]">verified_user</span>
             </div>
             <div>
               <h3 className="text-text-primary font-bold text-[14px] uppercase tracking-wide mb-1">Soroban Protection</h3>
@@ -54,7 +55,7 @@ export default function OnboardingPage() {
 
           <div className="card flex gap-4">
             <div className="shrink-0 w-10 h-10 bg-accent-glow flex items-center justify-center rounded-lg">
-              <span className="material-symbols-outlined text-accent-fg text-[20px]">account_balance</span>
+              <span translate="no" className="material-symbols-outlined text-accent-fg text-[20px]">account_balance</span>
             </div>
             <div>
               <h3 className="text-text-primary font-bold text-[14px] uppercase tracking-wide mb-1">x402 Protocol</h3>

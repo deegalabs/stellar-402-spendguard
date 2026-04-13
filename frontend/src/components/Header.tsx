@@ -31,7 +31,7 @@ export default function Header({ paused, onMenuClick }: HeaderProps) {
           onClick={onMenuClick}
           className="lg:hidden text-text-muted hover:text-text-primary p-1.5 rounded-lg hover:bg-surface-bright transition-colors"
         >
-          <span className="material-symbols-outlined text-[22px]">menu</span>
+          <span translate="no" className="material-symbols-outlined text-[22px]">menu</span>
         </button>
 
         {/* Brand — only shown when the sidebar is NOT visible (below lg).
@@ -52,7 +52,7 @@ export default function Header({ paused, onMenuClick }: HeaderProps) {
 
         {isDemo && (
           <div className="flex items-center gap-1.5 bg-accent-glow border border-accent/30 text-accent-fg text-[10px] font-bold px-3 py-1 rounded-full">
-            <span className="material-symbols-outlined text-[12px]">play_circle</span>
+            <span translate="no" className="material-symbols-outlined text-[12px]">play_circle</span>
             LIVE DEMO
           </div>
         )}
@@ -64,7 +64,7 @@ export default function Header({ paused, onMenuClick }: HeaderProps) {
         <ThemeToggle />
 
         {/* Notification bell */}
-        <button className="material-symbols-outlined text-text-muted hover:text-text-primary text-[20px] p-2 rounded-lg hover:bg-surface-bright transition-colors">
+        <button translate="no" className="material-symbols-outlined text-text-muted hover:text-text-primary text-[20px] p-2 rounded-lg hover:bg-surface-bright transition-colors">
           notifications
         </button>
 
@@ -79,7 +79,7 @@ export default function Header({ paused, onMenuClick }: HeaderProps) {
               <span className="text-[9px] font-bold text-accent-fg uppercase">Demo</span>
             )}
             <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center ml-1">
-              <span className="material-symbols-outlined text-white text-[14px]">
+              <span translate="no" className="material-symbols-outlined text-white text-[14px]">
                 {isDemo ? "smart_toy" : "person"}
               </span>
             </div>

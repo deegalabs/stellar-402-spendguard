@@ -232,7 +232,7 @@ export default function ArchitecturePage() {
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-text-disabled">
         <span>Docs</span>
-        <span className="material-symbols-outlined text-xs">chevron_right</span>
+        <span translate="no" className="material-symbols-outlined text-xs">chevron_right</span>
         <span className="text-accent-fg font-bold">Architecture</span>
       </div>
 
@@ -399,7 +399,7 @@ export default function ArchitecturePage() {
         <div className="space-y-10">
           <div>
             <h3 className="text-base font-bold text-accent-fg mb-3 flex items-center gap-2">
-              <span className="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+              <span translate="no" className="material-symbols-outlined text-[18px]">admin_panel_settings</span>
               Owner Use Cases
             </h3>
             <p className="text-sm text-text-muted mb-3">
@@ -411,7 +411,7 @@ export default function ArchitecturePage() {
 
           <div>
             <h3 className="text-base font-bold text-accent-fg mb-3 flex items-center gap-2">
-              <span className="material-symbols-outlined text-[18px]">smart_toy</span>
+              <span translate="no" className="material-symbols-outlined text-[18px]">smart_toy</span>
               Agent Use Cases
             </h3>
             <p className="text-sm text-text-muted mb-3">
@@ -423,7 +423,7 @@ export default function ArchitecturePage() {
 
           <div>
             <h3 className="text-base font-bold text-accent-fg mb-3 flex items-center gap-2">
-              <span className="material-symbols-outlined text-[18px]">hub</span>
+              <span translate="no" className="material-symbols-outlined text-[18px]">hub</span>
               MCP Agent Use Cases
             </h3>
             <p className="text-sm text-text-muted mb-3">

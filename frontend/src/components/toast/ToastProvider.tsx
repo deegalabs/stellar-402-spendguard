@@ -234,6 +234,7 @@ function ToastViewport({
             className={`pointer-events-auto animate-slide-up backdrop-blur-xl border ${s.bg} ${s.border} rounded-xl p-3 pr-2 shadow-panel flex items-start gap-3`}
           >
             <span
+              translate="no"
               aria-hidden="true"
               className={`material-symbols-outlined text-[20px] shrink-0 mt-0.5 ${s.fg}`}
             >
@@ -256,6 +257,7 @@ function ToastViewport({
               aria-label="Dismiss notification"
             >
               <span
+                translate="no"
                 aria-hidden="true"
                 className="material-symbols-outlined text-[16px]"
               >

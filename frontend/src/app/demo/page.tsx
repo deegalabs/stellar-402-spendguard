@@ -705,9 +705,9 @@ export default function DemoPage() {
                       }`}
                     >
                       {st === "done" ? (
-                        <span className="material-symbols-outlined text-[14px]">check</span>
+                        <span translate="no" className="material-symbols-outlined text-[14px]">check</span>
                       ) : st === "failed" ? (
-                        <span className="material-symbols-outlined text-[14px]">close</span>
+                        <span translate="no" className="material-symbols-outlined text-[14px]">close</span>
                       ) : (
                         i + 1
                       )}
@@ -772,7 +772,7 @@ export default function DemoPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-dark-200 rounded-xl flex items-center justify-center">
-                  <span className="material-symbols-outlined text-primary-fg text-[20px]">
+                  <span translate="no" className="material-symbols-outlined text-primary-fg text-[20px]">
                     {currentChapter?.icon ?? "play_circle"}
                   </span>
                 </div>
@@ -833,7 +833,7 @@ export default function DemoPage() {
             >
               {logs.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center px-4">
-                  <span className="material-symbols-outlined text-[40px] text-primary-fg mb-3">
+                  <span translate="no" className="material-symbols-outlined text-[40px] text-primary-fg mb-3">
                     smart_toy
                   </span>
                   <p className="text-base font-semibold text-text-primary mb-2 max-w-md">
@@ -920,7 +920,7 @@ export default function DemoPage() {
             <div className="text-xs text-text-muted min-w-0 flex-1">
               {allDone ? (
                 <span className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-success-fg text-[16px]">check_circle</span>
+                  <span translate="no" className="material-symbols-outlined text-success-fg text-[16px]">check_circle</span>
                   All chapters complete — every TX verifiable on
                   <a
                     href={`https://stellar.expert/explorer/testnet/contract/${DEMO_WALLETS.contract}`}
@@ -941,7 +941,7 @@ export default function DemoPage() {
                 </span>
               ) : anyFailed ? (
                 <span className="flex items-center gap-1.5 text-error-fg">
-                  <span className="material-symbols-outlined text-[16px]">error</span>
+                  <span translate="no" className="material-symbols-outlined text-[16px]">error</span>
                   Something went wrong — check the terminal and click Retry.
                 </span>
               ) : (

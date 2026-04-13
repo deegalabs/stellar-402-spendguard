@@ -68,11 +68,11 @@ export default function AuditLogPage() {
         </div>
         <div className="flex gap-2">
           <button className="btn-secondary text-xs py-2">
-            <span className="material-symbols-outlined text-[16px]">filter_list</span>
+            <span translate="no" className="material-symbols-outlined text-[16px]">filter_list</span>
             Filter
           </button>
           <button className="btn-secondary text-xs py-2">
-            <span className="material-symbols-outlined text-[16px]">download</span>
+            <span translate="no" className="material-symbols-outlined text-[16px]">download</span>
             Export
           </button>
         </div>

@@ -29,7 +29,7 @@ export default function ThemeToggle() {
       title={isDark ? "Switch to light mode" : "Switch to dark mode"}
       className="w-9 h-9 rounded-lg bg-surface-card border border-surface-border flex items-center justify-center text-text-muted hover:text-text-primary hover:border-primary/30 transition-all"
     >
-      <span className="material-symbols-outlined text-[18px]">
+      <span translate="no" className="material-symbols-outlined text-[18px]">
         {isDark ? "light_mode" : "dark_mode"}
       </span>
     </button>
