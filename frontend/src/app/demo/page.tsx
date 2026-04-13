@@ -150,6 +150,67 @@ export default function DemoPage() {
             ];
           },
         },
+        {
+          // This is the deployment model's "polyfill": every visitor
+          // shares one testnet contract, so the state they inherit
+          // depends on what the previous visitor did. CH4 lowers
+          // max_tx to $0.05, CH5 pauses the contract, and a crash
+          // between CH1 and CH6 can leave either of those stuck. We
+          // normalise back to (unpaused, $100 daily, $5 per-tx) here
+          // so the rest of the chapters start from a predictable
+          // baseline regardless of how the previous session ended.
+          id: "reset-state",
+          title: "Prepare Clean Slate",
+          action: async (log) => {
+            log({ icon: "info", text: "Normalising any state left by a previous visitor..." });
+            const { status: s } = await refreshStatus();
+
+            const targetDaily = String(usdcToStroops(100));
+            const targetMaxTx = String(usdcToStroops(5));
+            let healed = false;
+
+            if (s.paused) {
+              log({ icon: "wait", text: "Previous session left the contract paused — unpausing..." });
+              try {
+                const res = (await unpauseContract()) as { tx_hash: string };
+                log({ icon: "tx", text: `TX: ${res.tx_hash}`, link: EXPERT + res.tx_hash });
+                log({ icon: "ok", text: "Contract unpaused" });
+                healed = true;
+              } catch {
+                log({ icon: "info", text: "Unpause skipped (already unpaused or racy)" });
+              }
+            }
+
+            if (s.daily_limit !== targetDaily) {
+              log({ icon: "wait", text: "Restoring daily limit to $100.00..." });
+              try {
+                const res = (await setDailyLimit(usdcToStroops(100))) as { tx_hash: string };
+                log({ icon: "tx", text: `TX: ${res.tx_hash}`, link: EXPERT + res.tx_hash });
+                healed = true;
+              } catch { /* already at target */ }
+            }
+
+            if (s.max_tx_value !== targetMaxTx) {
+              log({ icon: "wait", text: "Restoring max per-tx to $5.00..." });
+              try {
+                const res = (await setMaxTx(usdcToStroops(5))) as { tx_hash: string };
+                log({ icon: "tx", text: `TX: ${res.tx_hash}`, link: EXPERT + res.tx_hash });
+                healed = true;
+              } catch { /* already at target */ }
+            }
+
+            if (healed) {
+              await refreshStatus();
+              log({ icon: "ok", text: "Contract normalised — starting from a clean baseline" });
+            } else {
+              log({ icon: "ok", text: "Contract already at baseline — no reset needed" });
+            }
+
+            return [
+              { chapter: 1, label: "State", value: healed ? "Normalised" : "Clean", type: "status" },
+            ];
+          },
+        },
       ],
     },
     {
